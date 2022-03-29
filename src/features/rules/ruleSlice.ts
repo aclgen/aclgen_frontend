@@ -1,17 +1,12 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import type { AppState, AppThunk } from "../../app/store";
+import { RuleElement } from "../../types/types";
 import { fetchRules } from "./ruleAPI";
 
 export interface RuleState {
-  rules: rule[];
+  rules: RuleElement[];
   status: "empty" | "idle" | "loading" | "failed";
-}
-
-export interface rule {
-  name: string;
-  source: string;
-  destination: string;
 }
 
 const initialState: RuleState = {
@@ -35,8 +30,11 @@ export const RuleSlice = createSlice({
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
-    update: (state, action: PayloadAction<rule[]>) => {
-      state.rules = action.payload;
+    updateRules: (
+      state,
+      action: PayloadAction<(previousCards: RuleElement) => RuleElement[]>
+    ) => {
+      state.rules = action.payload(state.rules);
     },
   },
   // The `extraReducers` field lets the slice handle actions defined elsewhere,
@@ -57,7 +55,7 @@ export const RuleSlice = createSlice({
   },
 });
 
-export const { update } = RuleSlice.actions;
+export const { updateRules } = RuleSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of

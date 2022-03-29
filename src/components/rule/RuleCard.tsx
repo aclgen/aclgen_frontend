@@ -1,27 +1,138 @@
+import { FC, useRef } from "react";
+import { useDrag, useDrop } from "react-dnd";
+import type { XYCoord, Identifier } from "dnd-core";
+import {
+  DIRECTION,
+  IPV4,
+  NetworkObjectElement,
+  POLICY,
+  Rule,
+  RuleElement,
+  Service,
+  ServiceElement,
+} from "../../types/types";
+
+export interface CardProps {
+  index: number;
+  rule: Rule;
+  moveCard: (dragIndex: number, hoverIndex: number) => void;
+}
+
+export interface DragItem {
+  index: number;
+  id: string;
+  type: string;
+}
+
+export const ItemTypes = {
+  CARD: "card",
+};
+
 /**
  *
  * @param key index of the Rule
  * @returns A properly formatted Rule card
  */
-function card(key: number, name: string, source: string, destination: string) {
+function card({ index, rule, moveCard }: CardProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [{ handlerId }, drop] = useDrop<
+    DragItem,
+    void,
+    { handlerId: Identifier | null }
+  >({
+    accept: ItemTypes.CARD,
+    collect(monitor) {
+      return {
+        handlerId: monitor.getHandlerId(),
+      };
+    },
+    hover(item: DragItem, monitor) {
+      if (!ref.current) {
+        return;
+      }
+      const dragIndex = item.index;
+      const hoverIndex = index;
+
+      // Don't replace items with themselves
+      if (dragIndex === hoverIndex) {
+        return;
+      }
+
+      // Determine rectangle on screen
+      const hoverBoundingRect = ref.current?.getBoundingClientRect();
+
+      // Get vertical middle
+      const hoverMiddleY =
+        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+
+      // Determine mouse position
+      const clientOffset = monitor.getClientOffset();
+
+      // Get pixels to the top
+      const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top;
+
+      // Only perform the move when the mouse has crossed half of the items height
+      // When dragging downwards, only move when the cursor is below 50%
+      // When dragging upwards, only move when the cursor is above 50%
+
+      // Dragging downwards
+      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+        return;
+      }
+
+      // Dragging upwards
+      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+        return;
+      }
+
+      // Time to actually perform the action
+      moveCard(dragIndex, hoverIndex);
+
+      // Note: we're mutating the monitor item here!
+      // Generally it's better to avoid mutations,
+      // but it's good here for the sake of performance
+      // to avoid expensive index searches.
+      item.index = hoverIndex;
+    },
+  });
+
+  const cardKey = rule.id;
+
+  const [{ isDragging }, drag] = useDrag({
+    type: ItemTypes.CARD,
+    item: () => {
+      return { cardKey, index };
+    },
+    collect: (monitor: any) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  const opacity = isDragging ? 0 : 1;
+  drag(drop(ref));
+
   return (
     <div
-      key={key}
-      className="p-2 pl-4 container bg-white container-xl transition-shadow  hover:cursor-pointer active:border-cyan-800 hover:border-cyan-600 hover:shadow-lg rounded-md border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700"
+      key={rule.id}
+      ref={ref}
+      data-handler-id={handlerId}
+      className={`p-2 ${
+        opacity === 0 ? "opacity-0" : "opacity-100"
+      } pl-4 container bg-white container-xl transition-shadow  hover:cursor-pointer active:border-cyan-800 hover:border-cyan-600 hover:shadow-lg rounded-md border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700`}
     >
       <form
         className="space-y-2 flex flex-row justify-between space-x-4"
         action="#"
       >
         <div className="space-y-2 flex justify-self-start flex-row justify-between space-x-4 ">
-          <Index value={key} />
-          <Name value={name} />
-          <Source value={source} />
-          <Destination value={destination} />
-          <Service value="" />
-          <Direction value="" />
-          <Policy value="" />
-          <Comment value="" />
+          <Index value={index} />
+          <Name value={rule.name} />
+          <Source value={rule.source} />
+          <Destination value={rule.destination} />
+          <Service value={rule.service} />
+          <Direction value={rule.direction} />
+          <Policy value={rule.policy} />
+          <Comment value={rule.comment} />
         </div>
         <div className="flex justify-self-end items-center flex-row justify-between space-x-4">
           <CheckIcon />
@@ -91,14 +202,14 @@ const Name = ({ value }: { value: string }) => (
   </div>
 );
 
-const Source = ({ value }: { value: string }) => (
+const Source = ({ value }: { value: NetworkObjectElement }) => (
   <div className="mt-2">
     <Label value="SOURCE" />
     <input
       type="source"
       name="source"
       id="source"
-      value={value}
+      value={value.name}
       onChange={() => {}}
       placeholder="192.168.x.x"
       className={defaultClass}
@@ -107,7 +218,7 @@ const Source = ({ value }: { value: string }) => (
   </div>
 );
 
-const Destination = ({ value }: { value: string }) => (
+const Destination = ({ value }: { value: NetworkObjectElement }) => (
   <div>
     <Label value="DESTINATION" />
     <input
@@ -115,7 +226,7 @@ const Destination = ({ value }: { value: string }) => (
       name="service"
       id="service"
       onChange={() => {}}
-      value={value}
+      value={value.name}
       placeholder="HTTP/80"
       className={defaultClass}
       required
@@ -123,13 +234,15 @@ const Destination = ({ value }: { value: string }) => (
   </div>
 );
 
-const Service = ({ value }: { value: string }) => (
+const Service = ({ value }: { value: ServiceElement }) => (
   <div>
     <Label value="SERVICE" />
     <input
       type="service"
       name="service"
       id="service"
+      value={value.name}
+      onChange={() => {}}
       placeholder="HTTP/80"
       className={defaultClass}
       required
@@ -137,7 +250,7 @@ const Service = ({ value }: { value: string }) => (
   </div>
 );
 
-const Direction = ({ value }: { value: string }) => (
+const Direction = ({ value }: { value: DIRECTION }) => (
   <div>
     <label className="block mb-2 text-sm font-light text-gray-500 dark:text-gray-300">
       DIRECTION
@@ -155,7 +268,7 @@ const Direction = ({ value }: { value: string }) => (
   </div>
 );
 
-const Policy = ({ value }: { value: string }) => (
+const Policy = ({ value }: { value: POLICY }) => (
   <div>
     <label className="block mb-2 text-sm font-light text-gray-500 dark:text-gray-300">
       POLICY

@@ -1,5 +1,13 @@
 import type { NextApiHandler } from "next";
-import { rule } from "../../features/rules/ruleSlice";
+import {
+  DIRECTION,
+  POLICY,
+  Rule,
+  ServiceElement,
+  Service,
+  NetworkObjectElement,
+  IPV4,
+} from "../../types/types";
 
 const ruleHandler: NextApiHandler = async (request, response) => {
   // simulate IO latency
@@ -10,15 +18,43 @@ const ruleHandler: NextApiHandler = async (request, response) => {
 
 export default ruleHandler;
 
-function ruleList(): rule[] {
-  const elements = Array.apply(null, Array(20)).map(
-    (element: undefined, i: number) => {
+function ruleList(): Rule[] {
+  const elements: Rule[] = Array.apply(null, Array(20)).map(
+    (element: Rule, i: number): Rule => {
       return {
+        id: i,
         name: `name: ${i}`,
-        source: "192.168.1.123",
-        destination: "192.168.1.1",
+        source: createDummyNetwork(),
+        destination: createDummyNetwork(),
+        service: createDummyService(),
+        direction: DIRECTION.INBOUND,
+        policy: POLICY.ACCEPT,
+        comment: "test",
       };
     }
   );
   return elements;
+}
+
+function createDummyService(): ServiceElement {
+  const service: Service = {
+    id: `1`,
+    name: "HTTP",
+    protocol: "TCP",
+    port: 80,
+    comment: "",
+  };
+
+  return service;
+}
+
+function createDummyNetwork(): NetworkObjectElement {
+  const ip: IPV4 = {
+    id: `1`,
+    name: "server",
+    comment: "",
+    ip: "192.168.1.110",
+  };
+
+  return ip;
 }

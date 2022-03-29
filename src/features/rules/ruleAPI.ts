@@ -1,6 +1,6 @@
-import { rule } from "./ruleSlice";
+import { RuleElement } from "../../types/types";
 
-export async function fetchRules(): Promise<{ data: rule[] }> {
+export async function fetchRules(): Promise<{ data: RuleElement[] }> {
   const response = await fetch("/api/rules", {
     method: "POST",
     headers: {

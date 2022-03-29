@@ -3,11 +3,13 @@ import Head from "next/head";
 import RuleCard from "../../components/rule/RuleCard";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
 import {
-  rule,
   selectRule,
-  update,
+  updateRules,
   updateAsync,
 } from "../../features/rules/ruleSlice";
+import { useCallback } from "react";
+import { Rule, RuleElement } from "../../types/types";
+import update from "immutability-helper";
 
 function ListView() {
   const dispatch = useAppDispatch();
@@ -16,6 +18,25 @@ function ListView() {
   if (state.status === "empty") {
     dispatch(updateAsync());
   }
+
+  const moveCard = useCallback((dragIndex: number, hoverIndex: number) => {
+    dispatch(
+      updateRules((prevCards: RuleElement[]) => {
+        return update(prevCards, {
+          $splice: [
+            [dragIndex, 1],
+            [hoverIndex, 0, prevCards[dragIndex]],
+          ],
+        });
+      })
+    );
+  }, []);
+
+  const renderCard = useCallback((rule: Rule, index: number) => {
+    return (
+      <RuleCard key={rule.id} index={index} moveCard={moveCard} rule={rule} />
+    );
+  }, []);
 
   return (
     <div className="flex flex-1 overflow-y-auto">
@@ -28,19 +49,23 @@ function ListView() {
           </div>
         </div>
         <div className="px-4 overflow-y-auto w-full flex flex-col space-y-2 pt-4">
-          <Elements />
+          {state.rules
+            .map((ruleElement) => ruleElementtoRule(ruleElement))
+            .map((card, i) => renderCard(card, i))}
         </div>
       </div>
     </div>
   );
 }
 
-function Elements() {
-  const state = useAppSelector(selectRule);
-  const elements = state.rules.map((element: rule, i: number) => {
-    return RuleCard(i, element.name, element.source, element.destination);
-  });
-  return <>{elements}</>;
+function ruleElementtoRule(element: RuleElement): Rule {
+  //@ts-ignore
+  return element;
 }
 
 export default ListView;
+function setCards(
+  arg0: (prevCards: Item[]) => { payload: rule[]; type: string }
+) {
+  throw new Error("Function not implemented.");
+}
