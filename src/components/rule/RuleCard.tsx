@@ -3,21 +3,21 @@
  * @param key index of the Rule
  * @returns A properly formatted Rule card
  */
-function card(key: number) {
+function card(key: number, name: string, source: string, destination: string) {
   return (
     <div
       key={key}
-      className="p-2 pl-4 bg-white container-xl transition-shadow  hover:cursor-pointer active:border-cyan-800 hover:border-cyan-600 hover:shadow-lg rounded-md border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700"
+      className="p-2 pl-4 container bg-white container-xl transition-shadow  hover:cursor-pointer active:border-cyan-800 hover:border-cyan-600 hover:shadow-lg rounded-md border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700"
     >
       <form
-        className="space-y-2 space-x-12 flex flex-row justify-between space-x-4"
+        className="space-y-2 flex flex-row justify-between space-x-4"
         action="#"
       >
         <div className="space-y-2 flex justify-self-start flex-row justify-between space-x-4 ">
           <Index value={key} />
-          <Name value={""} />
-          <Source value="" />
-          <Destination value="" />
+          <Name value={name} />
+          <Source value={source} />
+          <Destination value={destination} />
           <Service value="" />
           <Direction value="" />
           <Policy value="" />
@@ -82,6 +82,8 @@ const Name = ({ value }: { value: string }) => (
       type="email"
       name="email"
       id="email"
+      value={value}
+      onChange={() => {}}
       className={defaultClass}
       placeholder="Rule name..."
       required
@@ -96,6 +98,8 @@ const Source = ({ value }: { value: string }) => (
       type="source"
       name="source"
       id="source"
+      value={value}
+      onChange={() => {}}
       placeholder="192.168.x.x"
       className={defaultClass}
       required
@@ -110,6 +114,8 @@ const Destination = ({ value }: { value: string }) => (
       type="destination"
       name="service"
       id="service"
+      onChange={() => {}}
+      value={value}
       placeholder="HTTP/80"
       className={defaultClass}
       required

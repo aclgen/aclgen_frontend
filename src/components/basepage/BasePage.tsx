@@ -8,7 +8,7 @@ function BasePage({ Child }: BaseProps) {
   return (
     <>
       <NavBar />
-      <div className="bg-slate-50 dark:bg-gray-600">
+      <div className="bg-slate-50 dark:bg-gray-600 h-min-screen">
         <Child />
       </div>
     </>
