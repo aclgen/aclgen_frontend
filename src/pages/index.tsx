@@ -1,16 +1,18 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
+import type { NextPage } from "next";
+import Head from "next/head";
+import Navbar from "../components/navbar";
 
-import Counter from '../features/counter/Counter'
-import styles from '../styles/Home.module.css'
+import Counter from "../features/counter/Counter";
+import styles from "../styles/Home.module.css";
 
 const IndexPage: NextPage = () => {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Redux Toolkit</title>
-        <link rel="icon" href="/favicon.ico" />
+        <title>ACLGen</title>
+        <link rel="icon" href="/sikt_small.svg" />
       </Head>
+      <Navbar />
       <header className={styles.header}>
         <img src="/logo.svg" className={styles.logo} alt="logo" />
         <Counter />
@@ -57,7 +59,7 @@ const IndexPage: NextPage = () => {
         </span>
       </header>
     </div>
-  )
-}
+  );
+};
 
-export default IndexPage
+export default IndexPage;
