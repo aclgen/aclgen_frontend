@@ -118,7 +118,7 @@ function card({ index, rule, moveCard }: CardProps) {
       data-handler-id={handlerId}
       className={`p-2 ${
         opacity === 0 ? "opacity-0" : "opacity-100"
-      } pl-4 container bg-white container-xl transition-shadow  hover:cursor-pointer active:border-cyan-800 hover:border-cyan-600 hover:shadow-lg rounded-md border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700`}
+      } pl-4 container bg-white container-xl transition-shadow transition-opacity hover:cursor-pointer active:border-cyan-800 hover:border-cyan-600 hover:shadow-lg rounded-md border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700`}
     >
       <form
         className="space-y-2 flex flex-row justify-between space-x-4"
