@@ -10,6 +10,7 @@ import {
 import { useCallback } from "react";
 import { Rule, RuleElement } from "../../types/types";
 import update from "immutability-helper";
+import SideBar from "../../features/sidebar/SideBar";
 
 function ListView() {
   const dispatch = useAppDispatch();
@@ -21,6 +22,7 @@ function ListView() {
 
   const moveCard = useCallback((dragIndex: number, hoverIndex: number) => {
     dispatch(
+      //@ts-ignore
       updateRules((prevCards: RuleElement[]) => {
         return update(prevCards, {
           $splice: [
@@ -44,7 +46,7 @@ function ListView() {
         <div className="flex flex-1 overflow-y-auto">
           <div className="flex flex-1 flex-col overflow-y-auto border-r">
             <div className="flex flex-1 flex-wrap justify-cente p-3 overflow-y-auto">
-              Sidebar
+              <SideBar />
             </div>
           </div>
         </div>
@@ -59,13 +61,7 @@ function ListView() {
 }
 
 function ruleElementtoRule(element: RuleElement): Rule {
-  //@ts-ignore
-  return element;
+  return element as Rule;
 }
 
 export default ListView;
-function setCards(
-  arg0: (prevCards: Item[]) => { payload: rule[]; type: string }
-) {
-  throw new Error("Function not implemented.");
-}
