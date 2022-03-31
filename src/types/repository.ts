@@ -4,7 +4,7 @@ import RuleSet, {
   ServiceElement,
 } from "./types";
 
-export type Repository = {
+export interface Repository {
   UUID: string;
   access: ACCESS;
   repo: string;
@@ -13,33 +13,39 @@ export type Repository = {
   workSpace: WorkSpace;
   networkObjects: NetworkObjectElement[];
   Services: ServiceElement[];
-};
+}
 
-interface WorkSpace {}
-
-interface Location extends NetworkElement {
+export interface WorkSpace {
   elements: NetworkElement[];
 }
 
-interface NetworkElement {
+export interface Location extends NetworkElement {
+  elements: NetworkElement[];
+}
+
+export interface NetworkElement {
   name: string;
+  type: string;
 }
 
-interface WorkspaceFolder extends NetworkElement {
+export interface WorkspaceFolder extends NetworkElement {
   elements: NetworkElement[];
+  type: "workspace";
 }
 
-interface Cluster<T extends NetworkDevice> extends NetworkElement {
+export interface Cluster<T extends NetworkDevice> extends NetworkElement {
   elements: T[];
+  type: "cluster";
 }
 
-interface FireWall extends NetworkDevice {
+export interface FireWall extends NetworkDevice {
   rules: RuleSet;
+  type: "firewall";
 }
 
-interface NetworkDevice extends NetworkElement {}
+export interface NetworkDevice extends NetworkElement {}
 
-enum ACCESS {
+export enum ACCESS {
   PUBLIC,
   PRIVATE,
   SHARED,
