@@ -5,8 +5,8 @@ import SearchBar from "../search/SearchBar";
 function NavBar() {
   const { theme, setTheme } = useTheme();
   return (
-    <nav className="bg-white px-2 sm:px-4  border-b dark:border-cyan-700 py-3  dark:bg-gray-600">
-      <div className="container flex flex-wrap justify-between  items-center mx-auto ">
+    <nav className="bg-white px-2 sm:px-4  border-b dark:border-cyan-700 h-16   dark:bg-gray-600">
+      <div className="container flex flex-wrap justify-between items-center h-16 m-auto">
         <a href="https://sikt.no" className="flex items-center">
           <img
             src={
@@ -14,7 +14,7 @@ function NavBar() {
                 ? "/sikt_small_indigo.svg"
                 : "/sikt_small_indigo_light.svg"
             }
-            className="mr-3 h-6 sm:h-9"
+            className="mr-3 sm:h-9"
             alt="Sikt logo"
           />
           <h1 className="block text-gray-700 font-bold text-xl py-2 pr-4 pl-3 md:bg-transparent md:p-0 dark:text-white">

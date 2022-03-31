@@ -145,16 +145,16 @@ function card({ index, rule, moveCard }: CardProps) {
   );
 }
 
-const defaultClass: string =
+export const defaultClass: string =
   "bg-gray-50 border border-gray-300 w-32 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white";
 
-const Index: React.FC<{ value: number }> = ({ value }) => (
+export const Index: React.FC<{ value: number }> = ({ value }) => (
   <p className="block pt-11 mb-2 text-sm font-light text-gray-400 dark:text-white">
     {`#${value}`}
   </p>
 );
 
-const BoxIcon = () => {
+export const BoxIcon = () => {
   return (
     <div>
       <img src="/square.svg" className=" mr-3 h-6" />
@@ -162,7 +162,7 @@ const BoxIcon = () => {
   );
 };
 
-const DragIcon = () => {
+export const DragIcon = () => {
   return (
     <div>
       <img src="/hamburger_menu.svg" className=" mr-3 h-6" />
@@ -170,7 +170,7 @@ const DragIcon = () => {
   );
 };
 
-const LockIcon = () => {
+export const LockIcon = () => {
   return (
     <div>
       <img src="/locked.svg" className=" mr-3 h-6" />
@@ -178,7 +178,7 @@ const LockIcon = () => {
   );
 };
 
-const CheckIcon = () => {
+export const CheckIcon = () => {
   return (
     <div>
       <img src="/tick.svg" className=" mr-3 h-6" />
@@ -186,7 +186,7 @@ const CheckIcon = () => {
   );
 };
 
-const Name = ({ value }: { value: string }) => (
+export const Name = ({ value }: { value: string }) => (
   <div>
     <Label value="Name" />
     <input
@@ -202,7 +202,7 @@ const Name = ({ value }: { value: string }) => (
   </div>
 );
 
-const Source = ({ value }: { value: NetworkObjectElement }) => (
+export const Source = ({ value }: { value: NetworkObjectElement }) => (
   <div className="mt-2">
     <Label value="SOURCE" />
     <input
@@ -218,7 +218,7 @@ const Source = ({ value }: { value: NetworkObjectElement }) => (
   </div>
 );
 
-const Destination = ({ value }: { value: NetworkObjectElement }) => (
+export const Destination = ({ value }: { value: NetworkObjectElement }) => (
   <div>
     <Label value="DESTINATION" />
     <input
@@ -234,7 +234,7 @@ const Destination = ({ value }: { value: NetworkObjectElement }) => (
   </div>
 );
 
-const Service = ({ value }: { value: ServiceElement }) => (
+export const Service = ({ value }: { value: ServiceElement }) => (
   <div>
     <Label value="SERVICE" />
     <input
@@ -250,7 +250,7 @@ const Service = ({ value }: { value: ServiceElement }) => (
   </div>
 );
 
-const Direction = ({ value }: { value: DIRECTION }) => (
+export const Direction = ({ value }: { value: DIRECTION }) => (
   <div>
     <label className="block mb-2 text-sm font-light text-gray-500 dark:text-gray-300">
       DIRECTION
@@ -268,7 +268,7 @@ const Direction = ({ value }: { value: DIRECTION }) => (
   </div>
 );
 
-const Policy = ({ value }: { value: POLICY }) => (
+export const Policy = ({ value }: { value: POLICY }) => (
   <div>
     <label className="block mb-2 text-sm font-light text-gray-500 dark:text-gray-300">
       POLICY
@@ -286,7 +286,7 @@ const Policy = ({ value }: { value: POLICY }) => (
   </div>
 );
 
-const Comment = ({ value }: { value: string }) => (
+export const Comment = ({ value }: { value: string }) => (
   <div className="max-w-fit">
     <label className="block mb-2 text-sm font-light text-gray-500 dark:text-gray-300">
       Comment
@@ -301,7 +301,7 @@ const Comment = ({ value }: { value: string }) => (
   </div>
 );
 
-const Label = ({ value }: { value: string }) => (
+export const Label = ({ value }: { value: string }) => (
   <label className="block mb-2 text-sm font-light text-gray-500 dark:text-gray-300">
     {value}
   </label>

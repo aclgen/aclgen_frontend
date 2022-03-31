@@ -1,5 +1,3 @@
-import { useTheme } from "next-themes";
-import Head from "next/head";
 import RuleCard from "../../components/rule/RuleCard";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
 import {
@@ -41,16 +39,16 @@ function ListView() {
   }, []);
 
   return (
-    <div className="flex flex-1 overflow-y-auto">
+    <div className="flex flex-1 ">
       <div className="grid grid-flow-col space-4 w-full">
-        <div className="flex flex-1 overflow-y-auto">
-          <div className="flex flex-1 flex-col overflow-y-auto border-r">
-            <div className="flex flex-1 flex-wrap justify-cente p-3 overflow-y-auto">
+        <div className="flex flex-1 ">
+          <div className="flex flex-1 flex-col border-r">
+            <div className="flex flex-1 justify-cente p-3 overflow-y-auto">
               <SideBar />
             </div>
           </div>
         </div>
-        <div className="px-4 overflow-y-auto w-full flex flex-col space-y-2 pt-4">
+        <div className="px-4 flex flex-col space-y-2 scrollbar overflow-y-scroll content-area pt-4">
           {state.rules
             .map((ruleElement) => ruleElementtoRule(ruleElement))
             .map((card, i) => renderCard(card, i))}

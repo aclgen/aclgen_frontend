@@ -18,3 +18,29 @@ a {
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .content-area {
+    height: calc(100vh - theme("height.16"));
+  }
+
+  .scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: theme("colors.gray.400") theme("colors.gray.200");
+  }
+
+  .scrollbar::-webkit-scrollbar {
+    width: theme("width.2");
+  }
+  .scrollbar::-webkit-scrollbar-track {
+    background-color: #e4e4e4;
+    border-radius: 100px;
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb {
+    border-radius: 100px;
+    border-left: 0;
+    border-right: 0;
+    background-color: theme("colors.gray.400");
+  }
+}
