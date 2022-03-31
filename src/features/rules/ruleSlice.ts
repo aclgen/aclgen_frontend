@@ -32,7 +32,7 @@ export const RuleSlice = createSlice({
   reducers: {
     updateRules: (
       state,
-      action: PayloadAction<(previousCards: RuleElement) => RuleElement[]>
+      action: PayloadAction<(previousCards: RuleElement[]) => RuleElement[]>
     ) => {
       state.rules = action.payload(state.rules);
     },

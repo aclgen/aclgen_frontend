@@ -1,7 +1,7 @@
-import { NetworkObjectElement } from "../../types/types";
+import { Repository } from "../../types/repository";
 
-export async function fetchNetworkObjects(): Promise<{
-  data: NetworkObjectElement[];
+export async function fetchRepositories(): Promise<{
+  data: Repository[];
 }> {
   const response = await fetch("/api/service", {
     method: "POST",

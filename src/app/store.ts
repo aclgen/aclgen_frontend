@@ -4,6 +4,7 @@ import counterReducer from "../features/counter/counterSlice";
 import ruleReducer from "../features/rules/ruleSlice";
 import ServiceReducer from "../features/service/serviceSlice";
 import NetworkObjectReducer from "../features/networkObject/networkObjectSlice";
+import RepositoryReducer from "../features/repository/repositorySlice";
 
 export function makeStore() {
   return configureStore({
@@ -12,6 +13,7 @@ export function makeStore() {
       rule: ruleReducer,
       service: ServiceReducer,
       networkObject: NetworkObjectReducer,
+      repository: RepositoryReducer,
     },
   });
 }
