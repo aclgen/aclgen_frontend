@@ -18,7 +18,7 @@ const ruleHandler: NextApiHandler = async (request, response) => {
 
 export default ruleHandler;
 
-function ruleList(): Rule[] {
+export function ruleList(): Rule[] {
   const elements: Rule[] = Array.apply(null, Array(20)).map(
     (element: Rule, i: number): Rule => {
       return {
@@ -36,7 +36,7 @@ function ruleList(): Rule[] {
   return elements;
 }
 
-function createDummyService(): ServiceElement {
+export function createDummyService(): ServiceElement {
   const service: Service = {
     id: `1`,
     name: "HTTP",
@@ -48,7 +48,7 @@ function createDummyService(): ServiceElement {
   return service;
 }
 
-function createDummyNetwork(): NetworkObjectElement {
+export function createDummyNetwork(): NetworkObjectElement {
   const ip: IPV4 = {
     id: `1`,
     name: "server",

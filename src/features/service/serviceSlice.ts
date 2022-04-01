@@ -1,23 +1,23 @@
+import { ServiceElement } from "../../types/types";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import type { AppState, AppThunk } from "../../app/store";
-import { Rule, RuleElement } from "../../types/types";
+import { fetchServices } from "./serviceAPI";
+import { initiateNewRule } from "../rules/ruleSlice";
 import { initiateNewObject } from "../networkObject/networkObjectSlice";
-import { initiateNewService } from "../service/serviceSlice";
-import { fetchRules } from "./ruleAPI";
 
-export interface RuleState {
-  rules: RuleElement[];
+export interface ServiceState {
+  services: ServiceElement[];
+  newService: ServiceElement | undefined;
+  newServiceStatus: "idle" | "creating" | "loading";
   status: "empty" | "idle" | "loading" | "failed";
-  newRule: Rule | undefined;
-  newRuleStatus: "idle" | "creating" | "loading";
 }
 
-const initialState: RuleState = {
-  rules: [],
+const initialState: ServiceState = {
+  services: [],
   status: "empty",
-  newRule: undefined,
-  newRuleStatus: "idle",
+  newService: undefined,
+  newServiceStatus: "idle",
 };
 
 // The function below is called a thunk and allows us to perform async logic. It
@@ -26,30 +26,25 @@ const initialState: RuleState = {
 // code can then be executed and other actions can be dispatched. Thunks are
 // typically used to make async requests.
 export const updateAsync = createAsyncThunk("rules/fetchRules", async () => {
-  const response = await fetchRules();
+  const response = await fetchServices();
   // The value we return becomes the `fulfilled` action payload
   return response.data;
 });
 
-export const RuleSlice = createSlice({
-  name: "rule",
+export const ServiceSlice = createSlice({
+  name: "service",
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
-    updateRules: (
-      state,
-      action: PayloadAction<(previousCards: RuleElement[]) => RuleElement[]>
-    ) => {
-      state.rules = action.payload(state.rules);
+    updateServices: (state, action: PayloadAction<ServiceElement>) => {},
+    createNewService: (state, action: PayloadAction<ServiceElement>) => {
+      state.newService = undefined;
+      state.services = [...state.services, action.payload];
+      state.newServiceStatus = "idle";
     },
-    createNewRule: (state, action: PayloadAction<Rule>) => {
-      state.newRule = undefined;
-      state.rules = [...state.rules, action.payload];
-      state.newRuleStatus = "idle";
-    },
-    initiateNewRule: (state) => {
-      state.newRule = undefined;
-      state.newRuleStatus = "creating";
+    initiateNewService: (state) => {
+      state.newService = undefined;
+      state.newServiceStatus = "creating";
     },
   },
   // The `extraReducers` field lets the slice handle actions defined elsewhere,
@@ -61,32 +56,32 @@ export const RuleSlice = createSlice({
       })
       .addCase(updateAsync.rejected, (state) => {
         state.status = "failed";
-        state.rules = [];
+        state.services = [];
       })
       .addCase(updateAsync.fulfilled, (state, action) => {
         state.status = "idle";
-        state.rules = action.payload;
+        state.services = action.payload;
       });
     builder.addCase(initiateNewObject, (state, payload) => {
-      state.newRule = undefined;
-      state.newRuleStatus = "idle";
+      state.newService = undefined;
+      state.newServiceStatus = "idle";
     });
-    builder.addCase(initiateNewService, (state, payload) => {
-      state.newRule = undefined;
-      state.newRuleStatus = "idle";
+    builder.addCase(initiateNewRule, (state, payload) => {
+      state.newService = undefined;
+      state.newServiceStatus = "idle";
     });
   },
 });
 
-export const { updateRules, initiateNewRule, createNewRule } =
-  RuleSlice.actions;
+export const { updateServices, createNewService, initiateNewService } =
+  ServiceSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
-export const selectRule = (state: AppState) => state.rule;
+export const selectService = (state: AppState) => state.service;
 
 // We can also write thunks by hand, which may contain both sync and async logic.
 // Here's an example of conditionally dispatching actions based on current state.
 
-export default RuleSlice.reducer;
+export default ServiceSlice.reducer;
