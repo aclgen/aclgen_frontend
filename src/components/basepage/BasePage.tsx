@@ -8,9 +8,9 @@ export type BaseProps = {
 
 function BasePage({ Child }: BaseProps) {
   return (
-    <div className="max-h-screen overflow-clip">
+    <div className="max-h-screen overflow-hidden">
       <NavBar />
-      <div className="bg-slate-50 dark:bg-gray-600 h-min-screen">
+      <div className="bg-slate-50 dark:bg-gray-600">
         <Child />
       </div>
       <CreationPopup />

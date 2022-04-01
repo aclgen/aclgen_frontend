@@ -49,7 +49,7 @@ function ListView() {
             </div>
           </div>
         </div>
-        <div className="px-4 flex flex-col space-y-2 scrollbar overflow-y-scroll content-area pt-4">
+        <div className="px-4 flex flex-col space-y-2 scrollbar overflow-y-scroll content-area py-2">
           <div className="container bg-white container-xl transition-opacity rounded-md border-2 border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
             <div>
               <button
