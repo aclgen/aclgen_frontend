@@ -2,6 +2,8 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import type { AppState, AppThunk } from "../../app/store";
 import { Rule, RuleElement } from "../../types/types";
+import { initiateNewObject } from "../networkObject/networkObjectSlice";
+import { initiateNewService } from "../service/serviceSlice";
 import { fetchRules } from "./ruleAPI";
 
 export interface RuleState {
@@ -65,6 +67,14 @@ export const RuleSlice = createSlice({
         state.status = "idle";
         state.rules = action.payload;
       });
+    builder.addCase(initiateNewObject, (state, payload) => {
+      state.newRule = undefined;
+      state.newRuleStatus = "idle";
+    });
+    builder.addCase(initiateNewService, (state, payload) => {
+      state.newRule = undefined;
+      state.newRuleStatus = "idle";
+    });
   },
 });
 

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import rule from "../../components/rule";
 import {
   Source,
   Destination,
@@ -40,6 +39,7 @@ function ServiceCreationPopup() {
         >
           <div className="space-y-2 flex justify-self-start flex-row justify-between space-x-4 ">
             <Index value={index} />
+            <Type />
             <Name value={name} onChange={setName} />
             <Source value={source} onChange={(data: IPV4) => setSource(data)} />
             <Destination
@@ -92,6 +92,19 @@ export const Index: React.FC<{ value: number }> = ({ value }) => (
   </p>
 );
 
+export const Type = () => (
+  <div>
+    <Label value="TYPE" />
+    <h2
+      className={
+        "bg-gray-50 border border-gray-300 w-32 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white outline-none"
+      }
+    >
+      Rule
+    </h2>
+  </div>
+);
+
 export const TrashIcon = () => {
   return (
     <div>
@@ -125,19 +138,6 @@ export const CheckIcon = ({ onClick }: { onClick: () => void }) => {
     </div>
   );
 };
-
-export const Type = () => (
-  <div>
-    <Label value="TYPE" />
-    <h2
-      className={
-        "bg-gray-50 border border-gray-300 w-32 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white outline-none"
-      }
-    >
-      Rule
-    </h2>
-  </div>
-);
 
 export const defaultService: Service = {
   port: 0,

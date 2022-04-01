@@ -3,6 +3,8 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import type { AppState, AppThunk } from "../../app/store";
 import { fetchNetworkObjects } from "./networkObjectAPI";
+import { initiateNewService } from "../service/serviceSlice";
+import { initiateNewRule } from "../rules/ruleSlice";
 
 export interface NetworkObjectState {
   networkObjects: NetworkObjectElement[];
@@ -63,6 +65,14 @@ export const NetworkObjectSlice = createSlice({
         state.status = "idle";
         state.networkObjects = action.payload;
       });
+    builder.addCase(initiateNewService, (state, payload) => {
+      state.newObject = undefined;
+      state.newObjectStatus = "idle";
+    });
+    builder.addCase(initiateNewRule, (state, payload) => {
+      state.newObject = undefined;
+      state.newObjectStatus = "idle";
+    });
   },
 });
 
