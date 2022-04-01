@@ -1,3 +1,4 @@
+import CreationPopup from "../../features/creation/CreationPopup";
 import ServiceCreationPopup from "../../features/service/ServiceCreationPoopup";
 import NavBar from "../navbar";
 
@@ -12,9 +13,7 @@ function BasePage({ Child }: BaseProps) {
       <div className="bg-slate-50 dark:bg-gray-600 h-min-screen">
         <Child />
       </div>
-      <div>
-        <ServiceCreationPopup />
-      </div>
+      <CreationPopup />
     </div>
   );
 }

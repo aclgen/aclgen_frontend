@@ -36,8 +36,9 @@ export const ServiceSlice = createSlice({
   reducers: {
     updateServices: (state, action: PayloadAction<ServiceElement>) => {},
     createNewService: (state, action: PayloadAction<ServiceElement>) => {
-      state.newService = action.payload;
-      state.newServiceStatus = "creating";
+      state.newService = undefined;
+      state.services = [...state.services, action.payload];
+      state.newServiceStatus = "idle";
     },
     initiateNewService: (state) => {
       state.newService = undefined;

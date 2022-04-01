@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { FireWall, NetworkElement } from "../../types/repository";
 import { NetworkObjectElement, ServiceElement } from "../../types/types";
+import { initiateNewObject } from "../networkObject/networkObjectSlice";
 import {
   selectRepository,
   setSelectedRepository,
@@ -76,7 +77,7 @@ export function RenderObjectsAndServices() {
         <li
           onClick={() => {
             setDropdown(false);
-            dispatch(initiateNewService());
+            dispatch(initiateNewObject());
           }}
           className="hover:bg-blue-600 hover:cursor-pointer group py-2 px-0 select-none border-b flex-row"
         >
@@ -87,6 +88,7 @@ export function RenderObjectsAndServices() {
         <li
           onClick={() => {
             setDropdown(false);
+            dispatch(initiateNewService());
           }}
           className="hover:bg-blue-600 group hover:cursor-pointer py-2 px-0 select-none border-b flex-row items-center"
         >

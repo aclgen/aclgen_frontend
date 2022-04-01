@@ -4,6 +4,8 @@ import type { AppState, AppThunk } from "../../app/store";
 import { fetchRepositories } from "./repositoryAPI";
 import { Repository } from "../../types/repository";
 import EmptyRepository from "./EmptyRepository";
+import { createNewService } from "../service/serviceSlice";
+import { createNewObject } from "../networkObject/networkObjectSlice";
 
 export interface RepositoryState {
   repositories: Repository[];
@@ -57,6 +59,20 @@ export const RepositorySlice = createSlice({
         state.status = "idle";
         state.repositories = action.payload;
       });
+    builder.addCase(createNewService, (state, action) => {
+      const services = state.selectedRepository.Services;
+      state.repositories[0] = {
+        ...state.selectedRepository,
+        Services: [...services, action.payload],
+      };
+    });
+    builder.addCase(createNewObject, (state, action) => {
+      const objects = state.selectedRepository.networkObjects;
+      state.repositories[0] = {
+        ...state.selectedRepository,
+        networkObjects: [...objects, action.payload],
+      };
+    });
   },
 });
 

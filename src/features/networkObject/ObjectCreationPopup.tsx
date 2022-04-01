@@ -1,22 +1,20 @@
 import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { Service } from "../../types/types";
+import { IPV4 } from "../../types/types";
+import { createNewObject, selectNetworkObjects } from "./networkObjectSlice";
 
-import { createNewService, selectService } from "./serviceSlice";
-
-function ServiceCreationPopup() {
+function ObjectCreationPopup() {
   const dispatch = useAppDispatch();
-  const state = useAppSelector(selectService);
+  const state = useAppSelector(selectNetworkObjects);
 
   const [name, setName] = useState("");
   const [comment, setComment] = useState("");
-  const [port, setPort] = useState(0);
-  const [protocol, setProtocol] = useState("");
+  const [ip, setIp] = useState("");
 
   return (
     <div
       className={`${
-        state.newServiceStatus === "creating"
+        state.newObjectStatus === "creating"
           ? "scale-100 h-fit"
           : "scale-y-0 h-0"
       } absolute inset-x-0 bottom-2 transform origin-bottom  duration-300 transition`}
@@ -29,16 +27,12 @@ function ServiceCreationPopup() {
           <div className="flex justify-self-start items-center flex-row justify-between space-x-4 ">
             <img
               className="h-8 mt-5"
-              src={"/computer-networks.svg"}
-              alt={"Service"}
+              src={"/server.svg"}
+              alt={"Network Object"}
             />
             <Type />
             <Name value={name} onChange={(name) => setName(name)} />
-            <Port value={port} onChange={(port) => setPort(port)} />
-            <Protocol
-              value={protocol}
-              onChange={(protocol) => setProtocol(protocol)}
-            />
+            <IpAddress value={ip} onChange={(ip) => setIp(ip)} />
             <Comment
               value={comment}
               onChange={(comment) => setComment(comment)}
@@ -47,14 +41,13 @@ function ServiceCreationPopup() {
           <div className="flex justify-self-end items-center flex-row justify-between space-x-4">
             <CheckIcon
               onClick={() => {
-                const newService: Service = {
-                  port: port,
-                  protocol: protocol,
-                  name: name,
+                const newObject: IPV4 = {
+                  ip: ip,
                   id: "0",
+                  name: name,
                   comment: comment,
                 };
-                dispatch(createNewService(newService));
+                dispatch(createNewObject(newObject));
               }}
             />
           </div>
@@ -115,7 +108,7 @@ export const Type = () => (
         "bg-gray-50 border border-gray-300 w-32 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white outline-none"
       }
     >
-      Service
+      IPV4
     </h2>
   </div>
 );
@@ -136,7 +129,7 @@ export const Name = ({
       value={value}
       onChange={(event) => onChange(event.target.value)}
       className={defaultClass}
-      placeholder="Service name..."
+      placeholder="Object name..."
       required
     />
   </div>
@@ -164,7 +157,7 @@ export const Port = ({
   </div>
 );
 
-export const Protocol = ({
+export const IpAddress = ({
   value,
   onChange,
 }: {
@@ -172,14 +165,14 @@ export const Protocol = ({
   onChange: (value: string) => void;
 }) => (
   <div>
-    <Label value="PROTOCOL" />
+    <Label value="IP Address" />
     <input
-      type="protocol"
-      name="protocol"
-      id="protocol"
+      type="ip"
+      name="ip"
+      id="ip"
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      placeholder="TCP"
+      placeholder="192.168.1.123"
       className={defaultClass}
       required
     />
@@ -215,4 +208,4 @@ export const Label = ({ value }: { value: string }) => (
   </label>
 );
 
-export default ServiceCreationPopup;
+export default ObjectCreationPopup;

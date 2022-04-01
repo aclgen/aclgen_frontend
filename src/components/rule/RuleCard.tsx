@@ -1,4 +1,4 @@
-import { FC, useRef } from "react";
+import { useRef, useState } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import type { XYCoord, Identifier } from "dnd-core";
 import {
@@ -7,7 +7,6 @@ import {
   NetworkObjectElement,
   POLICY,
   Rule,
-  RuleElement,
   Service,
   ServiceElement,
 } from "../../types/types";
@@ -111,6 +110,14 @@ function card({ index, rule, moveCard }: CardProps) {
   const opacity = isDragging ? 0 : 1;
   drag(drop(ref));
 
+  const [name, setName] = useState(rule.name);
+  const [comment, setComment] = useState(rule.comment);
+  const [source, setSource] = useState(rule.source);
+  const [destination, setDestination] = useState(rule.destination);
+  const [direction, setDirection] = useState(rule.direction);
+  const [service, setService] = useState(rule.service);
+  const [policy, setPolicy] = useState(rule.policy);
+
   return (
     <div
       key={rule.id}
@@ -118,7 +125,7 @@ function card({ index, rule, moveCard }: CardProps) {
       data-handler-id={handlerId}
       className={`p-2 ${
         opacity === 0 ? "opacity-0" : "opacity-100"
-      } pl-4 container bg-white container-xl transition-shadow transition-opacity hover:cursor-pointer active:border-cyan-800 hover:border-cyan-600 hover:shadow-lg rounded-md border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700`}
+      } pl-4 container bg-white container-xl transition-opacity hover:cursor-pointer active:border-blue-800 hover:border-blue-400 hover:shadow-lg rounded-md border-2 border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700`}
     >
       <form
         className="space-y-2 flex flex-row justify-between space-x-4"
@@ -126,13 +133,22 @@ function card({ index, rule, moveCard }: CardProps) {
       >
         <div className="space-y-2 flex justify-self-start flex-row justify-between space-x-4 ">
           <Index value={index} />
-          <Name value={rule.name} />
-          <Source value={rule.source} />
-          <Destination value={rule.destination} />
-          <Service value={rule.service} />
-          <Direction value={rule.direction} />
-          <Policy value={rule.policy} />
-          <Comment value={rule.comment} />
+          <Name value={name} onChange={setName} />
+          <Source value={source} onChange={(data: IPV4) => setSource(data)} />
+          <Destination
+            value={destination}
+            onChange={(data: IPV4) => setDestination(data)}
+          />
+          <ServiceInput
+            value={service}
+            onChange={(data: Service) => setService(data)}
+          />
+          <Direction
+            value={direction}
+            onChange={(data: DIRECTION) => setDirection(data)}
+          />
+          <Policy value={policy} onChange={(data: POLICY) => setPolicy(data)} />
+          <Comment value={comment} onChange={setComment} />
         </div>
         <div className="flex justify-self-end items-center flex-row justify-between space-x-4">
           <CheckIcon />
@@ -186,46 +202,70 @@ export const CheckIcon = () => {
   );
 };
 
-export const Name = ({ value }: { value: string }) => (
+export const Name = ({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) => (
   <div>
     <Label value="Name" />
     <input
-      type="email"
-      name="email"
-      id="email"
+      type="name"
+      name="Name"
+      id="name"
       value={value}
-      onChange={() => {}}
+      onChange={(event) => onChange(event.target.value)}
       className={defaultClass}
-      placeholder="Rule name..."
+      placeholder="Rule Name..."
       required
     />
   </div>
 );
 
-export const Source = ({ value }: { value: NetworkObjectElement }) => (
-  <div className="mt-2">
-    <Label value="SOURCE" />
-    <input
-      type="source"
-      name="source"
-      id="source"
-      value={value.name}
-      onChange={() => {}}
-      placeholder="192.168.x.x"
-      className={defaultClass}
-      required
-    />
-  </div>
-);
+export const Source = ({
+  value,
+  onChange,
+}: {
+  value: NetworkObjectElement;
+  onChange: (NetworkObjectElement: NetworkObjectElement) => void;
+}) => {
+  return (
+    <div className="mt-2">
+      <Label value="SOURCE" />
+      <input
+        type="source"
+        name="source"
+        id="source"
+        value={value.name}
+        onChange={(event) => {
+          onChange({ ...value, name: event.target.value });
+        }}
+        placeholder="192.168.x.x"
+        className={defaultClass}
+        required
+      />
+    </div>
+  );
+};
 
-export const Destination = ({ value }: { value: NetworkObjectElement }) => (
+export const Destination = ({
+  value,
+  onChange,
+}: {
+  value: NetworkObjectElement;
+  onChange: (NetworkObjectElement: NetworkObjectElement) => void;
+}) => (
   <div>
     <Label value="DESTINATION" />
     <input
       type="destination"
       name="service"
       id="service"
-      onChange={() => {}}
+      onChange={(event) => {
+        onChange({ ...value, name: event.target.value });
+      }}
       value={value.name}
       placeholder="HTTP/80"
       className={defaultClass}
@@ -234,7 +274,13 @@ export const Destination = ({ value }: { value: NetworkObjectElement }) => (
   </div>
 );
 
-export const Service = ({ value }: { value: ServiceElement }) => (
+export const ServiceInput = ({
+  value,
+  onChange,
+}: {
+  value: ServiceElement;
+  onChange: (serviceElement: ServiceElement) => void;
+}) => (
   <div>
     <Label value="SERVICE" />
     <input
@@ -242,7 +288,12 @@ export const Service = ({ value }: { value: ServiceElement }) => (
       name="service"
       id="service"
       value={value.name}
-      onChange={() => {}}
+      onChange={(event) => {
+        onChange({
+          ...value,
+          name: event.target.value,
+        });
+      }}
       placeholder="HTTP/80"
       className={defaultClass}
       required
@@ -250,7 +301,13 @@ export const Service = ({ value }: { value: ServiceElement }) => (
   </div>
 );
 
-export const Direction = ({ value }: { value: DIRECTION }) => (
+export const Direction = ({
+  value,
+  onChange,
+}: {
+  value: DIRECTION;
+  onChange: (direction: DIRECTION) => void;
+}) => (
   <div>
     <label className="block mb-2 text-sm font-light text-gray-500 dark:text-gray-300">
       DIRECTION
@@ -261,14 +318,22 @@ export const Direction = ({ value }: { value: DIRECTION }) => (
       placeholder="incoming"
       className="bg-gray-50 border max-w-sm  border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
       required
+      value={value}
+      onChange={(event) => onChange(DIRECTION[event.target.value])}
     >
-      <option value="incoming">INCOMING</option>
-      <option value="outgoing">OUTGOING</option>
+      <option value={DIRECTION.INBOUND}>INCOMING</option>
+      <option value={DIRECTION.OUTBOUND}>OUTGOING</option>
     </select>
   </div>
 );
 
-export const Policy = ({ value }: { value: POLICY }) => (
+export const Policy = ({
+  value,
+  onChange,
+}: {
+  value: POLICY;
+  onChange: (policy: POLICY) => void;
+}) => (
   <div>
     <label className="block mb-2 text-sm font-light text-gray-500 dark:text-gray-300">
       POLICY
@@ -279,14 +344,22 @@ export const Policy = ({ value }: { value: POLICY }) => (
       placeholder="DENY"
       className="bg-gray-50 border max-w-sm  border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
       required
+      value={value}
+      onChange={(event) => onChange(POLICY[event.target.value])}
     >
-      <option value="allow">ALLOW</option>
-      <option value="deny">DENY</option>
+      <option value={POLICY.ACCEPT}>ACCEPT</option>
+      <option value={POLICY.DENY}>DENY</option>
     </select>
   </div>
 );
 
-export const Comment = ({ value }: { value: string }) => (
+export const Comment = ({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) => (
   <div className="max-w-fit">
     <label className="block mb-2 text-sm font-light text-gray-500 dark:text-gray-300">
       Comment
@@ -294,8 +367,10 @@ export const Comment = ({ value }: { value: string }) => (
     <textarea
       name="comment"
       id="comment"
-      placeholder="..."
-      className="bg-gray-50 border resize border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+      placeholder=""
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      className="bg-gray-50 border border-gray-300 resize-x text-gray-900 text-sm rounded-lg outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
       required
     />
   </div>
