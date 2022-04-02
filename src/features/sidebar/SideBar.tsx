@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { DropDownButton } from "../../components/DropDownButton";
-import { RenderSideBarElement } from "../../components/SelectableElement/SideBarElement";
+import {
+  RenderNetworkElement,
+  RenderNetworkObjects,
+  RenderService,
+  RenderSideBarElement,
+} from "../../components/SelectableElement/SideBarElement";
 import { FireWall, NetworkElement } from "../../types/repository";
 import { NetworkObjectElement, ServiceElement } from "../../types/types";
 import {
@@ -156,29 +161,6 @@ export function PlusButtonSVG() {
   );
 }
 
-export function RenderNetworkElement(element: NetworkElement) {
-  switch (element.type) {
-    case "firewall": {
-      return <RenderFirewall fireWall={element as FireWall} />;
-    }
-
-    default: {
-      return <></>;
-    }
-  }
-}
-
-export function RenderFirewall({ fireWall }: { fireWall: FireWall }) {
-  return (
-    <RenderSideBarElement
-      key={fireWall.id}
-      name={fireWall.name}
-      icon={"/firewall.svg"}
-      alt={"firewall"}
-    />
-  );
-}
-
 export function RenderObjects() {
   const draftRepositoryState = useAppSelector(selectDraftRepository);
   const objectState = useAppSelector(selectNetworkObjects);
@@ -251,28 +233,6 @@ export function RenderServices() {
         </li>
       </ul>
     </div>
-  );
-}
-
-export function RenderService(service: ServiceElement) {
-  return (
-    <RenderSideBarElement
-      key={service.id}
-      name={service.name}
-      icon={"/computer-networks.svg"}
-      alt={"service"}
-    />
-  );
-}
-
-function RenderNetworkObjects(element: NetworkObjectElement): any {
-  return (
-    <RenderSideBarElement
-      key={element.id}
-      name={element.name}
-      icon={"/server.svg"}
-      alt={"Host"}
-    />
   );
 }
 
