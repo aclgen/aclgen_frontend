@@ -9,7 +9,7 @@ import { initiateNewRule } from "../rules/ruleSlice";
 export interface DraftNetworkObjectState {
   networkObjects: NetworkObjectElement[];
   status: "empty" | "idle" | "loading" | "failed";
-  newObjectStatus: "idle" | "creating" | "loading";
+  newObjectStatus: "idle" | "creating" | "editing";
   newObject: NetworkObjectElement | undefined;
 }
 

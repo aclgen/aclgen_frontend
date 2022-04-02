@@ -13,9 +13,15 @@ function CreationPopup() {
   const networkObjectState = useAppSelector(selectNetworkObjects);
   const ruleState = useAppSelector(selectRule);
 
-  if (serviceState.newServiceStatus === "creating") {
+  if (
+    serviceState.newServiceStatus === "creating" ||
+    serviceState.newServiceStatus === "editing"
+  ) {
     return <ServiceCreationPopup />;
-  } else if (networkObjectState.newObjectStatus === "creating") {
+  } else if (
+    networkObjectState.newObjectStatus === "creating" ||
+    networkObjectState.newObjectStatus === "editing"
+  ) {
     return <ObjectCreationPopup />;
   } else if (ruleState.newRuleStatus === "creating") {
     return <RuleCreationPopup />;

@@ -9,7 +9,7 @@ import { setSelectedRepository } from "../repository/repositorySlice";
 export interface ServiceState {
   services: ServiceElement[];
   newService: ServiceElement | undefined;
-  newServiceStatus: "idle" | "creating" | "loading";
+  newServiceStatus: "idle" | "creating" | "editing";
   status: "empty" | "idle" | "loading" | "failed";
 }
 
