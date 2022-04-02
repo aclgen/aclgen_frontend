@@ -2,9 +2,11 @@ import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
 
 import counterReducer from "../features/counter/counterSlice";
 import ruleReducer from "../features/rules/ruleSlice";
-import ServiceReducer from "../features/service/serviceSlice";
-import NetworkObjectReducer from "../features/networkObject/networkObjectSlice";
+import ServiceReducer from "../features/service/DraftServiceSlice";
+import DraftNetworkObjectReducer from "../features/networkObject/DraftNetworkObjectSlice";
 import RepositoryReducer from "../features/repository/repositorySlice";
+import DraftRepositoryReducer from "../features/repository/DraftRepositorySlice";
+import DraftWorkSpaceReducer from "../features/workSpaceDraft/DraftWorkSpaceSlice";
 
 export function makeStore() {
   return configureStore({
@@ -12,8 +14,10 @@ export function makeStore() {
       counter: counterReducer,
       rule: ruleReducer,
       service: ServiceReducer,
-      networkObject: NetworkObjectReducer,
+      networkObject: DraftNetworkObjectReducer,
       repository: RepositoryReducer,
+      draftRepository: DraftRepositoryReducer,
+      draftWorkSpace: DraftWorkSpaceReducer,
     },
   });
 }

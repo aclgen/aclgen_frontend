@@ -10,7 +10,14 @@ import {
   Label,
   Comment,
 } from "../../components/rule/RuleCard";
-import { DIRECTION, IPV4, POLICY, Rule, Service } from "../../types/types";
+import {
+  DIRECTION,
+  IPV4,
+  POLICY,
+  Rule,
+  PortService,
+  ServiceType,
+} from "../../types/types";
 import { createNewRule, selectRule } from "./ruleSlice";
 
 function ServiceCreationPopup() {
@@ -48,7 +55,7 @@ function ServiceCreationPopup() {
             />
             <ServiceInput
               value={service}
-              onChange={(data: Service) => setService(data)}
+              onChange={(data: PortService) => setService(data)}
             />
             <Direction
               value={direction}
@@ -71,7 +78,8 @@ function ServiceCreationPopup() {
                   policy: policy,
                   name: name,
                   comment: comment,
-                  id: index,
+                  id: `${index}`,
+                  status: "new",
                 };
                 dispatch(createNewRule(newRule));
               }}
@@ -139,9 +147,12 @@ export const CheckIcon = ({ onClick }: { onClick: () => void }) => {
   );
 };
 
-export const defaultService: Service = {
-  port: 0,
+export const defaultService: PortService = {
+  sourcePort: 80,
+  destinationPort: 80,
   protocol: "",
+  status: "new",
+  type: ServiceType.PORT,
   name: "",
   id: "0",
   comment: "",
@@ -152,6 +163,7 @@ export const defaultIP: IPV4 = {
   id: "0",
   name: "",
   comment: "",
+  status: "new",
 };
 
 export default ServiceCreationPopup;

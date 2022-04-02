@@ -1,4 +1,6 @@
 import RuleSet, {
+  EditableElement,
+  Nestable,
   NetworkObjectElement,
   RuleElement,
   ServiceElement,
@@ -12,18 +14,14 @@ export interface Repository {
   logo: string;
   workSpace: WorkSpace;
   networkObjects: NetworkObjectElement[];
-  Services: ServiceElement[];
+  services: ServiceElement[];
 }
 
-export interface WorkSpace {
-  elements: NetworkElement[];
-}
+export interface WorkSpace extends EditableElement, Nestable<NetworkElement> {}
 
-export interface Location extends NetworkElement {
-  elements: NetworkElement[];
-}
+export interface Location extends NetworkElement, Nestable<NetworkElement> {}
 
-export interface NetworkElement {
+export interface NetworkElement extends EditableElement {
   name: string;
   type: string;
 }

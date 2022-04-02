@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { Service } from "../../types/types";
+import { PortService, ServiceType } from "../../types/types";
 
-import { createNewService, selectService } from "./serviceSlice";
+import { createNewService, selectService } from "./DraftServiceSlice";
 
 function ServiceCreationPopup() {
   const dispatch = useAppDispatch();
@@ -47,12 +47,15 @@ function ServiceCreationPopup() {
           <div className="flex justify-self-end items-center flex-row justify-between space-x-4">
             <CheckIcon
               onClick={() => {
-                const newService: Service = {
-                  port: port,
+                const newService: PortService = {
+                  sourcePort: port,
+                  destinationPort: port,
                   protocol: protocol,
                   name: name,
                   id: "0",
                   comment: comment,
+                  type: ServiceType.PORT,
+                  status: "modified",
                 };
                 dispatch(createNewService(newService));
               }}

@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { IPV4 } from "../../types/types";
-import { createNewObject, selectNetworkObjects } from "./networkObjectSlice";
+import {
+  createNewObject,
+  selectNetworkObjects,
+} from "./DraftNetworkObjectSlice";
 
 function ObjectCreationPopup() {
   const dispatch = useAppDispatch();
@@ -46,6 +49,7 @@ function ObjectCreationPopup() {
                   id: "0",
                   name: name,
                   comment: comment,
+                  status: "new",
                 };
                 dispatch(createNewObject(newObject));
               }}

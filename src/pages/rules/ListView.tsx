@@ -3,21 +3,28 @@ import { useAppSelector, useAppDispatch } from "../../app/hooks";
 import {
   selectRule,
   updateRules,
-  updateAsync,
   initiateNewRule,
+  setRules,
 } from "../../features/rules/ruleSlice";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { Rule, RuleElement } from "../../types/types";
 import update from "immutability-helper";
 import SideBar from "../../features/sidebar/SideBar";
+import { selectDraftRepository } from "../../features/repository/DraftRepositorySlice";
+import { FireWall } from "../../types/repository";
 
 function ListView() {
   const dispatch = useAppDispatch();
   const state = useAppSelector(selectRule);
+  const draftRepoState = useAppSelector(selectDraftRepository);
 
-  if (state.status === "empty") {
-    dispatch(updateAsync());
-  }
+  useEffect(() => {
+    if (state.status === "empty" && draftRepoState.status == "idle") {
+      const firewall = draftRepoState.repository.workSpace
+        .children[0] as FireWall;
+      dispatch(setRules(firewall.rules.rules));
+    }
+  });
 
   const moveCard = useCallback((dragIndex: number, hoverIndex: number) => {
     dispatch(

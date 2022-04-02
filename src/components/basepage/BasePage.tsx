@@ -1,5 +1,4 @@
 import CreationPopup from "../../features/creation/CreationPopup";
-import ServiceCreationPopup from "../../features/service/ServiceCreationPoopup";
 import NavBar from "../navbar";
 
 export type BaseProps = {

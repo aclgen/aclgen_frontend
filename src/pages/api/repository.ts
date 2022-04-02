@@ -34,7 +34,7 @@ function createDummyRepository(): Repository {
     logo: "logo",
     workSpace: createDefaultWorkspace(),
     networkObjects: [createDummyNetwork()],
-    Services: [createDummyService()],
+    services: [createDummyService()],
   };
 
   return repo;
@@ -49,10 +49,14 @@ function createDefaultWorkspace(): WorkSpace {
       name: "Default Firewall",
     },
     type: "firewall",
+    status: "source",
+    id: "123",
   };
 
   const workspace: WorkSpace = {
-    elements: [firewall],
+    children: [firewall, { ...firewall, id: "1234" }],
+    status: "source",
+    id: "1234",
   };
   return workspace;
 }

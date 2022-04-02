@@ -1,29 +1,48 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { DropDownButton } from "../../components/DropDownButton";
+import { RenderSideBarElement } from "../../components/SelectableElement/SideBarElement";
 import { FireWall, NetworkElement } from "../../types/repository";
 import { NetworkObjectElement, ServiceElement } from "../../types/types";
-import { initiateNewObject } from "../networkObject/networkObjectSlice";
+import {
+  initiateNewObject,
+  selectNetworkObjects,
+  updateNetworkObjects,
+} from "../networkObject/DraftNetworkObjectSlice";
+import DraftRepositorySlice, {
+  selectDraftRepository,
+} from "../repository/DraftRepositorySlice";
 import {
   selectRepository,
   setSelectedRepository,
   updateRepositoriesAsync,
 } from "../repository/repositorySlice";
-import { createNewService, initiateNewService } from "../service/serviceSlice";
+import {
+  initiateNewService,
+  selectService,
+  updateServices,
+} from "../service/DraftServiceSlice";
+import {
+  selectWorkspaceDraft,
+  updateWorkSpace,
+} from "../workSpaceDraft/DraftWorkSpaceSlice";
 
 function SideBar() {
   const dispatch = useAppDispatch();
   const state = useAppSelector(selectRepository);
 
-  if (state.status === "empty") {
-    dispatch(updateRepositoriesAsync());
-  }
+  useEffect(() => {
+    if (state.status === "empty") {
+      dispatch(updateRepositoriesAsync());
+    }
 
-  if (state.status === "idle") {
-    dispatch(setSelectedRepository(state.repositories[0]));
-  }
+    if (state.status === "idle") {
+      dispatch(setSelectedRepository(state.repositories[0]));
+    }
+  }, [state.status]);
 
   return (
-    <div className="flex flex-col space-y-4 min-h-screen w-90">
+    <div className="flex flex-col space-y-4  min-w-90">
       <div className="flex flex-col w-full flex-basis-1/2 pb-8 pl-4 ">
         <RenderWorkSpace />
       </div>
@@ -35,7 +54,13 @@ function SideBar() {
 }
 
 export function RenderWorkSpace() {
-  const state = useAppSelector(selectRepository);
+  const state = useAppSelector(selectWorkspaceDraft);
+  const draftRepositoryState = useAppSelector(selectDraftRepository);
+  const dispatch = useAppDispatch();
+
+  if (state.status === "empty" && draftRepositoryState.status === "idle") {
+    dispatch(updateWorkSpace(draftRepositoryState.repository.workSpace));
+  }
 
   return (
     <>
@@ -46,7 +71,7 @@ export function RenderWorkSpace() {
 
       <ul className="pl-4">
         <li>
-          {state.selectedRepository.workSpace.elements.map((element) =>
+          {state.workspace.children.map((element) =>
             RenderNetworkElement(element)
           )}
         </li>
@@ -146,6 +171,7 @@ export function RenderNetworkElement(element: NetworkElement) {
 export function RenderFirewall({ fireWall }: { fireWall: FireWall }) {
   return (
     <RenderSideBarElement
+      key={fireWall.id}
       name={fireWall.name}
       icon={"/firewall.svg"}
       alt={"firewall"}
@@ -153,24 +179,22 @@ export function RenderFirewall({ fireWall }: { fireWall: FireWall }) {
   );
 }
 
-export function RenderSideBarElement({
-  name,
-  icon,
-  alt,
-}: {
-  name: string;
-  icon: string;
-  alt: string;
-}) {
-  return (
-    <div className="flex flex-row hover:shadow-lg hover:cursor-pointer hover:bg-slate-100 transition-shadow border-gray-200 border h-10 shadow-md items-center px-4  rounded-md">
-      <img className="h-5" src={icon} alt={alt} />
-      <p className="text-md select-none text-gray-700  pl-2">{name}</p>
-    </div>
-  );
-}
-
 export function RenderObjects() {
+  const draftRepositoryState = useAppSelector(selectDraftRepository);
+  const objectState = useAppSelector(selectNetworkObjects);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (
+      draftRepositoryState.status == "idle" &&
+      objectState.status === "empty"
+    ) {
+      dispatch(
+        updateNetworkObjects(draftRepositoryState.repository.networkObjects)
+      );
+    }
+  });
+
   const state = useAppSelector(selectRepository);
   const [droppedDown, setDropdown] = useState(false);
   return (
@@ -186,7 +210,7 @@ export function RenderObjects() {
         } transform origin-top ease-in-out duration-150 transition space-y-4`}
       >
         <li>
-          {state.selectedRepository.networkObjects.map((element) =>
+          {objectState.networkObjects.map((element) =>
             RenderNetworkObjects(element)
           )}
         </li>
@@ -195,39 +219,19 @@ export function RenderObjects() {
   );
 }
 
-function DropDownButton({
-  isDropped,
-  onClick,
-  title,
-}: {
-  isDropped: boolean;
-  onClick: (clicked: boolean) => void;
-  title: string;
-}) {
-  return (
-    <div
-      onClick={() => onClick(!isDropped)}
-      className="transition-shadow hover:shadow-lg px-4 group  h-10 hover:cursor-pointer border-gray-200 rounded-md border shadow-md hover:bg-slate-100  font-light text-gray-700 py-2"
-    >
-      <span className="flex items-center">
-        <svg
-          className={`fill-current h-4 w-4 ${
-            isDropped ? "rotate-180" : "rotate-90"
-          }
-        transition duration-300 ease-in-out`}
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-        >
-          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-        </svg>
-        <h3 className="text-md px-2 select-none">{title}</h3>
-      </span>
-    </div>
-  );
-}
-
 export function RenderServices() {
-  const state = useAppSelector(selectRepository);
+  const draftRepositoryState = useAppSelector(selectDraftRepository);
+  const serviceState = useAppSelector(selectService);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (
+      draftRepositoryState.status == "idle" &&
+      serviceState.status === "empty"
+    ) {
+      dispatch(updateServices(draftRepositoryState.repository.services));
+    }
+  });
 
   const [droppedDown, setDropdown] = useState(false);
   return (
@@ -243,9 +247,7 @@ export function RenderServices() {
         } transform origin-top ease-in-out duration-150 transition space-y-4`}
       >
         <li>
-          {state.selectedRepository.Services.map((element) =>
-            RenderService(element)
-          )}
+          {serviceState.services.map((element) => RenderService(element))}
         </li>
       </ul>
     </div>
@@ -255,6 +257,7 @@ export function RenderServices() {
 export function RenderService(service: ServiceElement) {
   return (
     <RenderSideBarElement
+      key={service.id}
       name={service.name}
       icon={"/computer-networks.svg"}
       alt={"service"}
@@ -262,13 +265,15 @@ export function RenderService(service: ServiceElement) {
   );
 }
 
-export default SideBar;
 function RenderNetworkObjects(element: NetworkObjectElement): any {
   return (
     <RenderSideBarElement
+      key={element.id}
       name={element.name}
       icon={"/server.svg"}
       alt={"Host"}
     />
   );
 }
+
+export default SideBar;

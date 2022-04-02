@@ -6,9 +6,9 @@ const EmptyRepository: Repository = {
   repo: "EMPTY",
   description: "Empty repository",
   logo: "EMPTY",
-  workSpace: { elements: [] },
+  workSpace: { children: [], status: "source", id: "123" },
   networkObjects: [],
-  Services: [],
+  services: [],
 };
 
 export default EmptyRepository;

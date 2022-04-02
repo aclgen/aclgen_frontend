@@ -7,7 +7,7 @@ import {
   NetworkObjectElement,
   POLICY,
   Rule,
-  Service,
+  PortService,
   ServiceElement,
 } from "../../types/types";
 
@@ -141,7 +141,7 @@ function card({ index, rule, moveCard }: CardProps) {
           />
           <ServiceInput
             value={service}
-            onChange={(data: Service) => setService(data)}
+            onChange={(data: PortService) => setService(data)}
           />
           <Direction
             value={direction}
