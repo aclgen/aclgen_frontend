@@ -226,11 +226,11 @@ export function RenderServices() {
       <ul
         className={`mt-2 pl-4 pb-4 ${
           droppedDown ? "scale-100 h-fit" : "scale-0 h-0"
-        } transform origin-top ease-in-out duration-150 transition space-y-4`}
+        } transform origin-top ease-in-out duration-150 transition space-y-1`}
       >
-        <li>
-          {serviceState.services.map((element) => RenderService(element))}
-        </li>
+        {serviceState.services.map((element) => {
+          return <li> {RenderService(element)} </li>;
+        })}
       </ul>
     </div>
   );
