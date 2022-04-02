@@ -80,9 +80,9 @@ export function RenderFirewall({ fireWall }: { fireWall: FireWall }) {
 export const statusStyle = (status: EditableElementStatus) => {
   switch (status) {
     case "modified":
-      return "border-blue-500 border";
+      return "border-blue-500 border-2";
     case "new":
-      return "border-green-500 border";
+      return "border-green-500 border-2";
     case "deleted":
       return "display-none";
     case "source":

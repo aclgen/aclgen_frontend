@@ -129,7 +129,7 @@ function card({ index, rule, moveCard }: CardProps) {
         opacity === 0 ? "opacity-0" : "opacity-100"
       } pl-4 container bg-white container-xl transition-opacity ${statusStyle(
         status
-      )} hover:cursor-pointer active:border-blue-800 hover:border-blue-400 hover:shadow-lg rounded-md border-2 shadow-md dark:bg-gray-800 dark:border-gray-700`}
+      )} hover:cursor-pointer active:border-blue-800 hover:border-blue-400 hover:shadow-lg rounded-md shadow-md dark:bg-gray-800 dark:border-gray-700`}
     >
       <form
         className="space-y-2 flex flex-row justify-between space-x-4"
