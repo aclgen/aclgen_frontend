@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { DropDownButton } from "../../components/DropDownButton";
+import { PlusButtonSVG } from "../../components/PLusButton";
 import {
   RenderNetworkElement,
   RenderNetworkObjects,
@@ -72,12 +73,10 @@ export function RenderWorkSpace() {
         <PlusButtonSVG />
       </div>
 
-      <ul className="pl-4">
-        <li>
-          {state.workspace.children.map((element) =>
-            RenderNetworkElement(element)
-          )}
-        </li>
+      <ul className="pl-4 space-y-1">
+        {state.workspace.children.map((element) => {
+          return <li key={element.id}> {RenderNetworkElement(element)} </li>;
+        })}
       </ul>
     </>
   );
@@ -135,30 +134,6 @@ export function RenderObjectsAndServices() {
   );
 }
 
-export function PlusButtonSVG() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 512 512"
-      className="h-6 pt-1 pl-4 ml-auto items-end group hover:cursor-pointer"
-    >
-      <path
-        d="m256 0c-141.164062 0-256 114.835938-256 256s114.835938 256 256 256 256-114.835938 256-256-114.835938-256-256-256zm0 0"
-        className="group-hover:fill-blue-600 group-hover:shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-      />
-
-      <path
-        d="m368 277.332031h-90.667969v90.667969c0 11.777344-9.554687 21.332031-21.332031 21.332031s-21.332031-9.554687-21.332031-21.332031v-90.667969h-90.667969c-11.777344 0-21.332031-9.554687-21.332031-21.332031s9.554687-21.332031 21.332031-21.332031h90.667969v-90.667969c0-11.777344 9.554687-21.332031 21.332031-21.332031s21.332031 9.554687 21.332031 21.332031v90.667969h90.667969c11.777344 0 21.332031 9.554687 21.332031 21.332031s-9.554687 21.332031-21.332031 21.332031zm0 0"
-        className="fill-blue-600 opacity-100 group-hover:opacity-0 transition-opacity duration-150"
-      />
-      <path
-        d="m368 277.332031h-90.667969v90.667969c0 11.777344-9.554687 21.332031-21.332031 21.332031s-21.332031-9.554687-21.332031-21.332031v-90.667969h-90.667969c-11.777344 0-21.332031-9.554687-21.332031-21.332031s9.554687-21.332031 21.332031-21.332031h90.667969v-90.667969c0-11.777344 9.554687-21.332031 21.332031-21.332031s21.332031 9.554687 21.332031 21.332031v90.667969h90.667969c11.777344 0 21.332031 9.554687 21.332031 21.332031s-9.554687 21.332031-21.332031 21.332031zm0 0"
-        className="fill-white opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-      />
-    </svg>
-  );
-}
-
 export function RenderObjects() {
   const draftRepositoryState = useAppSelector(selectDraftRepository);
   const objectState = useAppSelector(selectNetworkObjects);
@@ -190,7 +165,7 @@ export function RenderObjects() {
         } transform origin-top ease-in-out duration-150 transition space-y-1`}
       >
         {objectState.networkObjects.map((element) => {
-          return <li> {RenderNetworkObjects(element)} </li>;
+          return <li key={element.id}> {RenderNetworkObjects(element)} </li>;
         })}
       </ul>
     </div>
@@ -225,7 +200,7 @@ export function RenderServices() {
         } transform origin-top ease-in-out duration-150 transition space-y-1`}
       >
         {serviceState.services.map((element) => {
-          return <li> {RenderService(element)} </li>;
+          return <li key={element.id}> {RenderService(element)} </li>;
         })}
       </ul>
     </div>
