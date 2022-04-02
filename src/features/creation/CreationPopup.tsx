@@ -5,7 +5,7 @@ import networkObjectSlice, {
 import ObjectCreationPopup from "../networkObject/ObjectCreationPopup";
 import RuleCreationPopup from "../rules/RuleCreationPopup";
 import { selectRule } from "../rules/ruleSlice";
-import ServiceCreationPopup from "../service/ServiceCreationPoopup";
+import ServicePopUp from "../service/ServiceCreationPoopup";
 import { selectService } from "../service/DraftServiceSlice";
 
 function CreationPopup() {
@@ -17,7 +17,7 @@ function CreationPopup() {
     serviceState.newServiceStatus === "creating" ||
     serviceState.newServiceStatus === "editing"
   ) {
-    return <ServiceCreationPopup />;
+    return <ServicePopUp />;
   } else if (
     networkObjectState.newObjectStatus === "creating" ||
     networkObjectState.newObjectStatus === "editing"
