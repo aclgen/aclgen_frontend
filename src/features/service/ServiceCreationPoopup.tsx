@@ -55,7 +55,7 @@ function ServiceCreationPopup() {
                   id: "0",
                   comment: comment,
                   type: ServiceType.PORT,
-                  status: "modified",
+                  status: "new",
                 };
                 dispatch(createNewService(newService));
               }}

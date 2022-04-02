@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { DropDownButton } from "../../components/DropDownButton";
-import { RenderSideBarElement } from "../../components/SelectableElement/SideBarElement";
-import { FireWall, NetworkElement } from "../../types/repository";
-import { NetworkObjectElement, ServiceElement } from "../../types/types";
+import { PlusButtonSVG } from "../../components/PLusButton";
+import {
+  RenderNetworkElement,
+  RenderNetworkObjects,
+  RenderService,
+  RenderSideBarElement,
+} from "../../components/SelectableElement/SideBarElement";
 import {
   initiateNewObject,
   selectNetworkObjects,
@@ -69,12 +73,10 @@ export function RenderWorkSpace() {
         <PlusButtonSVG />
       </div>
 
-      <ul className="pl-4">
-        <li>
-          {state.workspace.children.map((element) =>
-            RenderNetworkElement(element)
-          )}
-        </li>
+      <ul className="pl-4 space-y-1">
+        {state.workspace.children.map((element) => {
+          return <li key={element.id}> {RenderNetworkElement(element)} </li>;
+        })}
       </ul>
     </>
   );
@@ -132,53 +134,6 @@ export function RenderObjectsAndServices() {
   );
 }
 
-export function PlusButtonSVG() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 512 512"
-      className="h-6 pt-1 pl-4 ml-auto items-end group hover:cursor-pointer"
-    >
-      <path
-        d="m256 0c-141.164062 0-256 114.835938-256 256s114.835938 256 256 256 256-114.835938 256-256-114.835938-256-256-256zm0 0"
-        className="group-hover:fill-blue-600 group-hover:shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-      />
-
-      <path
-        d="m368 277.332031h-90.667969v90.667969c0 11.777344-9.554687 21.332031-21.332031 21.332031s-21.332031-9.554687-21.332031-21.332031v-90.667969h-90.667969c-11.777344 0-21.332031-9.554687-21.332031-21.332031s9.554687-21.332031 21.332031-21.332031h90.667969v-90.667969c0-11.777344 9.554687-21.332031 21.332031-21.332031s21.332031 9.554687 21.332031 21.332031v90.667969h90.667969c11.777344 0 21.332031 9.554687 21.332031 21.332031s-9.554687 21.332031-21.332031 21.332031zm0 0"
-        className="fill-blue-600 opacity-100 group-hover:opacity-0 transition-opacity duration-150"
-      />
-      <path
-        d="m368 277.332031h-90.667969v90.667969c0 11.777344-9.554687 21.332031-21.332031 21.332031s-21.332031-9.554687-21.332031-21.332031v-90.667969h-90.667969c-11.777344 0-21.332031-9.554687-21.332031-21.332031s9.554687-21.332031 21.332031-21.332031h90.667969v-90.667969c0-11.777344 9.554687-21.332031 21.332031-21.332031s21.332031 9.554687 21.332031 21.332031v90.667969h90.667969c11.777344 0 21.332031 9.554687 21.332031 21.332031s-9.554687 21.332031-21.332031 21.332031zm0 0"
-        className="fill-white opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-      />
-    </svg>
-  );
-}
-
-export function RenderNetworkElement(element: NetworkElement) {
-  switch (element.type) {
-    case "firewall": {
-      return <RenderFirewall fireWall={element as FireWall} />;
-    }
-
-    default: {
-      return <></>;
-    }
-  }
-}
-
-export function RenderFirewall({ fireWall }: { fireWall: FireWall }) {
-  return (
-    <RenderSideBarElement
-      key={fireWall.id}
-      name={fireWall.name}
-      icon={"/firewall.svg"}
-      alt={"firewall"}
-    />
-  );
-}
-
 export function RenderObjects() {
   const draftRepositoryState = useAppSelector(selectDraftRepository);
   const objectState = useAppSelector(selectNetworkObjects);
@@ -207,13 +162,11 @@ export function RenderObjects() {
       <ul
         className={`mt-2 pl-4 pb-4 ${
           droppedDown ? "scale-100 h-fit" : "scale-0 h-0"
-        } transform origin-top ease-in-out duration-150 transition space-y-4`}
+        } transform origin-top ease-in-out duration-150 transition space-y-1`}
       >
-        <li>
-          {objectState.networkObjects.map((element) =>
-            RenderNetworkObjects(element)
-          )}
-        </li>
+        {objectState.networkObjects.map((element) => {
+          return <li key={element.id}> {RenderNetworkObjects(element)} </li>;
+        })}
       </ul>
     </div>
   );
@@ -244,35 +197,13 @@ export function RenderServices() {
       <ul
         className={`mt-2 pl-4 pb-4 ${
           droppedDown ? "scale-100 h-fit" : "scale-0 h-0"
-        } transform origin-top ease-in-out duration-150 transition space-y-4`}
+        } transform origin-top ease-in-out duration-150 transition space-y-1`}
       >
-        <li>
-          {serviceState.services.map((element) => RenderService(element))}
-        </li>
+        {serviceState.services.map((element) => {
+          return <li key={element.id}> {RenderService(element)} </li>;
+        })}
       </ul>
     </div>
-  );
-}
-
-export function RenderService(service: ServiceElement) {
-  return (
-    <RenderSideBarElement
-      key={service.id}
-      name={service.name}
-      icon={"/computer-networks.svg"}
-      alt={"service"}
-    />
-  );
-}
-
-function RenderNetworkObjects(element: NetworkObjectElement): any {
-  return (
-    <RenderSideBarElement
-      key={element.id}
-      name={element.name}
-      icon={"/server.svg"}
-      alt={"Host"}
-    />
   );
 }
 
