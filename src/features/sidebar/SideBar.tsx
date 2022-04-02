@@ -6,22 +6,20 @@ import {
   RenderNetworkElement,
   RenderNetworkObjects,
   RenderService,
-  RenderSideBarElement,
 } from "../../components/SelectableElement/SideBarElement";
 import {
   initiateNewObject,
   selectNetworkObjects,
   updateNetworkObjects,
 } from "../networkObject/DraftNetworkObjectSlice";
-import DraftRepositorySlice, {
-  selectDraftRepository,
-} from "../repository/DraftRepositorySlice";
+import { selectDraftRepository } from "../repository/DraftRepositorySlice";
 import {
   selectRepository,
   setSelectedRepository,
   updateRepositoriesAsync,
 } from "../repository/repositorySlice";
 import {
+  initiateModifyService,
   initiateNewService,
   selectService,
   updateServices,
@@ -75,7 +73,9 @@ export function RenderWorkSpace() {
 
       <ul className="pl-4 space-y-1">
         {state.workspace.children.map((element) => {
-          return <li key={element.id}> {RenderNetworkElement(element)} </li>;
+          return (
+            <li key={element.id}>{RenderNetworkElement(element, () => {})} </li>
+          );
         })}
       </ul>
     </>
@@ -165,7 +165,12 @@ export function RenderObjects() {
         } transform origin-top ease-in-out duration-150 transition space-y-1`}
       >
         {objectState.networkObjects.map((element) => {
-          return <li key={element.id}> {RenderNetworkObjects(element)} </li>;
+          return (
+            <li key={element.id}>
+              {" "}
+              {RenderNetworkObjects(element, () => {})}{" "}
+            </li>
+          );
         })}
       </ul>
     </div>
@@ -187,6 +192,7 @@ export function RenderServices() {
   });
 
   const [droppedDown, setDropdown] = useState(false);
+
   return (
     <div>
       <DropDownButton
@@ -200,7 +206,13 @@ export function RenderServices() {
         } transform origin-top ease-in-out duration-150 transition space-y-1`}
       >
         {serviceState.services.map((element) => {
-          return <li key={element.id}> {RenderService(element)} </li>;
+          return (
+            <li key={element.id}>
+              {RenderService(element, () => {
+                dispatch(initiateModifyService(element));
+              })}
+            </li>
+          );
         })}
       </ul>
     </div>

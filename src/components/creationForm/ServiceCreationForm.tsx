@@ -18,9 +18,9 @@ export function ServicePopupForm({ service }: { service: ServicePopupProps }) {
     <div
       className={`${
         service.isVisible ? "scale-100 h-fit" : "scale-y-0 h-0"
-      } absolute inset-x-0 bottom-2  container transform origin-bottom  duration-300 transition`}
+      } absolute inset-x-0 bottom-2 transform origin-bottom  duration-300 transition`}
     >
-      <div className="mx-auto h-24 bg-slate-100 shadow-lg rounded-md border-2 border-blue-400 flex-row items-center">
+      <div className="mx-auto h-24 container bg-slate-100 shadow-lg rounded-md border-2 border-blue-400 flex-row items-center">
         <form
           className="space-y-3 py-1  px-6 flex flex-row justify-between space-x-4"
           action="#"

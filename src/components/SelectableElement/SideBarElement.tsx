@@ -10,15 +10,18 @@ export function RenderSideBarElement({
   icon,
   alt,
   status,
+  onClick,
 }: {
   name: string;
   icon: string;
   alt: string;
   status: "source" | "new" | "modified" | "deleted";
+  onClick: () => void;
 }) {
   return (
     <div
       key={name}
+      onClick={onClick}
       className={`flex flex-row hover:shadow-lg hover:cursor-pointer hover:bg-slate-100 transition-shadow  ${statusStyle(
         status
       )}  h-10 shadow-md items-center px-4 rounded-md`}
@@ -29,7 +32,7 @@ export function RenderSideBarElement({
   );
 }
 
-export function RenderService(service: ServiceElement) {
+export function RenderService(service: ServiceElement, onClick: () => void) {
   return (
     <RenderSideBarElement
       key={service.id}
@@ -37,11 +40,15 @@ export function RenderService(service: ServiceElement) {
       status={service.status}
       icon={"/computer-networks.svg"}
       alt={"service"}
+      onClick={() => onClick()}
     />
   );
 }
 
-export function RenderNetworkObjects(element: NetworkObjectElement): any {
+export function RenderNetworkObjects(
+  element: NetworkObjectElement,
+  onClick: () => void
+): any {
   return (
     <RenderSideBarElement
       key={element.id}
@@ -49,14 +56,20 @@ export function RenderNetworkObjects(element: NetworkObjectElement): any {
       name={element.name}
       icon={"/server.svg"}
       alt={"Host"}
+      onClick={onClick}
     />
   );
 }
 
-export function RenderNetworkElement(element: NetworkElement) {
+export function RenderNetworkElement(
+  element: NetworkElement,
+  onClick: () => void
+) {
   switch (element.type) {
     case "firewall": {
-      return <RenderFirewall fireWall={element as FireWall} />;
+      return (
+        <RenderFirewall fireWall={element as FireWall} onClick={onClick} />
+      );
     }
 
     default: {
@@ -65,7 +78,13 @@ export function RenderNetworkElement(element: NetworkElement) {
   }
 }
 
-export function RenderFirewall({ fireWall }: { fireWall: FireWall }) {
+export function RenderFirewall({
+  fireWall,
+  onClick,
+}: {
+  fireWall: FireWall;
+  onClick: () => void;
+}) {
   return (
     <RenderSideBarElement
       status={fireWall.status}
@@ -73,6 +92,7 @@ export function RenderFirewall({ fireWall }: { fireWall: FireWall }) {
       name={fireWall.name}
       icon={"/firewall.svg"}
       alt={"firewall"}
+      onClick={onClick}
     />
   );
 }

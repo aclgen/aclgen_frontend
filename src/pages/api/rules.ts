@@ -41,7 +41,7 @@ export function ruleList(): Rule[] {
 
 export function createDummyService(): ServiceElement {
   const service: PortService = {
-    id: `1`,
+    id: `0`,
     name: "HTTP",
     protocol: "TCP",
     sourcePort: 80,
@@ -56,7 +56,7 @@ export function createDummyService(): ServiceElement {
 
 export function createDummyNetwork(): NetworkObjectElement {
   const ip: IPV4 = {
-    id: `1`,
+    id: `0`,
     name: "server",
     comment: "",
     ip: "192.168.1.110",

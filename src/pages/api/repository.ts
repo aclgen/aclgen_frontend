@@ -44,7 +44,7 @@ function createDefaultWorkspace(): WorkSpace {
   const firewall: FireWall = {
     name: "Default FireWall",
     rules: {
-      id: "1",
+      id: "0",
       rules: ruleList(),
       name: "Default Firewall",
     },

@@ -1,19 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import ServicePopupForm, {
   ServicePopupProps,
 } from "../../components/creationForm/ServiceCreationForm";
-import { ServiceType } from "../../types/types";
-
-import { createNewService, selectService } from "./DraftServiceSlice";
+import { PortService, ServiceType } from "../../types/types";
+import {
+  createNewService,
+  modifyService,
+  selectService,
+} from "./DraftServiceSlice";
 
 export function ServicePopup() {
   const state = useAppSelector(selectService);
 
-  if (state.newServiceStatus == "creating") {
-    return <ServiceCreationPopup />;
-  } else {
-    return <ServiceEditingPopup />;
+  switch (state.newServiceStatus) {
+    case "creating":
+      return <ServiceCreationPopup />;
+    case "editing":
+      return <ServiceEditingPopup key={state.newService.id} />;
+    default:
+      return <></>;
   }
 }
 
@@ -21,11 +27,26 @@ export function ServiceEditingPopup() {
   const dispatch = useAppDispatch();
   const state = useAppSelector(selectService);
 
-  const [name, setName] = useState("");
-  const [comment, setComment] = useState("");
-  const [sourcePort, setSourcePort] = useState(0);
-  const [destinationPort, setDestinationPort] = useState(0);
-  const [protocol, setProtocol] = useState("");
+  const service: PortService = { ...(state.newService as PortService) };
+
+  const [name, setName] = useState(service.name);
+  const [comment, setComment] = useState(service.comment);
+  const [sourcePort, setSourcePort] = useState(service.sourcePort);
+  const [destinationPort, setDestinationPort] = useState(
+    service.destinationPort
+  );
+  const [protocol, setProtocol] = useState(service.protocol);
+
+  const newService: PortService = {
+    name: name,
+    type: ServiceType.PORT,
+    status: "modified",
+    id: `${state.services.length}`,
+    comment: comment,
+    sourcePort: sourcePort,
+    destinationPort: destinationPort,
+    protocol: protocol,
+  };
 
   const serviceProps: ServicePopupProps = {
     isVisible: state.newServiceStatus === "editing",
@@ -39,16 +60,7 @@ export function ServiceEditingPopup() {
     setDestinationPort: setDestinationPort,
     protocol: protocol,
     setProtocol: setProtocol,
-    onSubmit: () =>
-      dispatch(
-        createNewService({
-          name: name,
-          type: ServiceType.PORT,
-          status: "modified",
-          id: "1",
-          comment: comment,
-        })
-      ),
+    onSubmit: () => dispatch(modifyService(newService)),
   };
   return <ServicePopupForm service={serviceProps} />;
 }
@@ -63,6 +75,17 @@ function ServiceCreationPopup() {
   const [destinationPort, setDestinationPort] = useState(0);
   const [protocol, setProtocol] = useState("");
 
+  const service: PortService = {
+    name: name,
+    type: ServiceType.PORT,
+    status: "new",
+    id: `${state.services.length}`,
+    comment: comment,
+    sourcePort: sourcePort,
+    destinationPort: destinationPort,
+    protocol: protocol,
+  };
+
   const serviceProps: ServicePopupProps = {
     isVisible: state.newServiceStatus === "creating",
     name: name,
@@ -75,16 +98,7 @@ function ServiceCreationPopup() {
     setDestinationPort: setDestinationPort,
     protocol: protocol,
     setProtocol: setProtocol,
-    onSubmit: () =>
-      dispatch(
-        createNewService({
-          name: name,
-          type: ServiceType.PORT,
-          status: "new",
-          id: "1",
-          comment: comment,
-        })
-      ),
+    onSubmit: () => dispatch(createNewService(service)),
   };
 
   return <ServicePopupForm service={serviceProps} />;
