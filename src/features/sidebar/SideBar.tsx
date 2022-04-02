@@ -7,8 +7,6 @@ import {
   RenderService,
   RenderSideBarElement,
 } from "../../components/SelectableElement/SideBarElement";
-import { FireWall, NetworkElement } from "../../types/repository";
-import { NetworkObjectElement, ServiceElement } from "../../types/types";
 import {
   initiateNewObject,
   selectNetworkObjects,
@@ -189,13 +187,11 @@ export function RenderObjects() {
       <ul
         className={`mt-2 pl-4 pb-4 ${
           droppedDown ? "scale-100 h-fit" : "scale-0 h-0"
-        } transform origin-top ease-in-out duration-150 transition space-y-4`}
+        } transform origin-top ease-in-out duration-150 transition space-y-1`}
       >
-        <li>
-          {objectState.networkObjects.map((element) =>
-            RenderNetworkObjects(element)
-          )}
-        </li>
+        {objectState.networkObjects.map((element) => {
+          return <li> {RenderNetworkObjects(element)} </li>;
+        })}
       </ul>
     </div>
   );

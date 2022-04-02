@@ -2,7 +2,7 @@ import { NetworkElement, FireWall } from "../../types/repository";
 import {
   ServiceElement,
   NetworkObjectElement,
-  EditableElement,
+  EditableElementStatus,
 } from "../../types/types";
 
 export function RenderSideBarElement({
@@ -16,22 +16,12 @@ export function RenderSideBarElement({
   alt: string;
   status: "source" | "new" | "modified" | "deleted";
 }) {
-  const statusStyle = () => {
-    switch (status) {
-      case "modified":
-        return "border-blue-500 border";
-      case "new":
-        return "border-green-500 border";
-      case "deleted":
-        return "display-none";
-      case "source":
-        return "border-gray-200 border";
-    }
-  };
   return (
     <div
       key={name}
-      className={`flex flex-row hover:shadow-lg hover:cursor-pointer hover:bg-slate-100 transition-shadow  ${statusStyle()}  h-10 shadow-md items-center px-4 rounded-md`}
+      className={`flex flex-row hover:shadow-lg hover:cursor-pointer hover:bg-slate-100 transition-shadow  ${statusStyle(
+        status
+      )}  h-10 shadow-md items-center px-4 rounded-md`}
     >
       <img className="h-5" src={icon} alt={alt} />
       <p className="text-md select-none text-gray-700  pl-2">{name}</p>
@@ -86,3 +76,16 @@ export function RenderFirewall({ fireWall }: { fireWall: FireWall }) {
     />
   );
 }
+
+export const statusStyle = (status: EditableElementStatus) => {
+  switch (status) {
+    case "modified":
+      return "border-blue-500 border";
+    case "new":
+      return "border-green-500 border";
+    case "deleted":
+      return "display-none";
+    case "source":
+      return "border-gray-200 border";
+  }
+};

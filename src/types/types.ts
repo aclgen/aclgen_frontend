@@ -4,7 +4,7 @@ export type RuleSet = {
   rules: RuleElement[];
 };
 
-type EditableElementStatus = "modified" | "new" | "source" | "deleted";
+export type EditableElementStatus = "modified" | "new" | "source" | "deleted";
 
 export interface RuleElement extends EditableElement {
   name: string;

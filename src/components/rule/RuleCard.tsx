@@ -10,6 +10,7 @@ import {
   PortService,
   ServiceElement,
 } from "../../types/types";
+import { statusStyle } from "../SelectableElement/SideBarElement";
 
 export interface CardProps {
   index: number;
@@ -33,6 +34,15 @@ export const ItemTypes = {
  * @returns A properly formatted Rule card
  */
 function card({ index, rule, moveCard }: CardProps) {
+  const [name, setName] = useState(rule.name);
+  const [comment, setComment] = useState(rule.comment);
+  const [source, setSource] = useState(rule.source);
+  const [destination, setDestination] = useState(rule.destination);
+  const [direction, setDirection] = useState(rule.direction);
+  const [service, setService] = useState(rule.service);
+  const [policy, setPolicy] = useState(rule.policy);
+  const [status, setStatus] = useState(rule.status);
+
   const ref = useRef<HTMLDivElement>(null);
   const [{ handlerId }, drop] = useDrop<
     DragItem,
@@ -110,14 +120,6 @@ function card({ index, rule, moveCard }: CardProps) {
   const opacity = isDragging ? 0 : 1;
   drag(drop(ref));
 
-  const [name, setName] = useState(rule.name);
-  const [comment, setComment] = useState(rule.comment);
-  const [source, setSource] = useState(rule.source);
-  const [destination, setDestination] = useState(rule.destination);
-  const [direction, setDirection] = useState(rule.direction);
-  const [service, setService] = useState(rule.service);
-  const [policy, setPolicy] = useState(rule.policy);
-
   return (
     <div
       key={rule.id}
@@ -125,7 +127,9 @@ function card({ index, rule, moveCard }: CardProps) {
       data-handler-id={handlerId}
       className={`p-2 ${
         opacity === 0 ? "opacity-0" : "opacity-100"
-      } pl-4 container bg-white container-xl transition-opacity hover:cursor-pointer active:border-blue-800 hover:border-blue-400 hover:shadow-lg rounded-md border-2 border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700`}
+      } pl-4 container bg-white container-xl transition-opacity ${statusStyle(
+        status
+      )} hover:cursor-pointer active:border-blue-800 hover:border-blue-400 hover:shadow-lg rounded-md border-2 shadow-md dark:bg-gray-800 dark:border-gray-700`}
     >
       <form
         className="space-y-2 flex flex-row justify-between space-x-4"
@@ -133,22 +137,55 @@ function card({ index, rule, moveCard }: CardProps) {
       >
         <div className="space-y-2 flex justify-self-start flex-row justify-between space-x-4 ">
           <Index value={index} />
-          <Name value={name} onChange={setName} />
-          <Source value={source} onChange={(data: IPV4) => setSource(data)} />
+          <Name
+            value={name}
+            onChange={(data) => {
+              setStatus("modified");
+              setName(data);
+            }}
+          />
+          <Source
+            value={source}
+            onChange={(data: IPV4) => {
+              setSource(data);
+              setStatus("modified");
+            }}
+          />
           <Destination
             value={destination}
-            onChange={(data: IPV4) => setDestination(data)}
+            onChange={(data: IPV4) => {
+              setStatus("modified");
+              setDestination(data);
+            }}
           />
           <ServiceInput
             value={service}
-            onChange={(data: PortService) => setService(data)}
+            onChange={(data: PortService) => {
+              setStatus("modified");
+              setService(data);
+            }}
           />
           <Direction
             value={direction}
-            onChange={(data: DIRECTION) => setDirection(data)}
+            onChange={(data: DIRECTION) => {
+              setStatus("modified");
+              setDirection(data);
+            }}
           />
-          <Policy value={policy} onChange={(data: POLICY) => setPolicy(data)} />
-          <Comment value={comment} onChange={setComment} />
+          <Policy
+            value={policy}
+            onChange={(data: POLICY) => {
+              setStatus("modified");
+              setPolicy(data);
+            }}
+          />
+          <Comment
+            value={comment}
+            onChange={(data) => {
+              setStatus("modified");
+              setComment(data);
+            }}
+          />
         </div>
         <div className="flex justify-self-end items-center flex-row justify-between space-x-4">
           <CheckIcon />
