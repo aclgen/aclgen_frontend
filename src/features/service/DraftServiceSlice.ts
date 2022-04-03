@@ -4,8 +4,6 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { AppState, AppThunk } from "../../app/store";
 import { initiateNewRule } from "../rules/ruleSlice";
 import { initiateNewObject } from "../networkObject/DraftNetworkObjectSlice";
-import { setSelectedRepository } from "../repository/repositorySlice";
-import { stat } from "fs";
 
 export interface ServiceState {
   services: ServiceElement[];

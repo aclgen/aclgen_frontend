@@ -108,6 +108,6 @@ export const statusStyle = (status: EditableElementStatus) => {
     case "deleted":
       return "display-none";
     case "source":
-      return "border-gray-200 border";
+      return "border-gray-200 border-2";
   }
 };
