@@ -151,7 +151,7 @@ function card({ index, rule, moveCard, modifyCard }: CardProps) {
       className={`p-2 ${
         opacity === 0 ? "opacity-0" : "opacity-100"
       } pl-4 container bg-white container-xl transition-opacity ${statusStyle(
-        status
+        rule.status
       )} hover:cursor-pointer outline-none active:border-blue-500 rounded-md shadow-md dark:bg-gray-800 dark:border-gray-700`}
     >
       <form
@@ -163,49 +163,42 @@ function card({ index, rule, moveCard, modifyCard }: CardProps) {
           <Name
             value={name}
             onChange={(data) => {
-              setStatus("modified");
               onChange(() => setName(data));
             }}
           />
           <Source
             value={source}
             onChange={(data: IPV4) => {
-              setSource(data);
-              onChange(() => setStatus("modified"));
+              onChange(() => setSource(data));
             }}
           />
           <Destination
             value={destination}
             onChange={(data: IPV4) => {
-              setStatus("modified");
               onChange(() => setDestination(data));
             }}
           />
           <ServiceInput
             value={service}
             onChange={(data: PortService) => {
-              setStatus("modified");
               onChange(() => setService(data));
             }}
           />
           <Direction
             value={direction}
             onChange={(data: DIRECTION) => {
-              setStatus("modified");
               onChange(() => setDirection(data));
             }}
           />
           <Policy
             value={policy}
             onChange={(data: POLICY) => {
-              setStatus("modified");
               onChange(() => setPolicy(data));
             }}
           />
           <Comment
             value={comment}
             onChange={(data) => {
-              setStatus("modified");
               onChange(() => setComment(data));
             }}
           />
