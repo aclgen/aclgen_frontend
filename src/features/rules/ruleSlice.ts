@@ -3,7 +3,10 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { AppState } from "../../app/store";
 import { Rule, RuleElement } from "../../types/types";
 import { initiateNewObject } from "../networkObject/DraftNetworkObjectSlice";
-import { initiateNewService } from "../service/DraftServiceSlice";
+import {
+  cancelCreationPopUp,
+  initiateNewService,
+} from "../service/DraftServiceSlice";
 import { fetchRules } from "./ruleAPI";
 
 export interface DraftRuleState {
@@ -46,6 +49,16 @@ export const DraftRuleSlice = createSlice({
       state.rules = action.payload;
       state.status = "idle";
     },
+    modifyRule: (state, action: PayloadAction<RuleElement>) => {
+      const index = state.rules.findIndex(
+        (element) => element.id === action.payload.id
+      );
+      state.rules = [
+        ...state.rules.slice(0, index),
+        action.payload,
+        ...state.rules.slice(index + 1),
+      ];
+    },
     createNewRule: (state, action: PayloadAction<Rule>) => {
       state.newRule = undefined;
       state.rules = [...state.rules, action.payload];
@@ -69,11 +82,20 @@ export const DraftRuleSlice = createSlice({
       state.newRule = undefined;
       state.newRuleStatus = "idle";
     });
+    builder.addCase(cancelCreationPopUp, (state) => {
+      state.newRule = undefined;
+      state.newRuleStatus = "idle";
+    });
   },
 });
 
-export const { updateRules, initiateNewRule, createNewRule, setRules } =
-  DraftRuleSlice.actions;
+export const {
+  updateRules,
+  modifyRule,
+  initiateNewRule,
+  createNewRule,
+  setRules,
+} = DraftRuleSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of

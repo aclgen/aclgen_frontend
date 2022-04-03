@@ -5,13 +5,15 @@ import {
   updateRules,
   initiateNewRule,
   setRules,
+  modifyRule,
 } from "../../features/rules/ruleSlice";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Rule, RuleElement } from "../../types/types";
 import update from "immutability-helper";
 import SideBar from "../../features/sidebar/SideBar";
 import { selectDraftRepository } from "../../features/repository/DraftRepositorySlice";
 import { FireWall } from "../../types/repository";
+import CountableCheckButton from "../../components/CountableCheckButton";
 
 function ListView() {
   const dispatch = useAppDispatch();
@@ -42,7 +44,13 @@ function ListView() {
 
   const renderCard = useCallback((rule: Rule, index: number) => {
     return (
-      <RuleCard key={rule.id} index={index} moveCard={moveCard} rule={rule} />
+      <RuleCard
+        key={rule.id}
+        index={index}
+        moveCard={moveCard}
+        rule={rule}
+        modifyCard={(card) => dispatch(modifyRule(card))}
+      />
     );
   }, []);
 
@@ -57,17 +65,16 @@ function ListView() {
           </div>
         </div>
         <div className="px-4 flex flex-col space-y-2 scrollbar overflow-y-scroll content-area py-2">
-          <div className="container bg-white container-xl transition-opacity rounded-md border-2 border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
-            <div>
-              <button
-                className="outline-none h-10 "
-                onClick={() => {
-                  dispatch(initiateNewRule());
-                }}
-              >
-                <PlusButtonSVG />
-              </button>
-            </div>
+          <div className="container flex flex-row items-center space-x-2 bg-white container-xl transition-opacity rounded-md border-2 border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
+            <button
+              className="outline-none h-10 "
+              onClick={() => {
+                dispatch(initiateNewRule());
+              }}
+            >
+              <PlusButtonSVG />
+            </button>
+            <ModifiedCounter />
           </div>
           {state.rules
             .map((ruleElement) => ruleElementtoRule(ruleElement))
@@ -80,6 +87,21 @@ function ListView() {
 
 function ruleElementtoRule(element: RuleElement): Rule {
   return element as Rule;
+}
+
+function ModifiedCounter() {
+  const state = useAppSelector(selectRule);
+
+  const [modified, setModified] = useState(0);
+  useEffect(() => {
+    setModified(
+      state.rules
+        .map((element) => (element.status === "source" ? 0 : 1))
+        .reduce((prev, next) => prev + next, 0)
+    );
+  }, [state.rules]);
+
+  return <CountableCheckButton number={modified} onClick={() => {}} />;
 }
 
 export function PlusButtonSVG() {

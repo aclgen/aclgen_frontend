@@ -3,13 +3,16 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import type { AppState, AppThunk } from "../../app/store";
 import { fetchNetworkObjects } from "./networkObjectAPI";
-import { initiateNewService } from "../service/DraftServiceSlice";
+import {
+  cancelCreationPopUp,
+  initiateNewService,
+} from "../service/DraftServiceSlice";
 import { initiateNewRule } from "../rules/ruleSlice";
 
 export interface DraftNetworkObjectState {
   networkObjects: NetworkObjectElement[];
   status: "empty" | "idle" | "loading" | "failed";
-  newObjectStatus: "idle" | "creating" | "loading";
+  newObjectStatus: "idle" | "creating" | "editing";
   newObject: NetworkObjectElement | undefined;
 }
 
@@ -32,10 +35,43 @@ export const DraftNetworkObjectSlice = createSlice({
       state.networkObjects = action.payload;
       state.status = "idle";
     },
-    createNewObject: (state, action: PayloadAction<NetworkObjectElement>) => {
+    createNewNetworkObject: (
+      state,
+      action: PayloadAction<NetworkObjectElement>
+    ) => {
       state.newObject = undefined;
       state.networkObjects = [...state.networkObjects, action.payload];
       state.newObjectStatus = "idle";
+    },
+    modifyNetworkObject: (
+      state,
+      action: PayloadAction<NetworkObjectElement>
+    ) => {
+      state.newObject = undefined;
+      state.newObjectStatus = "idle";
+      const index = state.networkObjects.findIndex(
+        (element) => element.id === action.payload.id
+      );
+      state.networkObjects = [
+        ...state.networkObjects.slice(0, index),
+        action.payload,
+        ...state.networkObjects.slice(index + 1),
+      ];
+    },
+    initiateModifyNetworkObject: (
+      state,
+      action: PayloadAction<NetworkObjectElement>
+    ) => {
+      if (
+        state.newObjectStatus === "editing" &&
+        state.newObject.id === action.payload.id
+      ) {
+        state.newObject = undefined;
+        state.newObjectStatus = "idle";
+      } else {
+        state.newObject = action.payload;
+        state.newObjectStatus = "editing";
+      }
     },
     initiateNewObject: (state) => {
       state.newObject = undefined;
@@ -53,11 +89,19 @@ export const DraftNetworkObjectSlice = createSlice({
       state.newObject = undefined;
       state.newObjectStatus = "idle";
     });
+    builder.addCase(cancelCreationPopUp, (state) => {
+      state.newObjectStatus = "idle";
+    });
   },
 });
 
-export const { updateNetworkObjects, createNewObject, initiateNewObject } =
-  DraftNetworkObjectSlice.actions;
+export const {
+  updateNetworkObjects,
+  createNewNetworkObject,
+  initiateNewObject,
+  modifyNetworkObject,
+  initiateModifyNetworkObject,
+} = DraftNetworkObjectSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of

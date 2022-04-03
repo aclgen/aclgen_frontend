@@ -16,6 +16,7 @@ export interface CardProps {
   index: number;
   rule: Rule;
   moveCard: (dragIndex: number, hoverIndex: number) => void;
+  modifyCard: (rule: Rule) => void;
 }
 
 export interface DragItem {
@@ -33,7 +34,7 @@ export const ItemTypes = {
  * @param key index of the Rule
  * @returns A properly formatted Rule card
  */
-function card({ index, rule, moveCard }: CardProps) {
+function card({ index, rule, moveCard, modifyCard }: CardProps) {
   const [name, setName] = useState(rule.name);
   const [comment, setComment] = useState(rule.comment);
   const [source, setSource] = useState(rule.source);
@@ -42,6 +43,25 @@ function card({ index, rule, moveCard }: CardProps) {
   const [service, setService] = useState(rule.service);
   const [policy, setPolicy] = useState(rule.policy);
   const [status, setStatus] = useState(rule.status);
+
+  function onChange(setState: () => void) {
+    setState();
+    modifyCard(createCard());
+  }
+
+  function createCard(): Rule {
+    return {
+      source: source,
+      destination: destination,
+      service: service,
+      direction: direction,
+      policy: policy,
+      name: name,
+      comment: comment,
+      status: status === "new" ? "new" : "modified",
+      id: rule.id,
+    };
+  }
 
   const ref = useRef<HTMLDivElement>(null);
   const [{ handlerId }, drop] = useDrop<
@@ -110,6 +130,8 @@ function card({ index, rule, moveCard }: CardProps) {
   const [{ isDragging }, drag] = useDrag({
     type: ItemTypes.CARD,
     item: () => {
+      modifyCard(createCard());
+      setStatus(status === "new" ? "new" : "modified");
       return { cardKey, index };
     },
     collect: (monitor: any) => ({
@@ -118,6 +140,7 @@ function card({ index, rule, moveCard }: CardProps) {
   });
 
   const opacity = isDragging ? 0 : 1;
+
   drag(drop(ref));
 
   return (
@@ -128,8 +151,8 @@ function card({ index, rule, moveCard }: CardProps) {
       className={`p-2 ${
         opacity === 0 ? "opacity-0" : "opacity-100"
       } pl-4 container bg-white container-xl transition-opacity ${statusStyle(
-        status
-      )} hover:cursor-pointer active:border-blue-800 hover:border-blue-400 hover:shadow-lg rounded-md shadow-md dark:bg-gray-800 dark:border-gray-700`}
+        rule.status
+      )} hover:cursor-pointer outline-none active:border-blue-500 rounded-md shadow-md dark:bg-gray-800 dark:border-gray-700`}
     >
       <form
         className="space-y-2 flex flex-row justify-between space-x-4"
@@ -140,50 +163,43 @@ function card({ index, rule, moveCard }: CardProps) {
           <Name
             value={name}
             onChange={(data) => {
-              setStatus("modified");
-              setName(data);
+              onChange(() => setName(data));
             }}
           />
           <Source
             value={source}
             onChange={(data: IPV4) => {
-              setSource(data);
-              setStatus("modified");
+              onChange(() => setSource(data));
             }}
           />
           <Destination
             value={destination}
             onChange={(data: IPV4) => {
-              setStatus("modified");
-              setDestination(data);
+              onChange(() => setDestination(data));
             }}
           />
           <ServiceInput
             value={service}
             onChange={(data: PortService) => {
-              setStatus("modified");
-              setService(data);
+              onChange(() => setService(data));
             }}
           />
           <Direction
             value={direction}
             onChange={(data: DIRECTION) => {
-              setStatus("modified");
-              setDirection(data);
+              onChange(() => setDirection(data));
             }}
           />
           <Policy
             value={policy}
             onChange={(data: POLICY) => {
-              setStatus("modified");
-              setPolicy(data);
+              onChange(() => setPolicy(data));
             }}
           />
           <Comment
             value={comment}
             onChange={(data) => {
-              setStatus("modified");
-              setComment(data);
+              onChange(() => setComment(data));
             }}
           />
         </div>
