@@ -45,8 +45,11 @@ export const ServiceSlice = createSlice({
       const index = state.services.findIndex(
         (element) => element.id === action.payload.id
       );
-      state.services[index] = action.payload;
-      state.services = [...state.services];
+      state.services = [
+        ...state.services.slice(0, index),
+        action.payload,
+        ...state.services.slice(index + 1),
+      ];
     },
     initiateModifyService: (state, action: PayloadAction<ServiceElement>) => {
       if (
@@ -56,9 +59,12 @@ export const ServiceSlice = createSlice({
         state.newService = undefined;
         state.newServiceStatus = "idle";
       } else {
-        state.newService = { ...action.payload, id: action.payload.id };
+        state.newService = action.payload;
         state.newServiceStatus = "editing";
       }
+    },
+    cancelCreationPopUp: (state) => {
+      state.newServiceStatus = "idle";
     },
   },
   // The `extraReducers` field lets the slice handle actions defined elsewhere,
@@ -81,6 +87,7 @@ export const {
   createNewService,
   initiateNewService,
   initiateModifyService,
+  cancelCreationPopUp,
 } = ServiceSlice.actions;
 
 // The function below is called a selector and allows us to select a value from

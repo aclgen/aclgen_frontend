@@ -33,16 +33,18 @@ export function RenderSideBarElement({
 }
 
 export function RenderService(service: ServiceElement, onClick: () => void) {
-  return (
-    <RenderSideBarElement
-      key={service.id}
-      name={service.name}
-      status={service.status}
-      icon={"/computer-networks.svg"}
-      alt={"service"}
-      onClick={() => onClick()}
-    />
-  );
+  if (service.status !== "deleted") {
+    return (
+      <RenderSideBarElement
+        key={service.id}
+        name={service.name}
+        status={service.status}
+        icon={"/computer-networks.svg"}
+        alt={"service"}
+        onClick={() => onClick()}
+      />
+    );
+  }
 }
 
 export function RenderNetworkObjects(

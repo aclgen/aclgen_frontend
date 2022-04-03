@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import ServicePopupForm, {
   ServicePopupProps,
 } from "../../components/creationForm/ServiceCreationForm";
 import { PortService, ServiceType } from "../../types/types";
 import {
+  cancelCreationPopUp,
   createNewService,
   modifyService,
   selectService,
@@ -17,6 +18,7 @@ export function ServicePopup() {
     case "creating":
       return <ServiceCreationPopup />;
     case "editing":
+      //Need to add key property to this component to force it to rerender when changing service. Wierd Bug...
       return <ServiceEditingPopup key={state.newService.id} />;
     default:
       return <></>;
@@ -27,7 +29,7 @@ export function ServiceEditingPopup() {
   const dispatch = useAppDispatch();
   const state = useAppSelector(selectService);
 
-  const service: PortService = { ...(state.newService as PortService) };
+  const service: PortService = state.newService as PortService;
 
   const [name, setName] = useState(service.name);
   const [comment, setComment] = useState(service.comment);
@@ -39,9 +41,9 @@ export function ServiceEditingPopup() {
 
   const newService: PortService = {
     name: name,
-    type: ServiceType.PORT,
-    status: "modified",
-    id: `${state.services.length}`,
+    type: service.type,
+    status: service.status === "new" ? "new" : "modified",
+    id: `${service.id}`,
     comment: comment,
     sourcePort: sourcePort,
     destinationPort: destinationPort,
@@ -61,6 +63,9 @@ export function ServiceEditingPopup() {
     protocol: protocol,
     setProtocol: setProtocol,
     onSubmit: () => dispatch(modifyService(newService)),
+    onCancel: () => dispatch(cancelCreationPopUp()),
+    onDelete: () =>
+      dispatch(modifyService({ ...newService, status: "deleted" })),
   };
   return <ServicePopupForm service={serviceProps} />;
 }
@@ -99,6 +104,7 @@ function ServiceCreationPopup() {
     protocol: protocol,
     setProtocol: setProtocol,
     onSubmit: () => dispatch(createNewService(service)),
+    onCancel: () => dispatch(cancelCreationPopUp()),
   };
 
   return <ServicePopupForm service={serviceProps} />;

@@ -11,6 +11,8 @@ export interface ServicePopupProps {
   protocol: string;
   setProtocol: (string) => void;
   onSubmit: () => void;
+  onCancel?: () => void;
+  onDelete?: () => void;
 }
 
 export function ServicePopupForm({ service }: { service: ServicePopupProps }) {
@@ -20,7 +22,7 @@ export function ServicePopupForm({ service }: { service: ServicePopupProps }) {
         service.isVisible ? "scale-100 h-fit" : "scale-y-0 h-0"
       } absolute inset-x-0 bottom-2 transform origin-bottom  duration-300 transition`}
     >
-      <div className="mx-auto h-24 container bg-slate-100 shadow-lg rounded-md border-2 border-blue-400 flex-row items-center">
+      <div className="mx-auto h-24 container relative bg-slate-100 shadow-lg rounded-md border-2 border-blue-400 flex-row items-center">
         <form
           className="space-y-3 py-1  px-6 flex flex-row justify-between space-x-4"
           action="#"
@@ -55,8 +57,16 @@ export function ServicePopupForm({ service }: { service: ServicePopupProps }) {
           </div>
           <div className="flex justify-self-end items-center flex-row justify-between space-x-4">
             <CheckIcon onClick={service.onSubmit} />
+            {service.onDelete ? (
+              <TrashIcon onClick={service.onDelete} />
+            ) : (
+              <></>
+            )}
           </div>
         </form>
+        <div className="absolute right-2 top-1">
+          <XIcon onClick={service.onCancel} size="sm" />
+        </div>
       </div>
     </div>
   );
@@ -71,11 +81,34 @@ export const Index: React.FC<{ value: number }> = ({ value }) => (
   </p>
 );
 
-export const TrashIcon = () => {
+export const TrashIcon = ({ onClick }: { onClick: () => void }) => {
   return (
-    <div>
-      <img src="/square.svg" className=" mr-3 h-6" />
-    </div>
+    <svg
+      version="1.1"
+      id="Layer_1"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 512 512"
+      className="h-10 group hover:cursor-pointer"
+      onClick={onClick}
+    >
+      <path
+        d="m337.185 149.911h-35.509v-18.911a10 10 0 0 0 -10-10h-71.352a10 10 0 0 0 -10 10v18.911h-35.509a26.881 26.881 0 0 0 -26.85 26.85v16.849a10 10 0 0 0 10 10h4.3v149.31a38.123 38.123 0 0 0 38.08 38.08h111.31a38.122 38.122 0 0 0 38.083-38.079v-149.312h4.3a10 10 0 0 0 10-10v-16.849a26.881 26.881 0 0 0 -26.849-26.849zm-106.861-8.911h51.352v8.913h-51.352zm-62.359 35.76a6.94 6.94 0 0 1 6.85-6.848h162.37a6.941 6.941 0 0 1 6.849 6.85v6.85h-176.069zm161.773 176.159a18.1 18.1 0 0 1 -18.083 18.081h-111.31a18.1 18.1 0 0 1 -18.083-18.08v-149.311h147.476zm-83.738-9.959v-111.311a10 10 0 0 1 20 0v111.311a10 10 0 1 1 -20 0zm-41.869 0v-111.311a10 10 0 0 1 20 0v111.311a10 10 0 0 1 -20 0zm83.738 0v-111.311a10 10 0 0 1 20 0v111.311a10 10 0 0 1 -20 0z"
+        className="fill-gray-800  group-hover:hidden"
+      />
+      <circle
+        className="opacity-0 group-hover:fill-red-600 group-hover:opacity-100 transition-opacity duration-150"
+        cx="256"
+        cy="256"
+        r="256"
+        transform="matrix(.707 -.707 .707 .707 -106.039 256)"
+      />
+      <path
+        d="m337.185 149.911h-35.509v-18.911a10 10 0 0 0 -10-10h-71.352a10 10 0 0 0 -10 10v18.911h-35.509a26.881 26.881 0 0 0 -26.85 26.85v16.849a10 10 0 0 0 10 10h4.3v149.31a38.123 38.123 0 0 0 38.08 38.08h111.31a38.122 38.122 0 0 0 38.083-38.079v-149.312h4.3a10 10 0 0 0 10-10v-16.849a26.881 26.881 0 0 0 -26.849-26.849zm-106.861-8.911h51.352v8.913h-51.352zm-62.359 35.76a6.94 6.94 0 0 1 6.85-6.848h162.37a6.941 6.941 0 0 1 6.849 6.85v6.85h-176.069zm161.773 176.159a18.1 18.1 0 0 1 -18.083 18.081h-111.31a18.1 18.1 0 0 1 -18.083-18.08v-149.311h147.476zm-83.738-9.959v-111.311a10 10 0 0 1 20 0v111.311a10 10 0 1 1 -20 0zm-41.869 0v-111.311a10 10 0 0 1 20 0v111.311a10 10 0 0 1 -20 0zm83.738 0v-111.311a10 10 0 0 1 20 0v111.311a10 10 0 0 1 -20 0z"
+        fillRule="evenodd"
+        className="opacity-0 fill-white group-hover:opacity-100 transition-opacity duration-150"
+      />
+    </svg>
   );
 };
 
@@ -100,6 +133,37 @@ export const CheckIcon = ({ onClick }: { onClick: () => void }) => {
 			C514.5,101.703,514.499,85.494,504.502,75.496z"
           className="fill-blue-700"
         ></path>
+      </svg>
+    </div>
+  );
+};
+
+export const XIcon = ({
+  onClick,
+  size,
+}: {
+  onClick: () => void;
+  size: "sm" | "md" | "lg";
+}) => {
+  const height = getHeight(size);
+  return (
+    <div
+      onClick={onClick}
+      className="group hover:cursor-pointer rounded-full hover:bg-gray-200 hover:shadow-md"
+    >
+      <svg
+        version="1.1"
+        id="Layer_1"
+        xmlns="http://www.w3.org/2000/svg"
+        x="0px"
+        y="0px"
+        viewBox="0 0 329.26933 329"
+        className={`h-${height} p-1`}
+      >
+        <path
+          className="fill-gray-500"
+          d="m194.800781 164.769531 128.210938-128.214843c8.34375-8.339844 8.34375-21.824219 0-30.164063-8.339844-8.339844-21.824219-8.339844-30.164063 0l-128.214844 128.214844-128.210937-128.214844c-8.34375-8.339844-21.824219-8.339844-30.164063 0-8.34375 8.339844-8.34375 21.824219 0 30.164063l128.210938 128.214843-128.210938 128.214844c-8.34375 8.339844-8.34375 21.824219 0 30.164063 4.15625 4.160156 9.621094 6.25 15.082032 6.25 5.460937 0 10.921875-2.089844 15.082031-6.25l128.210937-128.214844 128.214844 128.214844c4.160156 4.160156 9.621094 6.25 15.082032 6.25 5.460937 0 10.921874-2.089844 15.082031-6.25 8.34375-8.339844 8.34375-21.824219 0-30.164063zm0 0"
+        />
       </svg>
     </div>
   );
@@ -214,3 +278,16 @@ export const Label = ({ value }: { value: string }) => (
 );
 
 export default ServicePopupForm;
+function getHeight(size: string) {
+  switch (size) {
+    case "sm": {
+      return 4;
+    }
+    case "md": {
+      return 6;
+    }
+    case "lg": {
+      return 8;
+    }
+  }
+}
