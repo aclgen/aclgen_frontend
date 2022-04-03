@@ -53,6 +53,7 @@ export function ServiceEditingPopup() {
   const serviceProps: ServicePopupProps = {
     isVisible: state.newServiceStatus === "editing",
     name: name,
+    element: service,
     setName: setName,
     comment: comment,
     setComment: setComment,
@@ -94,6 +95,7 @@ function ServiceCreationPopup() {
   const serviceProps: ServicePopupProps = {
     isVisible: state.newServiceStatus === "creating",
     name: name,
+    element: service,
     setName: setName,
     comment: comment,
     setComment: setComment,

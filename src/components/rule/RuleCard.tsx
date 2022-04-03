@@ -110,6 +110,7 @@ function card({ index, rule, moveCard }: CardProps) {
   const [{ isDragging }, drag] = useDrag({
     type: ItemTypes.CARD,
     item: () => {
+      setStatus(status === "new" ? "new" : "modified");
       return { cardKey, index };
     },
     collect: (monitor: any) => ({
@@ -118,6 +119,7 @@ function card({ index, rule, moveCard }: CardProps) {
   });
 
   const opacity = isDragging ? 0 : 1;
+
   drag(drop(ref));
 
   return (

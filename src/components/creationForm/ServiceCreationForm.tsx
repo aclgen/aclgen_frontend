@@ -1,6 +1,10 @@
-export interface ServicePopupProps {
+import { EditableElement, EditableElementStatus } from "../../types/types";
+import { PopUpForm, PopUpFormProps } from "./PopUpForm";
+
+export interface ServicePopupProps extends PopUpFormProps {
   isVisible: boolean;
   name: string;
+  element: EditableElement;
   setName: (string) => void;
   comment: string;
   setComment: (string) => void;
@@ -17,58 +21,45 @@ export interface ServicePopupProps {
 
 export function ServicePopupForm({ service }: { service: ServicePopupProps }) {
   return (
-    <div
-      className={`${
-        service.isVisible ? "scale-100 h-fit" : "scale-y-0 h-0"
-      } absolute inset-x-0 bottom-2 transform origin-bottom  duration-300 transition`}
-    >
-      <div className="mx-auto h-24 container relative bg-slate-100 shadow-lg rounded-md border-2 border-blue-400 flex-row items-center">
-        <form
-          className="space-y-3 py-1  px-6 flex flex-row justify-between space-x-4"
-          action="#"
-        >
-          <div className="flex justify-self-start items-center flex-row justify-between space-x-4 ">
-            <img
-              className="h-8 mt-5"
-              src={"/computer-networks.svg"}
-              alt={"Service"}
-            />
-            <Type />
-            <Name
-              value={service.name}
-              onChange={(name) => service.setName(name)}
-            />
-            <Port
-              value={service.destinationPort}
-              onChange={(port) => service.setDestinationPort(port)}
-            />
-            <Port
-              value={service.sourcePort}
-              onChange={(port) => service.setSourcePort(port)}
-            />
-            <Protocol
-              value={service.protocol}
-              onChange={(protocol) => service.setProtocol(protocol)}
-            />
-            <Comment
-              value={service.comment}
-              onChange={(comment) => service.setComment(comment)}
-            />
-          </div>
-          <div className="flex justify-self-end items-center flex-row justify-between space-x-4">
-            <CheckIcon onClick={service.onSubmit} />
-            {service.onDelete ? (
-              <TrashIcon onClick={service.onDelete} />
-            ) : (
-              <></>
-            )}
-          </div>
-        </form>
-        <div className="absolute right-2 top-1">
-          <XIcon onClick={service.onCancel} size="sm" />
+    <PopUpForm popUp={service}>
+      <form
+        className="space-y-3 py-1  px-6 flex flex-row justify-between space-x-4"
+        action="#"
+      >
+        <div className="flex justify-self-start items-center flex-row justify-between space-x-4 ">
+          <img
+            className="h-8 mt-5"
+            src={"/computer-networks.svg"}
+            alt={"Service"}
+          />
+          <Type />
+          <Name
+            value={service.name}
+            onChange={(name) => service.setName(name)}
+          />
+          <Port
+            value={service.destinationPort}
+            onChange={(port) => service.setDestinationPort(port)}
+          />
+          <Port
+            value={service.sourcePort}
+            onChange={(port) => service.setSourcePort(port)}
+          />
+          <Protocol
+            value={service.protocol}
+            onChange={(protocol) => service.setProtocol(protocol)}
+          />
+          <Comment
+            value={service.comment}
+            onChange={(comment) => service.setComment(comment)}
+          />
         </div>
-      </div>
-    </div>
+        <div className="flex justify-self-end items-center flex-row justify-between space-x-4">
+          <CheckIcon onClick={service.onSubmit} />
+          {service.onDelete ? <TrashIcon onClick={service.onDelete} /> : <></>}
+        </div>
+      </form>
+    </PopUpForm>
   );
 }
 
@@ -133,37 +124,6 @@ export const CheckIcon = ({ onClick }: { onClick: () => void }) => {
 			C514.5,101.703,514.499,85.494,504.502,75.496z"
           className="fill-blue-700"
         ></path>
-      </svg>
-    </div>
-  );
-};
-
-export const XIcon = ({
-  onClick,
-  size,
-}: {
-  onClick: () => void;
-  size: "sm" | "md" | "lg";
-}) => {
-  const height = getHeight(size);
-  return (
-    <div
-      onClick={onClick}
-      className="group hover:cursor-pointer rounded-full hover:bg-gray-200 hover:shadow-md"
-    >
-      <svg
-        version="1.1"
-        id="Layer_1"
-        xmlns="http://www.w3.org/2000/svg"
-        x="0px"
-        y="0px"
-        viewBox="0 0 329.26933 329"
-        className={`h-${height} p-1`}
-      >
-        <path
-          className="fill-gray-500"
-          d="m194.800781 164.769531 128.210938-128.214843c8.34375-8.339844 8.34375-21.824219 0-30.164063-8.339844-8.339844-21.824219-8.339844-30.164063 0l-128.214844 128.214844-128.210937-128.214844c-8.34375-8.339844-21.824219-8.339844-30.164063 0-8.34375 8.339844-8.34375 21.824219 0 30.164063l128.210938 128.214843-128.210938 128.214844c-8.34375 8.339844-8.34375 21.824219 0 30.164063 4.15625 4.160156 9.621094 6.25 15.082032 6.25 5.460937 0 10.921875-2.089844 15.082031-6.25l128.210937-128.214844 128.214844 128.214844c4.160156 4.160156 9.621094 6.25 15.082032 6.25 5.460937 0 10.921874-2.089844 15.082031-6.25 8.34375-8.339844 8.34375-21.824219 0-30.164063zm0 0"
-        />
       </svg>
     </div>
   );
@@ -278,16 +238,3 @@ export const Label = ({ value }: { value: string }) => (
 );
 
 export default ServicePopupForm;
-function getHeight(size: string) {
-  switch (size) {
-    case "sm": {
-      return 4;
-    }
-    case "md": {
-      return 6;
-    }
-    case "lg": {
-      return 8;
-    }
-  }
-}
