@@ -3,7 +3,10 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { AppState } from "../../app/store";
 import { Rule, RuleElement } from "../../types/types";
 import { initiateNewObject } from "../networkObject/DraftNetworkObjectSlice";
-import { initiateNewService } from "../service/DraftServiceSlice";
+import {
+  cancelCreationPopUp,
+  initiateNewService,
+} from "../service/DraftServiceSlice";
 import { fetchRules } from "./ruleAPI";
 
 export interface DraftRuleState {
@@ -76,6 +79,10 @@ export const DraftRuleSlice = createSlice({
       state.newRuleStatus = "idle";
     });
     builder.addCase(initiateNewService, (state, payload) => {
+      state.newRule = undefined;
+      state.newRuleStatus = "idle";
+    });
+    builder.addCase(cancelCreationPopUp, (state) => {
       state.newRule = undefined;
       state.newRuleStatus = "idle";
     });

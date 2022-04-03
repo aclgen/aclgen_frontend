@@ -51,16 +51,18 @@ export function RenderNetworkObjects(
   element: NetworkObjectElement,
   onClick: () => void
 ): any {
-  return (
-    <RenderSideBarElement
-      key={element.id}
-      status={element.status}
-      name={element.name}
-      icon={"/server.svg"}
-      alt={"Host"}
-      onClick={onClick}
-    />
-  );
+  if (element.status !== "deleted") {
+    return (
+      <RenderSideBarElement
+        key={element.id}
+        status={element.status}
+        name={element.name}
+        icon={"/server.svg"}
+        alt={"Host"}
+        onClick={onClick}
+      />
+    );
+  }
 }
 
 export function RenderNetworkElement(

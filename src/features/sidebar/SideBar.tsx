@@ -8,6 +8,7 @@ import {
   RenderService,
 } from "../../components/SelectableElement/SideBarElement";
 import {
+  initiateModifyNetworkObject,
   initiateNewObject,
   selectNetworkObjects,
   updateNetworkObjects,
@@ -150,7 +151,6 @@ export function RenderObjects() {
     }
   });
 
-  const state = useAppSelector(selectRepository);
   const [droppedDown, setDropdown] = useState(false);
   return (
     <div className="h-fit flex flex-col">
@@ -167,8 +167,9 @@ export function RenderObjects() {
         {objectState.networkObjects.map((element) => {
           return (
             <li key={element.id}>
-              {" "}
-              {RenderNetworkObjects(element, () => {})}{" "}
+              {RenderNetworkObjects(element, () => {
+                dispatch(initiateModifyNetworkObject(element));
+              })}
             </li>
           );
         })}

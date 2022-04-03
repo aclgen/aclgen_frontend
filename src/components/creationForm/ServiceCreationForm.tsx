@@ -1,4 +1,4 @@
-import { EditableElement, EditableElementStatus } from "../../types/types";
+import { EditableElement } from "../../types/types";
 import { PopUpForm, PopUpFormProps } from "./PopUpForm";
 
 export interface ServicePopupProps extends PopUpFormProps {
