@@ -90,7 +90,6 @@ export const DraftNetworkObjectSlice = createSlice({
       state.newObjectStatus = "idle";
     });
     builder.addCase(cancelCreationPopUp, (state) => {
-      state.newObject = undefined;
       state.newObjectStatus = "idle";
     });
   },

@@ -6,9 +6,9 @@ import NetworkObjectPopup, {
 import { IPV4 } from "../../types/types";
 import { cancelCreationPopUp } from "../service/DraftServiceSlice";
 import {
-  createNewNetworkObject,
-  modifyNetworkObject,
   selectNetworkObjects,
+  modifyNetworkObject,
+  createNewNetworkObject,
 } from "./DraftNetworkObjectSlice";
 
 function NetworkObjectPopupController() {
@@ -36,18 +36,20 @@ function ObjectEditPopup() {
   const [ip, setIp] = useState(editingObject.ip);
 
   const newObject: IPV4 = {
-    name: editingObject.name,
+    name: name,
     status: editingObject.status === "new" ? "new" : "modified",
     id: `${editingObject.id}`,
-    comment: editingObject.comment,
-    ip: editingObject.ip,
+    comment: comment,
+    ip: ip,
   };
 
   const editingObjectProps: NetworkObjectPopupProps = {
     isVisible: state.newObjectStatus === "editing",
     name: name,
     element: editingObject,
-    setName: (name) => setName(name),
+    setName: (name) => {
+      setName(name);
+    },
     comment: comment,
     setComment: (comment) => setComment(comment),
     ip: ip,
