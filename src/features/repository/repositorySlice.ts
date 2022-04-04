@@ -4,8 +4,7 @@ import type { AppState, AppThunk } from "../../app/store";
 import { fetchRepositories } from "./repositoryAPI";
 import { Repository } from "../../types/repository";
 import EmptyRepository from "./EmptyRepository";
-import { createNewService } from "../service/DraftServiceSlice";
-import { createNewObject } from "../networkObject/DraftNetworkObjectSlice";
+import { commitServicesAsync } from "./DraftRepositorySlice";
 
 export interface RepositoryState {
   repositories: Repository[];
@@ -60,6 +59,23 @@ export const RepositorySlice = createSlice({
         state.status = "idle";
         state.repositories = action.payload;
       });
+    builder.addCase(commitServicesAsync.pending, (state, action) => {
+      state.status = "loading";
+    });
+    builder.addCase(commitServicesAsync.fulfilled, (state, action) => {
+      state.status = "idle";
+      state.repositories = [
+        {
+          ...state.repositories[0],
+          services: [
+            ...state.repositories[0].services,
+            ...action.payload.map((element) => {
+              return { ...element, status: "source" };
+            }),
+          ],
+        },
+      ];
+    });
   },
 });
 

@@ -1,5 +1,6 @@
 export type RuleSet = {
   id: string;
+  parentId: string;
   name: string;
   rules: RuleElement[];
 };

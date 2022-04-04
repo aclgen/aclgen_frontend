@@ -11,9 +11,13 @@ import { useCallback, useEffect, useState } from "react";
 import { Rule, RuleElement } from "../../types/types";
 import update from "immutability-helper";
 import SideBar from "../../features/sidebar/SideBar";
-import { selectDraftRepository } from "../../features/repository/DraftRepositorySlice";
+import {
+  commitServicesAsync,
+  selectDraftRepository,
+} from "../../features/repository/DraftRepositorySlice";
 import { FireWall } from "../../types/repository";
 import CountableCheckButton from "../../components/CountableCheckButton";
+import { selectService } from "../../features/service/DraftServiceSlice";
 
 function ListView() {
   const dispatch = useAppDispatch();
@@ -75,6 +79,7 @@ function ListView() {
               <PlusButtonSVG />
             </button>
             <ModifiedCounter />
+            <CommitServices />
           </div>
           {state.rules
             .map((ruleElement) => ruleElementtoRule(ruleElement))
@@ -104,9 +109,24 @@ function ModifiedCounter() {
   return <CountableCheckButton number={modified} onClick={() => {}} />;
 }
 
-export function PlusButtonSVG() {
+function CommitServices() {
+  const state = useAppSelector(selectService);
+  const dispatch = useAppDispatch();
+
+  function onClick() {
+    const services = state.services.filter(
+      (element) => element.status !== "source"
+    );
+    dispatch(commitServicesAsync(services));
+  }
+
+  return <PlusButtonSVG onClick={onClick} />;
+}
+
+export function PlusButtonSVG({ onClick }: { onClick?: () => void }) {
   return (
     <svg
+      onClick={onClick === undefined ? () => {} : onClick}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 512 512"
       className="h-8 pt-1 pl-4 ml-auto items-end group hover:cursor-pointer"

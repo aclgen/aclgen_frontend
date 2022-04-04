@@ -1,12 +1,12 @@
-import {
-  createAsyncThunk,
-  createSlice,
-  Dispatch,
-  PayloadAction,
-} from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import type { AppState, AppThunk } from "../../app/store";
-import { NetworkElement, Repository, WorkSpace } from "../../types/repository";
+import type { AppDispatch, AppState, AppThunk } from "../../app/store";
+import {
+  FireWall,
+  NetworkElement,
+  Repository,
+  WorkSpace,
+} from "../../types/repository";
 import EmptyRepository from "./EmptyRepository";
 import { setSelectedRepository } from "./repositorySlice";
 import { WritableDraft } from "immer/dist/internal";
@@ -16,6 +16,11 @@ import {
   ServiceElement,
   Nestable,
 } from "../../types/types";
+import { saveServicesToDraft } from "../service/DraftServiceSlice";
+import { saveWorkSpaceToDraft } from "../workSpaceDraft/DraftWorkSpaceSlice";
+import { saveNetworkObjectsToDraft } from "../networkObject/DraftNetworkObjectSlice";
+import { saveRulesToDraft } from "../rules/ruleSlice";
+import { commitServices } from "./repositoryAPI";
 
 export interface DraftRepositoryState {
   repository: Repository;
@@ -26,6 +31,23 @@ const initialState: DraftRepositoryState = {
   repository: EmptyRepository,
   status: "empty",
 };
+
+export const commitServicesAsync = createAsyncThunk<
+  ServiceElement[],
+  ServiceElement[],
+  { dispatch: AppDispatch; state: AppState }
+>(
+  "draftRepository/commitServices",
+  async (services: ServiceElement[], thunkAPI) => {
+    thunkAPI.dispatch(
+      saveServicesToDraft(thunkAPI.getState().service.services)
+    );
+    const response = await commitServices({ services: services });
+    console.log(response);
+    // The value we return becomes the `fulfilled` action payload
+    return response.data;
+  }
+);
 
 // The function below is called a thunk and allows us to perform async logic. It
 // can be dispatched like a regular action: `dispatch(incrementAsync(10))`. This
@@ -51,6 +73,54 @@ export const DraftRepositorySlice = createSlice({
         state.repository,
         action.payload
       );
+    });
+    builder.addCase(saveServicesToDraft, (state, action) => {
+      state.repository = { ...state.repository, services: action.payload };
+    });
+    builder.addCase(saveWorkSpaceToDraft, (state, action) => {
+      state.repository = { ...state.repository, workSpace: action.payload };
+    });
+    builder.addCase(saveNetworkObjectsToDraft, (state, action) => {
+      state.repository = {
+        ...state.repository,
+        networkObjects: action.payload,
+      };
+    });
+    builder.addCase(saveRulesToDraft, (state, action) => {
+      const index: number = state.repository.workSpace.children.findIndex(
+        (element) => element.id == action.payload.parentId
+      );
+      const newFireWall: FireWall = {
+        ...(state.repository.workSpace.children[index] as FireWall),
+        rules: action.payload,
+      };
+
+      state.repository = {
+        ...state.repository,
+        workSpace: {
+          ...state.repository.workSpace,
+          children: [
+            ...state.repository.workSpace.children.slice(0, index),
+            newFireWall,
+            ...state.repository.workSpace.children.slice(index + 1),
+          ],
+        },
+      };
+    });
+    builder.addCase(commitServicesAsync.pending, (state) => {
+      state.status = "loading";
+    });
+    builder.addCase(commitServicesAsync.fulfilled, (state, action) => {
+      state.status = "idle";
+      const services = action.payload;
+      state.repository = {
+        ...state.repository,
+        services: state.repository.services.filter((element) =>
+          services.find((service) => service.id === element.id) === undefined
+            ? true
+            : false
+        ),
+      };
     });
   },
 });
