@@ -7,13 +7,17 @@ import {
   RenderNetworkObjects,
   RenderService,
 } from "../../components/SelectableElement/SideBarElement";
+import { ServiceElement } from "../../types/types";
 import {
   initiateModifyNetworkObject,
   initiateNewObject,
   selectNetworkObjects,
   updateNetworkObjects,
 } from "../networkObject/DraftNetworkObjectSlice";
-import { selectDraftRepository } from "../repository/DraftRepositorySlice";
+import {
+  commitServicesAsync,
+  selectDraftRepository,
+} from "../repository/DraftRepositorySlice";
 import {
   selectRepository,
   setSelectedRepository,
@@ -209,9 +213,15 @@ export function RenderServices() {
         {serviceState.services.map((element) => {
           return (
             <li key={element.id}>
-              {RenderService(element, () => {
-                dispatch(initiateModifyService(element));
-              })}
+              {RenderService(
+                element,
+                () => {
+                  dispatch(initiateModifyService(element));
+                },
+                () => {
+                  dispatch(commitServicesAsync([element]));
+                }
+              )}
             </li>
           );
         })}

@@ -103,7 +103,7 @@ export const TrashIcon = ({ onClick }: { onClick: () => void }) => {
   );
 };
 
-export const CheckIcon = ({ onClick }: { onClick: () => void }) => {
+export const CheckIcon = ({ onClick }: { onClick: (event: any) => void }) => {
   return (
     <div
       onClick={onClick}
