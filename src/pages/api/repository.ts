@@ -6,6 +6,7 @@ import {
   WorkSpace,
 } from "../../types/repository";
 import { createDummyNetwork, createDummyService, ruleList } from "./rules";
+import { v4 as uuidv4 } from "uuid";
 
 const ruleHandler: NextApiHandler = async (request, response) => {
   // simulate IO latency
@@ -27,7 +28,7 @@ function repoList(): Repository[] {
 
 function createDummyRepository(): Repository {
   const repo: Repository = {
-    UUID: "TestRepo",
+    UUID: uuidv4(),
     access: ACCESS.SHARED,
     repo: "Test Repo",
     description: "repo used for internal testing",
@@ -41,23 +42,24 @@ function createDummyRepository(): Repository {
 }
 
 function createDefaultWorkspace(): WorkSpace {
+  const workSpaceId = uuidv4();
   const firewall: FireWall = {
     name: "Default FireWall",
     rules: {
-      id: "0",
-      parentId: "123",
+      id: uuidv4(),
+      parentId: workSpaceId,
       rules: ruleList(),
       name: "Default Firewall",
     },
     type: "firewall",
     status: "source",
-    id: "123",
+    id: workSpaceId,
   };
 
   const workspace: WorkSpace = {
-    children: [firewall, { ...firewall, id: "1234" }],
+    children: [firewall, { ...firewall, id: uuidv4() }],
     status: "source",
-    id: "1234",
+    id: uuidv4(),
   };
   return workspace;
 }

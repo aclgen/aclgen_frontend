@@ -10,6 +10,7 @@ import {
   modifyService,
   selectService,
 } from "./DraftServiceSlice";
+import { v4 as uuidv4 } from "uuid";
 
 export function ServicePopup() {
   const state = useAppSelector(selectService);
@@ -85,7 +86,7 @@ function ServiceCreationPopup() {
     name: name,
     type: ServiceType.PORT,
     status: "new",
-    id: `${state.services.length}`,
+    id: uuidv4(),
     comment: comment,
     sourcePort: sourcePort,
     destinationPort: destinationPort,

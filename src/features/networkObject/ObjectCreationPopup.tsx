@@ -10,6 +10,7 @@ import {
   modifyNetworkObject,
   createNewNetworkObject,
 } from "./DraftNetworkObjectSlice";
+import { v4 as uuidv4 } from "uuid";
 
 function NetworkObjectPopupController() {
   const state = useAppSelector(selectNetworkObjects);
@@ -76,7 +77,7 @@ function ObjectCreationPopup() {
   const newObject: IPV4 = {
     name: name,
     status: "new",
-    id: `${state.networkObjects.length}`,
+    id: uuidv4(),
     comment: comment,
     ip: ip,
   };
