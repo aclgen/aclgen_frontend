@@ -33,6 +33,7 @@ function ServiceCreationPopup() {
   const [direction, setDirection] = useState(DIRECTION.INBOUND);
   const [service, setService] = useState(defaultService);
   const [policy, setPolicy] = useState(POLICY.ACCEPT);
+  const id = uuidv4();
 
   return (
     <div
@@ -49,7 +50,11 @@ function ServiceCreationPopup() {
             <Index value={index} />
             <Type />
             <Name value={name} onChange={setName} />
-            <Source value={source} onChange={(data: IPV4) => setSource(data)} />
+            <Source
+              parentId={id}
+              value={source}
+              onChange={(data: IPV4) => setSource(data)}
+            />
             <Destination
               value={destination}
               onChange={(data: IPV4) => setDestination(data)}
@@ -79,7 +84,7 @@ function ServiceCreationPopup() {
                   policy: policy,
                   name: name,
                   comment: comment,
-                  id: uuidv4(),
+                  id: id,
                   status: "new",
                 };
                 dispatch(createNewRule(newRule));

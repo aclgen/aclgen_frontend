@@ -3,40 +3,46 @@ import {
   ServiceElement,
   NetworkObjectElement,
   EditableElementStatus,
+  Rule,
 } from "../../types/types";
+import { createPortal } from "react-dom";
 import { getHeight, Size } from "../creationForm/PopUpForm";
+import { useDraggable, DragOverlay, useDndMonitor } from "@dnd-kit/core";
+import { ReactNode, useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { modifyRule, selectRule } from "../../features/rules/ruleSlice";
 
-export function RenderSideBarElement({
-  name,
-  icon,
-  alt,
-  status,
-  onClick,
-  onClickCheck,
-}: {
+export interface SideBarElementProps {
   name: string;
   icon: string;
+  id: string;
   alt: string;
   status: "source" | "new" | "modified" | "deleted";
   onClick: () => void;
   onClickCheck?: () => void;
+}
+
+export function RenderSideBarElement({
+  element,
+}: {
+  element: SideBarElementProps;
 }) {
   return (
     <div
-      key={name}
-      onClick={onClick}
-      className={`flex flex-row bg-white  hover:shadow-lg hover:cursor-pointer hover:shadow-lg transition-shadow  ${statusStyle(
-        status
-      )}  h-10 shadow-md items-center px-4 rounded-md`}
+      key={element.name}
+      onClick={element.onClick}
+      className={`flex flex-row bg-white  hover:cursor-pointer hover:shadow-lg transition-shadow  ${statusStyle(
+        element.status
+      )} outline-none  h-10 shadow-md items-center px-4 rounded-md`}
     >
-      <img className="h-5" src={icon} alt={alt} />
-      <p className="text-md select-none text-gray-700  pl-2">{name}</p>
+      <img className="h-5" src={element.icon} alt={element.alt} />
+      <p className="text-md select-none text-gray-700  pl-2">{element.name}</p>
       <div className="ml-auto">
-        {status !== "source" ? (
+        {element.status !== "source" ? (
           <CheckIcon
             onClick={(e) => {
               e.stopPropagation();
-              onClickCheck();
+              element.onClickCheck();
             }}
             size="md"
           />
@@ -44,6 +50,82 @@ export function RenderSideBarElement({
           <></>
         )}
       </div>
+    </div>
+  );
+}
+
+function DraggableService({ element }: { element: SideBarElementProps }) {
+  const [isDragging, setIsDragging] = useState(false);
+  const state = useAppSelector(selectRule);
+  const dispatch = useAppDispatch();
+
+  useDndMonitor({
+    onDragStart(event) {
+      handleDragStart();
+    },
+
+    onDragEnd(event) {
+      handleDragEnd(event);
+    },
+    onDragCancel(event) {
+      setIsDragging(false);
+    },
+  });
+
+  function handleDragStart() {
+    setIsDragging(true);
+  }
+
+  function handleDragEnd(event) {
+    setIsDragging(false);
+    const { active, over } = event;
+
+    const index = state.rules.findIndex(
+      (element) => element.id === over.data.current.id
+    );
+
+    const newRuleElement: Rule = {
+      ...(state.rules[index] as Rule),
+      status: "modified",
+      name: active.data.current.id,
+      source: {
+        ...(state.rules[index] as Rule).source,
+        name: active.data.current.id,
+      },
+    };
+    dispatch(modifyRule(newRuleElement));
+  }
+
+  return (
+    <>
+      <Draggable id={element.id}>
+        <RenderSideBarElement element={element} />
+      </Draggable>
+      {createPortal(
+        <DragOverlay>
+          {isDragging ? <RenderSideBarElement element={element} /> : null}
+        </DragOverlay>,
+        document.body
+      )}
+    </>
+  );
+}
+
+export interface DraggableProps {
+  children: ReactNode;
+  id: string;
+}
+
+function Draggable(draggable: DraggableProps) {
+  const { attributes, listeners, setNodeRef } = useDraggable({
+    id: draggable.id,
+    data: {
+      id: draggable.id,
+    },
+  });
+  return (
+    <div ref={setNodeRef} {...listeners} {...attributes}>
+      {draggable.children}
     </div>
   );
 }
@@ -86,18 +168,15 @@ export function RenderService(
   onClick: () => void,
   onCommit: () => void
 ) {
+  const elementProps = {
+    ...service,
+    icon: "/computer-networks.svg",
+    alt: "Service",
+    onClick: onClick,
+    onClickCheck: onCommit,
+  };
   if (service.status !== "deleted") {
-    return (
-      <RenderSideBarElement
-        key={service.id}
-        name={service.name}
-        status={service.status}
-        icon={"/computer-networks.svg"}
-        alt={"service"}
-        onClick={() => onClick()}
-        onClickCheck={() => onCommit()}
-      />
-    );
+    return <DraggableService element={elementProps} />;
   }
 }
 
@@ -105,17 +184,14 @@ export function RenderNetworkObjects(
   element: NetworkObjectElement,
   onClick: () => void
 ): any {
+  const elementProps = {
+    ...element,
+    icon: "/server.svg",
+    alt: "Host",
+    onClick: onClick,
+  };
   if (element.status !== "deleted") {
-    return (
-      <RenderSideBarElement
-        key={element.id}
-        status={element.status}
-        name={element.name}
-        icon={"/server.svg"}
-        alt={"Host"}
-        onClick={onClick}
-      />
-    );
+    return <RenderSideBarElement key={element.id} element={elementProps} />;
   }
 }
 
@@ -143,16 +219,14 @@ export function RenderFirewall({
   fireWall: FireWall;
   onClick: () => void;
 }) {
-  return (
-    <RenderSideBarElement
-      status={fireWall.status}
-      key={fireWall.id}
-      name={fireWall.name}
-      icon={"/firewall.svg"}
-      alt={"firewall"}
-      onClick={onClick}
-    />
-  );
+  const element = {
+    ...fireWall,
+    icon: "/firewall.svg",
+    alt: "firewall",
+    onClick: () => {},
+  };
+
+  return <RenderSideBarElement key={fireWall.id} element={element} />;
 }
 
 export const statusStyle = (status: EditableElementStatus) => {

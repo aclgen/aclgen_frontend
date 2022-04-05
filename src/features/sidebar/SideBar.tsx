@@ -49,7 +49,7 @@ function SideBar() {
   }, [state.status]);
 
   return (
-    <div className="flex flex-col space-y-4  min-w-90">
+    <div className="flex flex-col space-y-4 min-w-90">
       <div className="flex flex-col w-full flex-basis-1/2 pb-8 pl-4 ">
         <RenderWorkSpace />
       </div>

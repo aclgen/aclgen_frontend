@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   DIRECTION,
   IPV4,
@@ -9,6 +9,7 @@ import {
   ServiceElement,
 } from "../../types/types";
 import { statusStyle } from "../SelectableElement/SideBarElement";
+import { useDroppable } from "@dnd-kit/core";
 
 export interface CardProps {
   index: number;
@@ -81,6 +82,7 @@ function card({ index, rule, modifyCard }: CardProps) {
           />
           <Source
             value={source}
+            parentId={rule.id}
             onChange={(data: IPV4) => {
               onChange(() => setSource(data));
             }}
@@ -127,8 +129,20 @@ function card({ index, rule, modifyCard }: CardProps) {
   );
 }
 
+function composeStyle(isHovering: boolean): string {
+  const baseStyle = "bg-gray-50 outline-none block p-2.5 w-32 rounded-lg";
+
+  const text = "text-gray-900 text-sm";
+
+  const border = `border-2 ${
+    isHovering ? "border-blue-500" : "border-gray-300"
+  } hover:border-blue-500 active:border-blue-500`;
+
+  return `${baseStyle} ${text} ${border} `;
+}
+
 export const defaultClass: string =
-  "bg-gray-50 border border-gray-300 w-32 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white";
+  "bg-gray-50 outline-none border-2 border-gray-300 w-32 text-gray-900 text-sm rounded-lg  focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white";
 
 export const Index: React.FC<{ value: number }> = ({ value }) => (
   <p className="block pt-11 mb-2 text-sm font-light text-gray-400 dark:text-white">
@@ -192,13 +206,21 @@ export const Name = ({
 
 export const Source = ({
   value,
+  parentId,
   onChange,
 }: {
   value: NetworkObjectElement;
+  parentId: string;
   onChange: (NetworkObjectElement: NetworkObjectElement) => void;
 }) => {
+  const { isOver, setNodeRef } = useDroppable({
+    id: value.id,
+    data: {
+      id: parentId,
+    },
+  });
   return (
-    <div className="mt-2">
+    <div ref={setNodeRef} className={`mt-2`}>
       <Label value="SOURCE" />
       <input
         type="source"
@@ -209,7 +231,7 @@ export const Source = ({
           onChange({ ...value, name: event.target.value });
         }}
         placeholder="192.168.x.x"
-        className={defaultClass}
+        className={composeStyle(isOver)}
         required
       />
     </div>

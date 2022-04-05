@@ -6,7 +6,7 @@ import {
   setRules,
   modifyRule,
 } from "../../features/rules/ruleSlice";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Rule, RuleElement } from "../../types/types";
 import SideBar from "../../features/sidebar/SideBar";
 import { selectDraftRepository } from "../../features/repository/DraftRepositorySlice";
@@ -26,7 +26,7 @@ function ListView() {
     }
   });
 
-  const renderCard = useCallback((rule: Rule, index: number) => {
+  const renderCard = (rule: Rule, index: number) => {
     return (
       <RuleCard
         key={rule.id}
@@ -35,14 +35,14 @@ function ListView() {
         modifyCard={(card) => dispatch(modifyRule(card))}
       />
     );
-  }, []);
+  };
 
   return (
     <div className="flex flex-1 ">
       <div className="grid grid-flow-col space-4 w-full">
         <div className="flex flex-1 ">
-          <div className="flex flex-1 flex-col border-r">
-            <div className="flex flex-1 justify-cente p-3 overflow-y-auto">
+          <div className="flex flex-1 flex-col border-r overflow-x-visible">
+            <div className="flex flex-1 relative p-3 overflow-y-auto ">
               <SideBar />
             </div>
           </div>
@@ -59,9 +59,11 @@ function ListView() {
             </button>
             <ModifiedCounter />
           </div>
-          {state.rules
-            .map((ruleElement) => ruleElementtoRule(ruleElement))
-            .map((card, i) => renderCard(card, i))}
+          <div>
+            {state.rules
+              .map((ruleElement) => ruleElementtoRule(ruleElement))
+              .map((card, i) => renderCard(card, i))}
+          </div>
         </div>
       </div>
     </div>
