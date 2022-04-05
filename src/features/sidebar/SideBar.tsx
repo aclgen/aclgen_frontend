@@ -32,7 +32,6 @@ import {
   selectWorkspaceDraft,
   updateWorkSpace,
 } from "../workSpaceDraft/DraftWorkSpaceSlice";
-import { selectRule } from "../rules/ruleSlice";
 import CountableCheckButton from "../../components/CountableCheckButton";
 
 function SideBar() {
@@ -96,7 +95,7 @@ export function RenderObjectsAndServices() {
       <div className="flex flex-row items-center h-12">
         <h2 className="text-lg font-light items-start">Services and Objects</h2>
         <button
-          className="outline-none"
+          className="outline-none ml-auto"
           onClick={() => setDropdown(!droppedDown)}
         >
           <PlusButtonSVG />
