@@ -2,22 +2,16 @@ import RuleCard from "../../components/rule/RuleCard";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
 import {
   selectRule,
-  updateRules,
   initiateNewRule,
   setRules,
   modifyRule,
 } from "../../features/rules/ruleSlice";
 import { useCallback, useEffect, useState } from "react";
 import { Rule, RuleElement } from "../../types/types";
-import update from "immutability-helper";
 import SideBar from "../../features/sidebar/SideBar";
-import {
-  commitServicesAsync,
-  selectDraftRepository,
-} from "../../features/repository/DraftRepositorySlice";
+import { selectDraftRepository } from "../../features/repository/DraftRepositorySlice";
 import { FireWall } from "../../types/repository";
 import CountableCheckButton from "../../components/CountableCheckButton";
-import { selectService } from "../../features/service/DraftServiceSlice";
 
 function ListView() {
   const dispatch = useAppDispatch();
@@ -32,26 +26,11 @@ function ListView() {
     }
   });
 
-  const moveCard = useCallback((dragIndex: number, hoverIndex: number) => {
-    dispatch(
-      //@ts-ignore
-      updateRules((prevCards: RuleElement[]) => {
-        return update(prevCards, {
-          $splice: [
-            [dragIndex, 1],
-            [hoverIndex, 0, prevCards[dragIndex]],
-          ],
-        });
-      })
-    );
-  }, []);
-
   const renderCard = useCallback((rule: Rule, index: number) => {
     return (
       <RuleCard
         key={rule.id}
         index={index}
-        moveCard={moveCard}
         rule={rule}
         modifyCard={(card) => dispatch(modifyRule(card))}
       />
