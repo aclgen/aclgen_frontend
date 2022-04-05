@@ -9,6 +9,7 @@ import {
   IPV4,
   ServiceType,
 } from "../../types/types";
+import { v4 as uuidv4 } from "uuid";
 
 const ruleHandler: NextApiHandler = async (request, response) => {
   // simulate IO latency
@@ -23,7 +24,7 @@ export function ruleList(): Rule[] {
   const elements: Rule[] = Array.apply(null, Array(20)).map(
     (element: Rule, i: number): Rule => {
       const rule: Rule = {
-        id: `${i}`,
+        id: uuidv4(),
         name: `name: ${i}`,
         source: createDummyNetwork(),
         destination: createDummyNetwork(),
@@ -41,7 +42,7 @@ export function ruleList(): Rule[] {
 
 export function createDummyService(): ServiceElement {
   const service: PortService = {
-    id: `0`,
+    id: uuidv4(),
     name: "HTTP",
     protocol: "TCP",
     sourcePort: 80,
@@ -56,7 +57,7 @@ export function createDummyService(): ServiceElement {
 
 export function createDummyNetwork(): NetworkObjectElement {
   const ip: IPV4 = {
-    id: `0`,
+    id: uuidv4(),
     name: "server",
     comment: "",
     ip: "192.168.1.110",

@@ -19,6 +19,7 @@ import {
   ServiceType,
 } from "../../types/types";
 import { createNewRule, selectRule } from "./ruleSlice";
+import { v4 as uuidv4 } from "uuid";
 
 function ServiceCreationPopup() {
   const dispatch = useAppDispatch();
@@ -78,7 +79,7 @@ function ServiceCreationPopup() {
                   policy: policy,
                   name: name,
                   comment: comment,
-                  id: `${index}`,
+                  id: uuidv4(),
                   status: "new",
                 };
                 dispatch(createNewRule(newRule));
