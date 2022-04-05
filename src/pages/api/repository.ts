@@ -45,6 +45,7 @@ function createDefaultWorkspace(): WorkSpace {
     name: "Default FireWall",
     rules: {
       id: "0",
+      parentId: "123",
       rules: ruleList(),
       name: "Default Firewall",
     },

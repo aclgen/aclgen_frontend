@@ -37,12 +37,14 @@ export function PopUpForm({
   );
 }
 
+export type Size = "sm" | "md" | "lg";
+
 export const XIcon = ({
   onClick,
   size,
 }: {
   onClick: () => void;
-  size: "sm" | "md" | "lg";
+  size: Size;
 }) => {
   const height = getHeight(size);
   return (
@@ -67,7 +69,7 @@ export const XIcon = ({
     </div>
   );
 };
-export function getHeight(size: string) {
+export function getHeight(size: Size) {
   switch (size) {
     case "sm": {
       return 4;

@@ -4,8 +4,7 @@ import type { AppState, AppThunk } from "../../app/store";
 import { fetchRepositories } from "./repositoryAPI";
 import { Repository } from "../../types/repository";
 import EmptyRepository from "./EmptyRepository";
-import { createNewService } from "../service/DraftServiceSlice";
-import { createNewObject } from "../networkObject/DraftNetworkObjectSlice";
+import { commitServicesAsync } from "./DraftRepositorySlice";
 
 export interface RepositoryState {
   repositories: Repository[];
@@ -60,6 +59,35 @@ export const RepositorySlice = createSlice({
         state.status = "idle";
         state.repositories = action.payload;
       });
+    builder.addCase(commitServicesAsync.pending, (state, action) => {
+      state.status = "loading";
+    });
+    builder.addCase(commitServicesAsync.fulfilled, (state, action) => {
+      state.status = "idle";
+      const newService = [...state.repositories[0].services];
+      for (let i = 0; i < action.payload.length; i++) {
+        const index = newService.findIndex(
+          (element) => action.payload[i].id === element.id
+        );
+        if (index >= 0) {
+          if (action.payload[i].status === "deleted") {
+            newService.splice(index);
+          } else {
+            newService[index] = { ...action.payload[i], status: "source" };
+          }
+        } else {
+          if (action.payload[i].status !== "deleted") {
+            newService.push({ ...action.payload[i], status: "source" });
+          }
+        }
+      }
+      state.repositories = [
+        {
+          ...state.repositories[0],
+          services: newService,
+        },
+      ];
+    });
   },
 });
 

@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import type { AppState } from "../../app/store";
-import { Rule, RuleElement } from "../../types/types";
+import RuleSet, { Rule, RuleElement } from "../../types/types";
 import { initiateNewObject } from "../networkObject/DraftNetworkObjectSlice";
 import {
   cancelCreationPopUp,
@@ -64,6 +64,7 @@ export const DraftRuleSlice = createSlice({
       state.rules = [...state.rules, action.payload];
       state.newRuleStatus = "idle";
     },
+    saveRulesToDraft: (state, action: PayloadAction<RuleSet>) => {},
     initiateNewRule: (state) => {
       state.newRule = undefined;
       state.newRuleStatus = "creating";
@@ -95,6 +96,7 @@ export const {
   initiateNewRule,
   createNewRule,
   setRules,
+  saveRulesToDraft,
 } = DraftRuleSlice.actions;
 
 // The function below is called a selector and allows us to select a value from

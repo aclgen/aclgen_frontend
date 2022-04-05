@@ -13,7 +13,10 @@ import {
   selectNetworkObjects,
   updateNetworkObjects,
 } from "../networkObject/DraftNetworkObjectSlice";
-import { selectDraftRepository } from "../repository/DraftRepositorySlice";
+import {
+  commitServicesAsync,
+  selectDraftRepository,
+} from "../repository/DraftRepositorySlice";
 import {
   selectRepository,
   setSelectedRepository,
@@ -29,6 +32,7 @@ import {
   selectWorkspaceDraft,
   updateWorkSpace,
 } from "../workSpaceDraft/DraftWorkSpaceSlice";
+import CountableCheckButton from "../../components/CountableCheckButton";
 
 function SideBar() {
   const dispatch = useAppDispatch();
@@ -91,7 +95,7 @@ export function RenderObjectsAndServices() {
       <div className="flex flex-row items-center h-12">
         <h2 className="text-lg font-light items-start">Services and Objects</h2>
         <button
-          className="outline-none"
+          className="outline-none ml-auto"
           onClick={() => setDropdown(!droppedDown)}
         >
           <PlusButtonSVG />
@@ -209,14 +213,59 @@ export function RenderServices() {
         {serviceState.services.map((element) => {
           return (
             <li key={element.id}>
-              {RenderService(element, () => {
-                dispatch(initiateModifyService(element));
-              })}
+              {RenderService(
+                element,
+                () => {
+                  dispatch(initiateModifyService(element));
+                },
+                () => {
+                  dispatch(commitServicesAsync([element]));
+                }
+              )}
             </li>
           );
         })}
       </ul>
     </div>
+  );
+}
+
+export function CommitServiceWithCounter() {
+  const state = useAppSelector(selectService);
+  const dispatch = useAppDispatch();
+
+  const [modified, setModified] = useState(0);
+  useEffect(() => {
+    setModified(
+      state.services
+        .map((element) => (element.status === "source" ? 0 : 1))
+        .reduce((prev, next) => prev + next, 0)
+    );
+  }, [state.services]);
+
+  function onClick() {
+    const services = state.services.filter(
+      (element) => element.status !== "source"
+    );
+    dispatch(commitServicesAsync(services));
+  }
+
+  return (
+    <>
+      {modified > 0 ? (
+        <div className={"ml-auto"}>
+          <CountableCheckButton
+            number={modified}
+            onClick={(event) => {
+              event.stopPropagation();
+              onClick();
+            }}
+          />
+        </div>
+      ) : (
+        ""
+      )}
+    </>
   );
 }
 
