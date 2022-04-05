@@ -7,7 +7,6 @@ import {
   RenderNetworkObjects,
   RenderService,
 } from "../../components/SelectableElement/SideBarElement";
-import { ServiceElement } from "../../types/types";
 import {
   initiateModifyNetworkObject,
   initiateNewObject,
@@ -33,6 +32,8 @@ import {
   selectWorkspaceDraft,
   updateWorkSpace,
 } from "../workSpaceDraft/DraftWorkSpaceSlice";
+import { selectRule } from "../rules/ruleSlice";
+import CountableCheckButton from "../../components/CountableCheckButton";
 
 function SideBar() {
   const dispatch = useAppDispatch();
@@ -227,6 +228,45 @@ export function RenderServices() {
         })}
       </ul>
     </div>
+  );
+}
+
+export function CommitServiceWithCounter() {
+  const state = useAppSelector(selectService);
+  const dispatch = useAppDispatch();
+
+  const [modified, setModified] = useState(0);
+  useEffect(() => {
+    setModified(
+      state.services
+        .map((element) => (element.status === "source" ? 0 : 1))
+        .reduce((prev, next) => prev + next, 0)
+    );
+  }, [state.services]);
+
+  function onClick() {
+    const services = state.services.filter(
+      (element) => element.status !== "source"
+    );
+    dispatch(commitServicesAsync(services));
+  }
+
+  return (
+    <>
+      {modified > 0 ? (
+        <div className={"ml-auto"}>
+          <CountableCheckButton
+            number={modified}
+            onClick={(event) => {
+              event.stopPropagation();
+              onClick();
+            }}
+          />
+        </div>
+      ) : (
+        ""
+      )}
+    </>
   );
 }
 

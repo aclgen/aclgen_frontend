@@ -79,7 +79,6 @@ function ListView() {
               <PlusButtonSVG />
             </button>
             <ModifiedCounter />
-            <CommitServices />
           </div>
           {state.rules
             .map((ruleElement) => ruleElementtoRule(ruleElement))
@@ -107,20 +106,6 @@ function ModifiedCounter() {
   }, [state.rules]);
 
   return <CountableCheckButton number={modified} onClick={() => {}} />;
-}
-
-function CommitServices() {
-  const state = useAppSelector(selectService);
-  const dispatch = useAppDispatch();
-
-  function onClick() {
-    const services = state.services.filter(
-      (element) => element.status !== "source"
-    );
-    dispatch(commitServicesAsync(services));
-  }
-
-  return <PlusButtonSVG onClick={onClick} />;
 }
 
 export function PlusButtonSVG({ onClick }: { onClick?: () => void }) {

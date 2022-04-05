@@ -2,7 +2,7 @@ export const CountableCheckButton = ({
   onClick,
   number,
 }: {
-  onClick: () => void;
+  onClick: (event) => void;
   number: number;
 }) => {
   return (

@@ -25,7 +25,7 @@ export function RenderSideBarElement({
     <div
       key={name}
       onClick={onClick}
-      className={`flex flex-row hover:shadow-lg hover:cursor-pointer hover:bg-slate-100 transition-shadow  ${statusStyle(
+      className={`flex flex-row bg-white  hover:shadow-lg hover:cursor-pointer hover:shadow-lg transition-shadow  ${statusStyle(
         status
       )}  h-10 shadow-md items-center px-4 rounded-md`}
     >
@@ -59,7 +59,7 @@ export const CheckIcon = ({
   return (
     <div
       onClick={onClick}
-      className="border-2 border-gray-100 rounded-md hover:cursor-pointer hover:border-blue-400 hover:shadow-lg"
+      className="border-2 border-white rounded-md hover:cursor-pointer hover:border-blue-400 hover:shadow-lg"
     >
       <svg
         version="1.1"
@@ -158,12 +158,12 @@ export function RenderFirewall({
 export const statusStyle = (status: EditableElementStatus) => {
   switch (status) {
     case "modified":
-      return "border-blue-500 border-2";
+      return "border-blue-500 border-2 ";
     case "new":
       return "border-green-500 border-2";
     case "deleted":
       return "display-none";
     case "source":
-      return "border-gray-200 border-2";
+      return "border-gray-200 border-2 hover:border-blue-500";
   }
 };

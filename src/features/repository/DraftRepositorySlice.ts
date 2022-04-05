@@ -116,11 +116,10 @@ export const DraftRepositorySlice = createSlice({
       const services = action.payload;
       state.repository = {
         ...state.repository,
-        services: state.repository.services.filter((element) =>
-          services.find((service) => service.id === element.id) === undefined
-            ? true
-            : false
-        ),
+        services: state.repository.services.filter((element) => {
+          const service = services.find((service) => service.id === element.id);
+          return service == undefined;
+        }),
       };
     });
   },
@@ -193,20 +192,16 @@ function mergeEditableElements<T extends EditableElement>(
   );
 
   if (draftElements.length === 0) {
-    source;
+    return source;
   }
 
-  var newArray: T[] = [...sourceElements];
+  let newArray: T[] = [...sourceElements];
 
   for (let i = 0; i < newElements.length; i++) {
     const index = draftElements.findIndex(
       (element) => element.id === newElements[i].id
     );
-    newArray = [
-      ...newArray.slice(0, index + i),
-      newElements[i],
-      ...newArray.slice(index + i),
-    ];
+    newArray.splice(index, 0, newElements[i]);
   }
 
   return newArray;
