@@ -23,7 +23,7 @@ const initialState: DraftRuleState = {
   status: "empty",
   newRule: undefined,
   newRuleStatus: "idle",
-  testValue: "1",
+  testValue: uuidv4(),
 };
 
 // The function below is called a thunk and allows us to perform async logic. It
@@ -62,7 +62,7 @@ export const DraftRuleSlice = createSlice({
         action.payload,
         ...state.rules.slice(index + 1),
       ];
-      state.testValue = "2";
+      state.testValue = uuidv4();
     },
     createNewRule: (state, action: PayloadAction<Rule>) => {
       state.newRule = undefined;
