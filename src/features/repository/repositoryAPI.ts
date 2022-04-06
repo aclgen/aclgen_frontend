@@ -6,8 +6,8 @@ import { ServiceTransaction } from "../PushActions/types";
 export async function fetchRepositories(): Promise<{
   data: Repository[];
 }> {
-  const response = await fetch(createAPIRoute("repo"), {
-    method: "POST",
+  const response = await fetch(createAPIRoute("repo/"), {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
