@@ -2,9 +2,21 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import type { AppState, AppThunk } from "../../app/store";
 import { fetchRepositories } from "./repositoryAPI";
-import { Repository } from "../../types/repository";
+import {
+  ACCESS,
+  FireWall,
+  Repository,
+  WorkSpace,
+} from "../../types/repository";
 import EmptyRepository from "./EmptyRepository";
 import { commitServicesAsync } from "./DraftRepositorySlice";
+import { fetchServicesWithRepoId } from "../service/serviceAPI";
+import { fetchNetworkObjectsWithRepoId } from "../networkObject/networkObjectAPI";
+import {
+  fetchDevicesWithWorkSpaceId,
+  fetchWorkSpaceWithId,
+} from "../workSpaceDraft/WorkSpaceAPI";
+import { fetchRulesWithDeviceId } from "../rules/ruleAPI";
 
 export interface RepositoryState {
   repositories: Repository[];
@@ -29,6 +41,41 @@ export const updateRepositoriesAsync = createAsyncThunk(
     const response = await fetchRepositories();
     // The value we return becomes the `fulfilled` action payload
     return response.data;
+  }
+);
+
+export const selectRepositoryAsync = createAsyncThunk(
+  "repository/fetchRepositories",
+  async (id: string) => {
+    const all = await Promise.all([
+      fetchWorkSpaceWithId(id),
+      fetchServicesWithRepoId(id),
+      fetchNetworkObjectsWithRepoId(id),
+    ]);
+
+    const devices = await fetchDevicesWithWorkSpaceId(id);
+
+    const rules = await fetchRulesWithDeviceId(id, devices.data[0].id);
+
+    const workSpace: WorkSpace = {
+      status: "source",
+      id: all[0].data.id,
+      children: devices.data,
+    };
+
+    (workSpace.children[0] as FireWall).rules = rules.data;
+    const repo: Repository = {
+      UUID: id,
+      access: ACCESS.PUBLIC,
+      repo: "testRepo",
+      description: "YUUp",
+      logo: "Nope",
+      workSpace: workSpace,
+      networkObjects: all[2].data,
+      services: all[1].data,
+    };
+    // The value we return becomes the `fulfilled` action payload
+    return repo;
   }
 );
 
