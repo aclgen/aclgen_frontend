@@ -106,7 +106,7 @@ function DraggableService({ element }: { element: SideBarElementProps }) {
         <RenderSideBarElement element={element} />
       </Draggable>
       {createPortal(
-        <DragOverlay>
+        <DragOverlay dropAnimation={null}>
           {isDragging ? <RenderSideBarElement element={element} /> : null}
         </DragOverlay>,
         document.body
