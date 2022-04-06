@@ -9,7 +9,6 @@ export async function fetchWorkSpaceWithId(
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({}),
   });
   const result = await response.json();
   return result;
@@ -17,17 +16,13 @@ export async function fetchWorkSpaceWithId(
 
 export async function fetchDevicesWithWorkSpaceId(
   repoId: string
-): Promise<{ data: NetworkDevice[] }> {
-  const response = await fetch(
-    createAPIRoute(`repo/${repoId}/workspace/device`),
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({}),
-    }
-  );
+): Promise<NetworkDevice[]> {
+  const response = await fetch(createAPIRoute(`repo/${repoId}/device`), {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   const result = await response.json();
   return result;
 }

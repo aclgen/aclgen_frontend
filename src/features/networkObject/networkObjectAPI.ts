@@ -17,13 +17,12 @@ export async function fetchNetworkObjects(): Promise<{
 
 export async function fetchNetworkObjectsWithRepoId(
   repoId: string
-): Promise<{ data: NetworkObjectElement[] }> {
+): Promise<NetworkObjectElement[]> {
   const response = await fetch(createAPIRoute(`repo/${repoId}/object/`), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({}),
   });
   const result = await response.json();
   return result;

@@ -12,11 +12,15 @@ import SideBar from "../../features/sidebar/SideBar";
 import { selectDraftRepository } from "../../features/repository/DraftRepositorySlice";
 import { FireWall } from "../../types/repository";
 import CountableCheckButton from "../../components/CountableCheckButton";
+import { selectService } from "../../features/service/DraftServiceSlice";
+import { selectNetworkObjects } from "../../features/networkObject/DraftNetworkObjectSlice";
 
 function ListView() {
   const dispatch = useAppDispatch();
   const state = useAppSelector(selectRule);
   const draftRepoState = useAppSelector(selectDraftRepository);
+  const serviceState = useAppSelector(selectService);
+  const objectState = useAppSelector(selectNetworkObjects);
 
   useEffect(() => {
     if (state.status === "empty" && draftRepoState.status == "idle") {
@@ -27,6 +31,18 @@ function ListView() {
   });
 
   const renderCard = (rule: Rule, index: number) => {
+    rule = {
+      ...rule,
+      source: objectState.networkObjects.find(
+        (element) => element.id == rule.source
+      ),
+      destination: objectState.networkObjects.find(
+        (element) => element.id == rule.destination
+      ),
+      service: serviceState.services.find(
+        (element) => element.id == rule.service
+      ),
+    };
     return (
       <RuleCard
         key={rule.id}

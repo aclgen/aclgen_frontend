@@ -11,10 +11,10 @@ export async function fetchRepositories(): Promise<{
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({}),
   });
   const result = await response.json();
-  return result;
+
+  return { data: result };
 }
 
 export async function commitServices(commit: ServiceTransaction): Promise<{

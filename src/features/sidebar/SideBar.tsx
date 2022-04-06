@@ -19,7 +19,7 @@ import {
 } from "../repository/DraftRepositorySlice";
 import {
   selectRepository,
-  setSelectedRepository,
+  selectRepositoryAsync,
   updateRepositoriesAsync,
 } from "../repository/repositorySlice";
 import {
@@ -44,7 +44,8 @@ function SideBar() {
     }
 
     if (state.status === "idle") {
-      dispatch(setSelectedRepository(state.repositories[0]));
+      dispatch(selectRepositoryAsync(state.repositories[0].id));
+      //dispatch(setSelectedRepository(state.repositories[0]));
     }
   }, [state.status]);
 

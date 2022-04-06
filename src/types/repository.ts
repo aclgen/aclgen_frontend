@@ -2,12 +2,11 @@ import RuleSet, {
   EditableElement,
   Nestable,
   NetworkObjectElement,
-  RuleElement,
   ServiceElement,
 } from "./types";
 
 export interface Repository {
-  UUID: string;
+  id: string;
   access: ACCESS;
   repo: string;
   description: string;

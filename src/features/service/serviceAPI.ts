@@ -15,13 +15,12 @@ export async function fetchServices(): Promise<{ data: ServiceElement[] }> {
 
 export async function fetchServicesWithRepoId(
   repoId: string
-): Promise<{ data: ServiceElement[] }> {
+): Promise<ServiceElement[]> {
   const response = await fetch(createAPIRoute(`repo/${repoId}/service/`), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({}),
   });
   const result = await response.json();
   return result;

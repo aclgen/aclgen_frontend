@@ -7,7 +7,14 @@ import {
 } from "../../types/types";
 import { createPortal } from "react-dom";
 import { getHeight, Size } from "../creationForm/PopUpForm";
-import { useDraggable, DragOverlay, useDndMonitor } from "@dnd-kit/core";
+import {
+  useDraggable,
+  DragOverlay,
+  useDndMonitor,
+  MouseSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import { ReactNode, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { modifyRule, selectRule } from "../../features/rules/ruleSlice";
