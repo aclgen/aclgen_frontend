@@ -59,7 +59,7 @@ function ListView() {
             </button>
             <ModifiedCounter />
           </div>
-          <div key={state.testValue}>
+          <div>
             {state.rules
               .map((ruleElement) => ruleElementtoRule(ruleElement))
               .map((card, i) => renderCard(card, i))}

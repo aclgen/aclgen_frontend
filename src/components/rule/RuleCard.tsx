@@ -75,13 +75,13 @@ function card({ index, rule, modifyCard }: CardProps) {
         <div className="space-y-2 flex justify-self-start flex-row justify-between space-x-4 ">
           <Index value={index} />
           <Name
-            value={name}
+            value={rule.name}
             onChange={(data) => {
               onChange(() => setName(data));
             }}
           />
           <Source
-            value={source}
+            value={rule.source}
             parentId={rule.id}
             onChange={(data: IPV4) => {
               onChange(() => setSource(data));

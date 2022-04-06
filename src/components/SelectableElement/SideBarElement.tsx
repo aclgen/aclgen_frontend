@@ -80,6 +80,10 @@ function DraggableService({ element }: { element: SideBarElementProps }) {
     setIsDragging(false);
     const { active, over } = event;
 
+    if (active.data.current === null || over === null) {
+      return;
+    }
+
     const index = state.rules.findIndex(
       (element) => element.id === over.data.current.id
     );
@@ -238,6 +242,6 @@ export const statusStyle = (status: EditableElementStatus) => {
     case "deleted":
       return "display-none";
     case "source":
-      return "border-gray-200 border-2 hover:border-blue-500";
+      return "border-gray-200 border-2 hover:border-blue-500 outline-none active:outline-none";
   }
 };

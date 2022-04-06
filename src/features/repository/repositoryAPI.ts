@@ -1,11 +1,12 @@
 import { Repository } from "../../types/repository";
 import { ServiceElement } from "../../types/types";
+import { createAPIRoute } from "../common/APIRoutes";
 import { ServiceTransaction } from "../PushActions/types";
 
 export async function fetchRepositories(): Promise<{
   data: Repository[];
 }> {
-  const response = await fetch("/api/repository", {
+  const response = await fetch(createAPIRoute("repo"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -20,7 +21,7 @@ export async function commitServices(commit: ServiceTransaction): Promise<{
   data: ServiceElement[];
 }> {
   const response = await fetch("/api/repository/commitServices", {
-    method: "POST",
+    method: "get",
     headers: {
       "Content-Type": "application/json",
     },
