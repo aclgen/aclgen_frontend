@@ -5,18 +5,39 @@ import type { AppProps } from "next/app";
 
 import store from "../app/store";
 import { ThemeProvider } from "next-themes";
-
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
+import {
+  DndContext,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 
 export default function MyApp({ Component, pageProps }: AppProps) {
+  const mouseSensor = useSensor(MouseSensor, {
+    activationConstraint: {
+      delay: 75,
+      tolerance: 5,
+    },
+  });
+
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: {
+      delay: 75,
+      tolerance: 5,
+    },
+  });
+  const keyboardSensor = useSensor(KeyboardSensor, {});
+
+  const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
   return (
     <Provider store={store}>
-      <DndProvider backend={HTML5Backend}>
+      <DndContext sensors={sensors}>
         <ThemeProvider enableSystem={true} attribute="class">
           <Component {...pageProps} />
         </ThemeProvider>
-      </DndProvider>
+      </DndContext>
     </Provider>
   );
 }

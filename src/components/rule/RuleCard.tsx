@@ -1,6 +1,4 @@
-import { useRef, useState } from "react";
-import { useDrag, useDrop } from "react-dnd";
-import type { XYCoord, Identifier } from "dnd-core";
+import { useState } from "react";
 import {
   DIRECTION,
   IPV4,
@@ -11,11 +9,11 @@ import {
   ServiceElement,
 } from "../../types/types";
 import { statusStyle } from "../SelectableElement/SideBarElement";
+import { useDroppable } from "@dnd-kit/core";
 
 export interface CardProps {
   index: number;
   rule: Rule;
-  moveCard: (dragIndex: number, hoverIndex: number) => void;
   modifyCard: (rule: Rule) => void;
 }
 
@@ -34,7 +32,7 @@ export const ItemTypes = {
  * @param key index of the Rule
  * @returns A properly formatted Rule card
  */
-function card({ index, rule, moveCard, modifyCard }: CardProps) {
+function card({ index, rule, modifyCard }: CardProps) {
   const [name, setName] = useState(rule.name);
   const [comment, setComment] = useState(rule.comment);
   const [source, setSource] = useState(rule.source);
@@ -63,94 +61,10 @@ function card({ index, rule, moveCard, modifyCard }: CardProps) {
     };
   }
 
-  const ref = useRef<HTMLDivElement>(null);
-  const [{ handlerId }, drop] = useDrop<
-    DragItem,
-    void,
-    { handlerId: Identifier | null }
-  >({
-    accept: ItemTypes.CARD,
-    collect(monitor) {
-      return {
-        handlerId: monitor.getHandlerId(),
-      };
-    },
-    hover(item: DragItem, monitor) {
-      if (!ref.current) {
-        return;
-      }
-      const dragIndex = item.index;
-      const hoverIndex = index;
-
-      // Don't replace items with themselves
-      if (dragIndex === hoverIndex) {
-        return;
-      }
-
-      // Determine rectangle on screen
-      const hoverBoundingRect = ref.current?.getBoundingClientRect();
-
-      // Get vertical middle
-      const hoverMiddleY =
-        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-
-      // Determine mouse position
-      const clientOffset = monitor.getClientOffset();
-
-      // Get pixels to the top
-      const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top;
-
-      // Only perform the move when the mouse has crossed half of the items height
-      // When dragging downwards, only move when the cursor is below 50%
-      // When dragging upwards, only move when the cursor is above 50%
-
-      // Dragging downwards
-      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
-        return;
-      }
-
-      // Dragging upwards
-      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
-        return;
-      }
-
-      // Time to actually perform the action
-      moveCard(dragIndex, hoverIndex);
-
-      // Note: we're mutating the monitor item here!
-      // Generally it's better to avoid mutations,
-      // but it's good here for the sake of performance
-      // to avoid expensive index searches.
-      item.index = hoverIndex;
-    },
-  });
-
-  const cardKey = rule.id;
-
-  const [{ isDragging }, drag] = useDrag({
-    type: ItemTypes.CARD,
-    item: () => {
-      modifyCard(createCard());
-      setStatus(status === "new" ? "new" : "modified");
-      return { cardKey, index };
-    },
-    collect: (monitor: any) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
-
-  const opacity = isDragging ? 0 : 1;
-
-  drag(drop(ref));
-
   return (
     <div
       key={rule.id}
-      ref={ref}
-      data-handler-id={handlerId}
-      className={`p-2 ${
-        opacity === 0 ? "opacity-0" : "opacity-100"
-      } pl-4 container bg-white container-xl transition-opacity ${statusStyle(
+      className={`p-2  pl-4 container bg-white container-xl transition-opacity ${statusStyle(
         rule.status
       )} hover:cursor-pointer outline-none active:border-blue-500 rounded-md shadow-md dark:bg-gray-800 dark:border-gray-700`}
     >
@@ -161,13 +75,14 @@ function card({ index, rule, moveCard, modifyCard }: CardProps) {
         <div className="space-y-2 flex justify-self-start flex-row justify-between space-x-4 ">
           <Index value={index} />
           <Name
-            value={name}
+            value={rule.name}
             onChange={(data) => {
               onChange(() => setName(data));
             }}
           />
           <Source
-            value={source}
+            value={rule.source}
+            parentId={rule.id}
             onChange={(data: IPV4) => {
               onChange(() => setSource(data));
             }}
@@ -214,8 +129,20 @@ function card({ index, rule, moveCard, modifyCard }: CardProps) {
   );
 }
 
+function composeStyle(isHovering: boolean): string {
+  const baseStyle = "bg-gray-50 outline-none block p-2.5 w-32 rounded-lg";
+
+  const text = "text-gray-900 text-sm";
+
+  const border = `border-2 ${
+    isHovering ? "border-blue-500" : "border-gray-300"
+  } hover:border-blue-500 active:border-blue-500`;
+
+  return `${baseStyle} ${text} ${border} `;
+}
+
 export const defaultClass: string =
-  "bg-gray-50 border border-gray-300 w-32 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white";
+  "bg-gray-50 outline-none border-2 border-gray-300 w-32 text-gray-900 text-sm rounded-lg  focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white";
 
 export const Index: React.FC<{ value: number }> = ({ value }) => (
   <p className="block pt-11 mb-2 text-sm font-light text-gray-400 dark:text-white">
@@ -279,13 +206,21 @@ export const Name = ({
 
 export const Source = ({
   value,
+  parentId,
   onChange,
 }: {
   value: NetworkObjectElement;
+  parentId: string;
   onChange: (NetworkObjectElement: NetworkObjectElement) => void;
 }) => {
+  const { isOver, setNodeRef } = useDroppable({
+    id: value.id,
+    data: {
+      id: parentId,
+    },
+  });
   return (
-    <div className="mt-2">
+    <div ref={setNodeRef} className={`mt-2`}>
       <Label value="SOURCE" />
       <input
         type="source"
@@ -296,7 +231,7 @@ export const Source = ({
           onChange({ ...value, name: event.target.value });
         }}
         placeholder="192.168.x.x"
-        className={defaultClass}
+        className={composeStyle(isOver)}
         required
       />
     </div>

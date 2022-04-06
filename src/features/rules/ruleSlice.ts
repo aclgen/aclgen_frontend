@@ -8,12 +8,14 @@ import {
   initiateNewService,
 } from "../service/DraftServiceSlice";
 import { fetchRules } from "./ruleAPI";
+import { v4 as uuidv4 } from "uuid";
 
 export interface DraftRuleState {
   rules: RuleElement[];
   status: "empty" | "idle" | "loading" | "failed";
   newRule: Rule | undefined;
   newRuleStatus: "idle" | "creating" | "loading";
+  testValue: string;
 }
 
 const initialState: DraftRuleState = {
@@ -21,6 +23,7 @@ const initialState: DraftRuleState = {
   status: "empty",
   newRule: undefined,
   newRuleStatus: "idle",
+  testValue: uuidv4(),
 };
 
 // The function below is called a thunk and allows us to perform async logic. It
@@ -53,11 +56,13 @@ export const DraftRuleSlice = createSlice({
       const index = state.rules.findIndex(
         (element) => element.id === action.payload.id
       );
+
       state.rules = [
         ...state.rules.slice(0, index),
         action.payload,
         ...state.rules.slice(index + 1),
       ];
+      state.testValue = uuidv4();
     },
     createNewRule: (state, action: PayloadAction<Rule>) => {
       state.newRule = undefined;

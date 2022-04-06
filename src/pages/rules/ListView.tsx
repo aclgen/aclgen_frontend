@@ -2,27 +2,25 @@ import RuleCard from "../../components/rule/RuleCard";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
 import {
   selectRule,
-  updateRules,
   initiateNewRule,
   setRules,
   modifyRule,
 } from "../../features/rules/ruleSlice";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Rule, RuleElement } from "../../types/types";
-import update from "immutability-helper";
 import SideBar from "../../features/sidebar/SideBar";
-import {
-  commitServicesAsync,
-  selectDraftRepository,
-} from "../../features/repository/DraftRepositorySlice";
+import { selectDraftRepository } from "../../features/repository/DraftRepositorySlice";
 import { FireWall } from "../../types/repository";
 import CountableCheckButton from "../../components/CountableCheckButton";
 import { selectService } from "../../features/service/DraftServiceSlice";
+import { selectNetworkObjects } from "../../features/networkObject/DraftNetworkObjectSlice";
 
 function ListView() {
   const dispatch = useAppDispatch();
   const state = useAppSelector(selectRule);
   const draftRepoState = useAppSelector(selectDraftRepository);
+  const serviceState = useAppSelector(selectService);
+  const objectState = useAppSelector(selectNetworkObjects);
 
   useEffect(() => {
     if (state.status === "empty" && draftRepoState.status == "idle") {
@@ -32,38 +30,35 @@ function ListView() {
     }
   });
 
-  const moveCard = useCallback((dragIndex: number, hoverIndex: number) => {
-    dispatch(
-      //@ts-ignore
-      updateRules((prevCards: RuleElement[]) => {
-        return update(prevCards, {
-          $splice: [
-            [dragIndex, 1],
-            [hoverIndex, 0, prevCards[dragIndex]],
-          ],
-        });
-      })
-    );
-  }, []);
-
-  const renderCard = useCallback((rule: Rule, index: number) => {
+  const renderCard = (rule: Rule, index: number) => {
+    rule = {
+      ...rule,
+      source: objectState.networkObjects.find(
+        (element) => element.id == rule.source
+      ),
+      destination: objectState.networkObjects.find(
+        (element) => element.id == rule.destination
+      ),
+      service: serviceState.services.find(
+        (element) => element.id == rule.service
+      ),
+    };
     return (
       <RuleCard
         key={rule.id}
         index={index}
-        moveCard={moveCard}
         rule={rule}
         modifyCard={(card) => dispatch(modifyRule(card))}
       />
     );
-  }, []);
+  };
 
   return (
     <div className="flex flex-1 ">
       <div className="grid grid-flow-col space-4 w-full">
         <div className="flex flex-1 ">
-          <div className="flex flex-1 flex-col border-r">
-            <div className="flex flex-1 justify-cente p-3 overflow-y-auto">
+          <div className="flex flex-1 flex-col border-r overflow-x-visible">
+            <div className="flex flex-1 relative p-3 overflow-y-auto ">
               <SideBar />
             </div>
           </div>
@@ -80,9 +75,11 @@ function ListView() {
             </button>
             <ModifiedCounter />
           </div>
-          {state.rules
-            .map((ruleElement) => ruleElementtoRule(ruleElement))
-            .map((card, i) => renderCard(card, i))}
+          <div>
+            {state.rules
+              .map((ruleElement) => ruleElementtoRule(ruleElement))
+              .map((card, i) => renderCard(card, i))}
+          </div>
         </div>
       </div>
     </div>
