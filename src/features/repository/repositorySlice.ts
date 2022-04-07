@@ -5,22 +5,20 @@ import { fetchRepositories } from "./repositoryAPI";
 import {
   ACCESS,
   FireWall,
+  NetworkElement,
   Repository,
-  WorkSpace,
 } from "../../types/repository";
 import EmptyRepository from "./EmptyRepository";
 import { commitServicesAsync } from "./DraftRepositorySlice";
 import { fetchServicesWithRepoId } from "../service/serviceAPI";
 import { fetchNetworkObjectsWithRepoId } from "../networkObject/networkObjectAPI";
-import {
-  fetchDevicesWithWorkSpaceId,
-  fetchWorkSpaceWithId,
-} from "../workSpaceDraft/WorkSpaceAPI";
+import { fetchDevicesWithRepoId } from "../workSpaceDraft/WorkSpaceAPI";
 import { fetchRulesWithDeviceId } from "../rules/ruleAPI";
-import { v4 as uuidv4 } from "uuid";
+import { IPV4, PortService } from "../../types/types";
+import { RepositoryIdentifier } from "../common/APITypes";
 
 export interface RepositoryState {
-  repositories: Repository[];
+  repositories: RepositoryIdentifier[];
   selectedRepository: Repository;
   status: "empty" | "idle" | "loading" | "failed";
 }
@@ -51,24 +49,38 @@ export const selectRepositoryAsync = createAsyncThunk(
     const all = await Promise.all([
       fetchServicesWithRepoId(id),
       fetchNetworkObjectsWithRepoId(id),
-      fetchDevicesWithWorkSpaceId(id),
+      fetchDevicesWithRepoId(id),
     ]);
     const rules = await fetchRulesWithDeviceId(id, all[2][0].id);
 
-    const workSpace: WorkSpace = {
-      status: "source",
-      id: uuidv4(),
-      children: all[2],
-    };
+    const services = all[0].map((element) => {
+      return { ...element, status: "source" } as PortService;
+    });
 
-    (workSpace.children[0] as FireWall).rules = {
-      id: uuidv4(),
-      name: "",
-      parentId: workSpace.children[0].id,
-      rules: rules.map((element) => {
-        return { ...element, status: "source" };
-      }),
-    };
+    const networkObjects = all[1].map((element) => {
+      return { ...element, status: "source" } as IPV4;
+    });
+
+    rules.map((element) => {
+      return {
+        ...element,
+        source: networkObjects.find((source) => source.id == element.source.id),
+        destination: networkObjects.find(
+          (destination) => destination.id == element.destination.id
+        ),
+        service: networkObjects.find(
+          (service) => service.id == element.service.id
+        ),
+      };
+    });
+
+    const workSpace: NetworkElement[] = all[2].map((element) => {
+      return { ...element, status: "source" };
+    });
+    (workSpace[0] as FireWall).rules = rules.map((element) => {
+      return { ...element, status: "source" };
+    });
+
     const repo: Repository = {
       id: id,
       access: ACCESS.PUBLIC,
@@ -76,12 +88,8 @@ export const selectRepositoryAsync = createAsyncThunk(
       description: "YUUp",
       logo: "Nope",
       workSpace: workSpace,
-      networkObjects: all[1].map((element) => {
-        return { ...element, status: "source" };
-      }),
-      services: all[0].map((element) => {
-        return { ...element, status: "source" };
-      }),
+      networkObjects: networkObjects,
+      services: services,
     };
 
     // The value we return becomes the `fulfilled` action payload
@@ -134,7 +142,8 @@ export const RepositorySlice = createSlice({
     });
     builder.addCase(commitServicesAsync.fulfilled, (state, action) => {
       state.status = "idle";
-      const newService = [...state.repositories[0].services];
+      //...state.repositories[0].services
+      const newService = [];
       for (let i = 0; i < action.payload.length; i++) {
         const index = newService.findIndex(
           (element) => action.payload[i].id === element.id
@@ -154,7 +163,7 @@ export const RepositorySlice = createSlice({
       state.repositories = [
         {
           ...state.repositories[0],
-          services: newService,
+          //services: newService,
         },
       ];
     });

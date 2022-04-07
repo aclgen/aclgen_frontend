@@ -1,9 +1,9 @@
-import { NetworkDevice, WorkSpace } from "../../types/repository";
+import { NetworkDevice } from "../../types/repository";
 import { createAPIRoute } from "../common/APIRoutes";
 
 export async function fetchWorkSpaceWithId(
   repoId: string
-): Promise<{ data: WorkSpace }> {
+): Promise<{ data: NetworkDevice[] }> {
   const response = await fetch(createAPIRoute(`repo/${repoId}/workspace/`), {
     method: "GET",
     headers: {
@@ -14,7 +14,7 @@ export async function fetchWorkSpaceWithId(
   return result;
 }
 
-export async function fetchDevicesWithWorkSpaceId(
+export async function fetchDevicesWithRepoId(
   repoId: string
 ): Promise<NetworkDevice[]> {
   const response = await fetch(createAPIRoute(`repo/${repoId}/device`), {

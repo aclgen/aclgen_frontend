@@ -1,15 +1,9 @@
-export type RuleSet = {
-  id: string;
-  parentId: string;
-  name: string;
-  rules: RuleElement[];
-};
-
 export type EditableElementStatus = "modified" | "new" | "source" | "deleted";
 
 export interface RuleElement extends EditableElement {
   name: string;
   comment: string;
+  device: string;
 }
 
 export interface Rule extends RuleElement {
@@ -84,5 +78,3 @@ export enum DIRECTION {
   INBOUND,
   OUTBOUND,
 }
-
-export default RuleSet;

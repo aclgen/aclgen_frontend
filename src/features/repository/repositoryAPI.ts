@@ -1,10 +1,11 @@
 import { Repository } from "../../types/repository";
 import { ServiceElement } from "../../types/types";
 import { createAPIRoute } from "../common/APIRoutes";
+import { RepositoryIdentifier } from "../common/APITypes";
 import { ServiceTransaction } from "../PushActions/types";
 
 export async function fetchRepositories(): Promise<{
-  data: Repository[];
+  data: RepositoryIdentifier[];
 }> {
   const response = await fetch(createAPIRoute("repo/"), {
     method: "GET",

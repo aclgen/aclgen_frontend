@@ -1,17 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import type { AppDispatch, AppState, AppThunk } from "../../app/store";
-import {
-  FireWall,
-  NetworkElement,
-  Repository,
-  WorkSpace,
-} from "../../types/repository";
+import { FireWall, NetworkElement, Repository } from "../../types/repository";
 import EmptyRepository from "./EmptyRepository";
-import {
-  selectRepositoryAsync,
-  setSelectedRepository,
-} from "./repositorySlice";
+import { selectRepositoryAsync } from "./repositorySlice";
 import { WritableDraft } from "immer/dist/internal";
 import {
   EditableElement,
@@ -91,23 +83,22 @@ export const DraftRepositorySlice = createSlice({
       };
     });
     builder.addCase(saveRulesToDraft, (state, action) => {
-      const index: number = state.repository.workSpace.children.findIndex(
-        (element) => element.id == action.payload.parentId
+      const index: number = state.repository.workSpace.findIndex(
+        (element) => element.id == action.payload[0].device
       );
       const newFireWall: FireWall = {
-        ...(state.repository.workSpace.children[index] as FireWall),
+        ...(state.repository.workSpace[index] as FireWall),
         rules: action.payload,
       };
 
       state.repository = {
         ...state.repository,
         workSpace: {
-          ...state.repository.workSpace,
-          children: [
-            ...state.repository.workSpace.children.slice(0, index),
+          ...(state.repository.workSpace = [
+            ...state.repository.workSpace.slice(0, index),
             newFireWall,
-            ...state.repository.workSpace.children.slice(index + 1),
-          ],
+            ...state.repository.workSpace.slice(index + 1),
+          ]),
         },
       };
     });
@@ -145,11 +136,10 @@ function mergeUpdatedRepository(
   repository: WritableDraft<Repository>,
   payload: Repository
 ): Repository {
-  const children: NetworkElement[] = mergeWorkSpace(
+  const workSpace: NetworkElement[] = mergeWorkSpace(
     payload.workSpace,
     repository.workSpace
   );
-  const workSpace = { ...repository.workSpace, children };
   const services: ServiceElement[] = mergeServices(
     payload.services,
     repository.services
@@ -162,13 +152,10 @@ function mergeUpdatedRepository(
   return { ...payload, workSpace, services, networkObjects };
 }
 function mergeWorkSpace(
-  sourceWorkSpace: WorkSpace,
-  draftWorkspace: WorkSpace
+  sourceWorkSpace: NetworkElement[],
+  draftWorkspace: NetworkElement[]
 ): NetworkElement[] {
-  return mergeEditableElements(
-    sourceWorkSpace.children,
-    draftWorkspace.children
-  );
+  return mergeEditableElements(sourceWorkSpace, draftWorkspace);
 }
 
 function mergeServices(
