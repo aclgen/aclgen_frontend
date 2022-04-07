@@ -1,12 +1,12 @@
 import { ACCESS, Repository } from "../../types/repository";
 
 const EmptyRepository: Repository = {
-  UUID: "EMPTY",
+  id: "EMPTY",
   access: ACCESS.PUBLIC,
   repo: "EMPTY",
   description: "Empty repository",
   logo: "EMPTY",
-  workSpace: { children: [], status: "source", id: "123" },
+  workSpace: [],
   networkObjects: [],
   services: [],
 };

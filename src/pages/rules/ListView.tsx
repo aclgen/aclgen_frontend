@@ -24,25 +24,12 @@ function ListView() {
 
   useEffect(() => {
     if (state.status === "empty" && draftRepoState.status == "idle") {
-      const firewall = draftRepoState.repository.workSpace
-        .children[0] as FireWall;
-      dispatch(setRules(firewall.rules.rules));
+      const firewall = draftRepoState.repository.workSpace[0] as FireWall;
+      dispatch(setRules(firewall.rules));
     }
   });
 
   const renderCard = (rule: Rule, index: number) => {
-    rule = {
-      ...rule,
-      source: objectState.networkObjects.find(
-        (element) => element.id == rule.source
-      ),
-      destination: objectState.networkObjects.find(
-        (element) => element.id == rule.destination
-      ),
-      service: serviceState.services.find(
-        (element) => element.id == rule.service
-      ),
-    };
     return (
       <RuleCard
         key={rule.id}

@@ -82,7 +82,7 @@ export function RenderWorkSpace() {
       </div>
 
       <ul className="pl-4 space-y-1">
-        {state.workspace.children.map((element) => {
+        {state.workspace.map((element) => {
           return (
             <li key={element.id}>{RenderNetworkElement(element, () => {})} </li>
           );

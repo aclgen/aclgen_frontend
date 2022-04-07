@@ -1,7 +1,8 @@
-import RuleSet, {
+import {
   EditableElement,
   Nestable,
   NetworkObjectElement,
+  RuleElement,
   ServiceElement,
 } from "./types";
 
@@ -11,12 +12,10 @@ export interface Repository {
   repo: string;
   description: string;
   logo: string;
-  workSpace: WorkSpace;
+  workSpace: NetworkElement[];
   networkObjects: NetworkObjectElement[];
   services: ServiceElement[];
 }
-
-export interface WorkSpace extends EditableElement, Nestable<NetworkElement> {}
 
 export interface Location extends NetworkElement, Nestable<NetworkElement> {}
 
@@ -36,7 +35,7 @@ export interface Cluster<T extends NetworkDevice> extends NetworkElement {
 }
 
 export interface FireWall extends NetworkDevice {
-  rules: RuleSet;
+  rules: RuleElement[];
   type: "firewall";
 }
 
