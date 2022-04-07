@@ -18,6 +18,7 @@ import {
 import { ReactNode, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { modifyRule, selectRule } from "../../features/rules/ruleSlice";
+import { addDraggedItem } from "../../features/draggable/draggableSlice";
 
 export interface SideBarElementProps {
   name: string;
@@ -63,7 +64,6 @@ export function RenderSideBarElement({
 
 function DraggableService({ element }: { element: SideBarElementProps }) {
   const [isDragging, setIsDragging] = useState(false);
-  const state = useAppSelector(selectRule);
   const dispatch = useAppDispatch();
 
   useDndMonitor({
@@ -91,20 +91,12 @@ function DraggableService({ element }: { element: SideBarElementProps }) {
       return;
     }
 
-    const index = state.rules.findIndex(
-      (element) => element.id === over.data.current.id
+    dispatch(
+      addDraggedItem({
+        dropped: active.data.current.id,
+        target: over.id,
+      })
     );
-
-    const newRuleElement: Rule = {
-      ...(state.rules[index] as Rule),
-      status: "modified",
-      name: active.data.current.id,
-      source: {
-        ...(state.rules[index] as Rule).source,
-        name: active.data.current.id,
-      },
-    };
-    dispatch(modifyRule(newRuleElement));
   }
 
   return (
@@ -171,6 +163,28 @@ export const CheckIcon = ({
         ></path>
       </svg>
     </div>
+  );
+};
+
+export const CheckIconSVG = ({ size = "md" }: { size: Size }) => {
+  const height = getHeight(size);
+  return (
+    <svg
+      version="1.1"
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      x="0px"
+      y="0px"
+      viewBox="0 0 512 512"
+      className={`h-${height} pl-0.5 pt-0.5 pr-0.5`}
+    >
+      <path
+        d="M504.502,75.496c-9.997-9.998-26.205-9.998-36.204,0L161.594,382.203L43.702,264.311c-9.997-9.998-26.205-9.997-36.204,0
+			c-9.998,9.997-9.998,26.205,0,36.203l135.994,135.992c9.994,9.997,26.214,9.99,36.204,0L504.502,111.7
+			C514.5,101.703,514.499,85.494,504.502,75.496z"
+        className="fill-blue-700 group-hover:fill-white"
+      ></path>
+    </svg>
   );
 };
 

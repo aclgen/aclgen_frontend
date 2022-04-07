@@ -43,7 +43,7 @@ export const XIcon = ({
   onClick,
   size,
 }: {
-  onClick: () => void;
+  onClick: (event?) => void;
   size: Size;
 }) => {
   const height = getHeight(size);

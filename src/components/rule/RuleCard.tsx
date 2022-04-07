@@ -10,6 +10,7 @@ import {
 } from "../../types/types";
 import { statusStyle } from "../SelectableElement/SideBarElement";
 import { useDroppable } from "@dnd-kit/core";
+import { DroppableField } from "../InputField/DroppableField";
 
 export interface CardProps {
   index: number;
@@ -51,6 +52,7 @@ function card({ index, rule, modifyCard }: CardProps) {
     return {
       source: source,
       destination: destination,
+      device: rule.device,
       service: service,
       direction: direction,
       policy: policy,
@@ -93,6 +95,7 @@ function card({ index, rule, modifyCard }: CardProps) {
               onChange(() => setDestination(data));
             }}
           />
+          <DroppableField id={rule.id} droppableType={"service"} />
           <ServiceInput
             value={service}
             onChange={(data: PortService) => {
