@@ -77,9 +77,6 @@ export const selectRepositoryAsync = createAsyncThunk(
     const workSpace: NetworkElement[] = all[2].map((element) => {
       return { ...element, status: "source" };
     });
-
-    console.log(workSpace);
-
     (workSpace[0] as FireWall).rules = rules.map((element) => {
       return { ...element, status: "source" };
     });

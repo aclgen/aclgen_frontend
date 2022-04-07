@@ -176,8 +176,6 @@ function mergeEditableElements<T extends EditableElement>(
   sourceElements: T[],
   draftElements: T[]
 ): T[] {
-  console.log(sourceElements);
-  console.log(draftElements);
   const source: T[] = [...sourceElements];
   const newElements: T[] = draftElements.filter(
     (element: T) => element.status === "modified" || element.status === "new"
