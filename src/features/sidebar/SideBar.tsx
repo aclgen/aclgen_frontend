@@ -33,17 +33,21 @@ import {
   updateWorkSpace,
 } from "../workSpaceDraft/DraftWorkSpaceSlice";
 import CountableCheckButton from "../../components/CountableCheckButton";
+import EmptyRepository from "../repository/EmptyRepository";
 
 function SideBar() {
   const dispatch = useAppDispatch();
   const state = useAppSelector(selectRepository);
 
   useEffect(() => {
-    if (state.status === "empty") {
+    if (state.repositories.length == 0) {
       dispatch(updateRepositoriesAsync());
     }
 
-    if (state.status === "idle") {
+    if (
+      state.status === "idle" &&
+      state.selectedRepository === EmptyRepository
+    ) {
       dispatch(selectRepositoryAsync(state.repositories[0].id));
       //dispatch(setSelectedRepository(state.repositories[0]));
     }
