@@ -1,6 +1,6 @@
 import { useDroppable } from "@dnd-kit/core";
 import React, {
-  createRef,
+  ReactNode,
   RefObject,
   useEffect,
   useRef,
@@ -15,31 +15,33 @@ import {
   initiateNewService,
   selectService,
 } from "../../features/service/DraftServiceSlice";
-import { NetworkObjectElement, ServiceElement } from "../../types/types";
+import { ServiceElement } from "../../types/types";
 import { XIcon } from "../creationForm/PopUpForm";
 import { PlusButtonSVG } from "../PLusButton";
 import { Label } from "../rule/RuleCard";
 import { CheckIconSVG, statusStyle } from "../SelectableElement/SideBarElement";
 
+export const ServiceInputField = ({ id }: { id: string }) => {};
+
 export interface DroppableFieldProps {
   Children?: typeof React.Component;
+  isOver?: boolean;
   id: string;
   droppableType: "object" | "service";
 }
-
 export const DroppableField = ({ id }: DroppableFieldProps) => {
   const { isOver, setNodeRef } = useDroppable({
     id: id,
   });
 
-  const dispatch = useAppDispatch();
-
-  const [searchInput, setSearchInput] = useState("");
-
   const { searchMenu, isOpen, setOpen } = useCloseOnLostFocus();
 
   const { inputElements, addElement, removeElement, searchName } =
     useSearchElement(id);
+
+  function isElementPresent(name: string) {
+    return inputElements.includes(name);
+  }
 
   return (
     <div
@@ -50,47 +52,123 @@ export const DroppableField = ({ id }: DroppableFieldProps) => {
       }}
     >
       <Label value="TESTDROP" />
-      <div className={composeStyle(isOver)}>
-        {inputElements.map((element) => (
-          <Element
-            key={element}
-            name={element}
-            onRemove={removeElement}
-            disableRemove={inputElements.length > 1}
-          />
-        ))}
-      </div>
-      {isOpen ? (
-        <div ref={searchMenu} className={`w-50 ${composeStylePlus(isOver)} `}>
-          <div>
-            <input
-              type="source"
-              name="source"
-              id="SOURCETEST"
-              autoFocus={true}
-              autoComplete="off"
-              value={searchInput}
-              onChange={(event) => setSearchInput(event.target.value)}
-              className={
-                "outline-none border-none m-0 text-md w-full p-1 border-b border-gray-300 h-8 inline bg-gray-50"
-              }
-            />
-          </div>
-          <SearchResults
-            isAdded={(name) => {
-              return inputElements.includes(name);
-            }}
-            searchResults={searchName(searchInput)}
-            addElement={addElement}
-            onCreateNew={(string) => dispatch(initiateNewService())}
-          />
-        </div>
-      ) : (
-        ""
-      )}
+      <FlexibleInputContainer
+        isHovered={isOver}
+        inputElements={inputElements}
+        removeElement={removeElement}
+      />
+      <If condition={isOpen}>
+        <SearchInput
+          searchRef={searchMenu}
+          isElementPresent={isElementPresent}
+          search={searchName}
+          addElement={addElement}
+        />
+      </If>
     </div>
   );
 };
+
+function FlexibleInputContainer({
+  isHovered,
+  inputElements,
+  removeElement,
+}: {
+  isHovered: boolean;
+  inputElements: string[];
+  removeElement: (name: string) => void;
+}) {
+  return (
+    <div className={composeStyle(isHovered)}>
+      {inputElements.map((element) => (
+        <ElementSearchInput
+          key={element}
+          name={element}
+          onRemove={removeElement}
+          disableRemove={inputElements.length > 1}
+        />
+      ))}
+    </div>
+  );
+}
+interface SearchInputProps {
+  searchRef: React.MutableRefObject<any>;
+  isElementPresent: (name: string) => boolean;
+  search: (input: string) => ServiceElement[];
+  addElement: (name: string) => void;
+}
+
+function SearchInput({
+  searchRef,
+  isElementPresent,
+  search,
+  addElement,
+}: SearchInputProps) {
+  const dispatch = useAppDispatch();
+  const [searchInput, setSearchInput] = useState("");
+
+  const searchInputRef = useRef(null);
+
+  return (
+    <div ref={searchRef} className={`w-50 ${composeStylePlus(true)} `}>
+      <div className="flex flex-row items-center px-1 overflow-hidden">
+        <svg
+          className={`h-4 fill-gray-700 ${
+            searchInput === ""
+              ? "translate-x-0 pr-1"
+              : "-translate-x-12 w-1 pl-0"
+          } transform origin-left ease-out duration-150 transition`}
+          fill="currentColour"
+          viewBox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fillRule="evenodd"
+            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+            clipRule="evenodd"
+          ></path>
+        </svg>
+        <input
+          ref={searchInputRef}
+          type="source"
+          name="source"
+          id="SOURCETEST"
+          autoFocus={true}
+          autoComplete="off"
+          value={searchInput}
+          placeholder="Search..."
+          onChange={(event) => setSearchInput(event.target.value)}
+          className={
+            "outline-none border-none m-0 text-md w-full py-1 border-b border-gray-300 h-8 inline bg-gray-50"
+          }
+        />
+      </div>
+      <SearchResults
+        isAdded={isElementPresent}
+        searchResults={search(searchInput)}
+        addElement={addElement}
+        onCreateNew={(string) => dispatch(initiateNewService())}
+        inputRef={searchInputRef}
+      />
+    </div>
+  );
+}
+
+function If({
+  children,
+  condition,
+}: {
+  condition: boolean;
+  children: ReactNode;
+}) {
+  if (condition) {
+    return <>{children}</>;
+  } else {
+    return <></>;
+  }
+}
+
+function IfElse() {}
 
 export function useCloseOnLostFocus() {
   const searchMenu = useRef(null);
@@ -180,22 +258,82 @@ export function SearchResults({
   addElement,
   isAdded,
   onCreateNew,
+  inputRef,
 }: {
   searchResults: ServiceElement[];
   addElement: (name: string) => void;
   isAdded: (name: string) => boolean;
   onCreateNew: (name: string) => void;
+  inputRef: React.RefObject<HTMLInputElement>;
 }) {
+  const [selected, setSelected] =
+    useState<React.SetStateAction<ServiceElement | undefined>>(undefined);
+
+  const handelChange = (e: React.SyntheticEvent<HTMLInputElement>) => {
+    setSelected(undefined);
+  };
+
+  const downPress = useKeyPress("ArrowDown", inputRef);
+  const upPress = useKeyPress("ArrowUp", inputRef);
+  const enterPress = useKeyPress("Enter", inputRef);
+  const [cursor, setCursor] = useState<number>(-1);
+  const [hovered, setHovered] = useState<ServiceElement | undefined>(undefined);
+
+  useEffect(() => {
+    if (searchResults.length && downPress) {
+      if (cursor === searchResults.length - 1) {
+        setCursor(0);
+      } else {
+        setCursor((prevState) =>
+          prevState < searchResults.length - 1 ? prevState + 1 : prevState
+        );
+      }
+    }
+  }, [downPress]);
+  useEffect(() => {
+    if (searchResults.length && upPress) {
+      if (cursor === 0) {
+        setCursor(searchResults.length - 1);
+      } else {
+        setCursor((prevState) => (prevState > 0 ? prevState - 1 : prevState));
+      }
+    }
+  }, [upPress]);
+  useEffect(() => {
+    if (
+      (searchResults.length && enterPress) ||
+      (searchResults.length && hovered)
+    ) {
+      setSelected(searchResults[cursor]);
+    }
+  }, [cursor]);
+  useEffect(() => {
+    if (searchResults.length && hovered) {
+      setCursor(searchResults.indexOf(hovered));
+    }
+  }, [hovered]);
+
+  useEffect(() => {
+    if (searchResults[cursor]) {
+      addElement(searchResults[cursor].name);
+      setCursor(-1);
+    }
+  }, [enterPress]);
+
   return (
     <ul className="flex flex-col w-full flex-wrap border-t border-gray-200 space-y-1 ">
       {searchResults.map((element, i) => {
         return (
           <li
             key={element.id}
+            onMouseEnter={() => setHovered(element)}
+            onMouseLeave={() => setHovered(undefined)}
             onClick={() => {
               addElement(element.name);
             }}
-            className="hover:bg-blue-500 group p-2 hover:text-white w-full hover:cursor-pointer"
+            className={`${
+              cursor === i ? "bg-blue-500 text-white" : ""
+            } hover:bg-blue-500 group p-2 hover:text-white text-gray-700 w-full hover:cursor-pointer`}
           >
             <div className="flex flex-row">
               <p>{element.name}</p>
@@ -213,17 +351,20 @@ export function SearchResults({
       {searchResults.length === 0 ? (
         <li
           key={"new"}
+          onMouseEnter={() => setHovered(undefined)}
+          onMouseLeave={() => setHovered(undefined)}
           onClick={() => {
             addElement("new");
             onCreateNew("new");
           }}
-          className="hover:bg-blue-500 p-2 hover:text-white w-full hover:cursor-pointer"
+          className={`${
+            cursor === 0 ? "bg-blue-500 text-white" : ""
+          } hover:bg-blue-500 group p-2 hover:text-white text-gray-700 w-full hover:cursor-pointer`}
         >
-          <div className="flex flex-row items-center">
-            <p>create new</p>
-
+          <div className="flex flex-row font-light text-md items-center">
+            <p>Create new</p>
             <div className="ml-auto">
-              <PlusButtonSVG />
+              <PlusButtonSVG inverted={true} />
             </div>
           </div>
         </li>
@@ -234,7 +375,38 @@ export function SearchResults({
   );
 }
 
-export function Element({
+const useKeyPress = function (
+  targetKey: string,
+  ref: RefObject<HTMLInputElement>
+) {
+  const [keyPressed, setKeyPressed] = useState(false);
+
+  function downHandler({ key }: { key: string }) {
+    if (key === targetKey) {
+      setKeyPressed(true);
+    }
+  }
+
+  const upHandler = ({ key }: { key: string }) => {
+    if (key === targetKey) {
+      setKeyPressed(false);
+    }
+  };
+
+  React.useEffect(() => {
+    ref.current?.addEventListener("keydown", downHandler);
+    ref.current?.addEventListener("keyup", upHandler);
+
+    return () => {
+      ref.current?.removeEventListener("keydown", downHandler);
+      ref.current?.removeEventListener("keyup", upHandler);
+    };
+  });
+
+  return keyPressed;
+};
+
+export function ElementSearchInput({
   name,
   onRemove,
   disableRemove,

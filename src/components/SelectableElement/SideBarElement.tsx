@@ -16,8 +16,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { ReactNode, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { modifyRule, selectRule } from "../../features/rules/ruleSlice";
+import { useAppDispatch } from "../../app/hooks";
 import { addDraggedItem } from "../../features/draggable/draggableSlice";
 
 export interface SideBarElementProps {
