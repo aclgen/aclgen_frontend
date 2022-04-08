@@ -63,6 +63,7 @@ export const DroppableField = ({ id }: DroppableFieldProps) => {
           isElementPresent={isElementPresent}
           search={searchName}
           addElement={addElement}
+          setOpen={() => setOpen(false)}
         />
       </If>
     </div>
@@ -96,6 +97,7 @@ interface SearchInputProps {
   isElementPresent: (name: string) => boolean;
   search: (input: string) => ServiceElement[];
   addElement: (name: string) => void;
+  setOpen: () => void;
 }
 
 function SearchInput({
@@ -103,6 +105,7 @@ function SearchInput({
   isElementPresent,
   search,
   addElement,
+  setOpen,
 }: SearchInputProps) {
   const dispatch = useAppDispatch();
   const [searchInput, setSearchInput] = useState("");
@@ -149,6 +152,7 @@ function SearchInput({
         addElement={addElement}
         onCreateNew={(string) => dispatch(initiateNewService())}
         inputRef={searchInputRef}
+        setOpen={setOpen}
       />
     </div>
   );
@@ -253,34 +257,43 @@ export function useSearchElement(id: string) {
   return { inputElements, addElement, removeElement, searchName };
 }
 
+const useDidMountEffect = (func, deps) => {
+  const didMount = useRef(false);
+
+  useEffect(() => {
+    if (didMount.current) func();
+    else didMount.current = true;
+  }, deps);
+};
+
 export function SearchResults({
   searchResults,
   addElement,
   isAdded,
   onCreateNew,
   inputRef,
+  setOpen,
 }: {
   searchResults: ServiceElement[];
   addElement: (name: string) => void;
   isAdded: (name: string) => boolean;
   onCreateNew: (name: string) => void;
   inputRef: React.RefObject<HTMLInputElement>;
+  setOpen: () => void;
 }) {
   const [selected, setSelected] =
     useState<React.SetStateAction<ServiceElement | undefined>>(undefined);
 
-  const handelChange = (e: React.SyntheticEvent<HTMLInputElement>) => {
-    setSelected(undefined);
-  };
-
   const downPress = useKeyPress("ArrowDown", inputRef);
   const upPress = useKeyPress("ArrowUp", inputRef);
   const enterPress = useKeyPress("Enter", inputRef);
-  const [cursor, setCursor] = useState<number>(-1);
+  const tabPress = useKeyPress("Tab", inputRef);
+  const escapePress = useKeyPress("Escape", inputRef);
+  const [cursor, setCursor] = useState<number>(0);
   const [hovered, setHovered] = useState<ServiceElement | undefined>(undefined);
 
   useEffect(() => {
-    if (searchResults.length && downPress) {
+    if (searchResults.length && (downPress || tabPress)) {
       if (cursor === searchResults.length - 1) {
         setCursor(0);
       } else {
@@ -289,7 +302,8 @@ export function SearchResults({
         );
       }
     }
-  }, [downPress]);
+  }, [downPress, tabPress]);
+
   useEffect(() => {
     if (searchResults.length && upPress) {
       if (cursor === 0) {
@@ -313,12 +327,20 @@ export function SearchResults({
     }
   }, [hovered]);
 
-  useEffect(() => {
-    if (searchResults[cursor]) {
+  useDidMountEffect(() => {
+    if (searchResults[cursor] && enterPress) {
       addElement(searchResults[cursor].name);
-      setCursor(-1);
+    }
+    if (searchResults.length === 0) {
+      onCreateNew("new");
     }
   }, [enterPress]);
+
+  useDidMountEffect(() => {
+    if (searchResults[cursor] && escapePress) {
+      setOpen();
+    }
+  }, [escapePress]);
 
   return (
     <ul className="flex flex-col w-full flex-wrap border-t border-gray-200 space-y-1 ">
@@ -381,8 +403,12 @@ const useKeyPress = function (
 ) {
   const [keyPressed, setKeyPressed] = useState(false);
 
-  function downHandler({ key }: { key: string }) {
-    if (key === targetKey) {
+  function downHandler(event: KeyboardEvent) {
+    if (event.key === "Tab") {
+      event.preventDefault();
+    }
+
+    if (event.key === targetKey) {
       setKeyPressed(true);
     }
   }
