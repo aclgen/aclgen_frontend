@@ -72,7 +72,7 @@ export const DraftNetworkObjectSlice = createSlice({
         state.newObjectStatus = "editing";
       }
     },
-    initiateNewObject: (state) => {
+    initiateNewObject: (state, action: PayloadAction<string>) => {
       state.newObject = undefined;
       state.newObjectStatus = "creating";
     },

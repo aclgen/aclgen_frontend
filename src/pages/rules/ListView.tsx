@@ -12,15 +12,11 @@ import SideBar from "../../features/sidebar/SideBar";
 import { selectDraftRepository } from "../../features/repository/DraftRepositorySlice";
 import { FireWall } from "../../types/repository";
 import CountableCheckButton from "../../components/CountableCheckButton";
-import { selectService } from "../../features/service/DraftServiceSlice";
-import { selectNetworkObjects } from "../../features/networkObject/DraftNetworkObjectSlice";
 
 function ListView() {
   const dispatch = useAppDispatch();
   const state = useAppSelector(selectRule);
   const draftRepoState = useAppSelector(selectDraftRepository);
-  const serviceState = useAppSelector(selectService);
-  const objectState = useAppSelector(selectNetworkObjects);
 
   useEffect(() => {
     if (state.status === "empty" && draftRepoState.status == "idle") {
@@ -62,7 +58,7 @@ function ListView() {
             </button>
             <ModifiedCounter />
           </div>
-          <div>
+          <div className="flex flex-col space-y-1">
             {state.rules
               .map((ruleElement) => ruleElementtoRule(ruleElement))
               .map((card, i) => renderCard(card, i))}

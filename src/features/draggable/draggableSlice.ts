@@ -4,7 +4,10 @@ import type { AppState } from "../../app/store";
 export interface DraggableState {
   currentDroppedItem:
     | {
-        dropped: string;
+        dropped: {
+          id: string;
+          type: "object" | "service";
+        };
         target: string;
       }
     | undefined;
@@ -25,7 +28,7 @@ export const DraggableSlice = createSlice({
     addDraggedItem: (
       state,
       action: PayloadAction<{
-        dropped: string;
+        dropped: { id: string; type: "service" | "object" };
         target: string;
       }>
     ) => {

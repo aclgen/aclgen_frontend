@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   DIRECTION,
   IPV4,
@@ -7,11 +7,22 @@ import {
   Rule,
   PortService,
   ServiceElement,
+  EditableElement,
 } from "../../types/types";
 import { statusStyle } from "../SelectableElement/SideBarElement";
 import { useDroppable } from "@dnd-kit/core";
-import { DroppableField } from "../InputField/DroppableField";
-
+import { DroppableInputField } from "../InputField/DroppableField";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import {
+  initiateNewService,
+  selectService,
+} from "../../features/service/DraftServiceSlice";
+import { v4 as uuidv4 } from "uuid";
+import { selectDraggable } from "../../features/draggable/draggableSlice";
+import {
+  initiateNewObject,
+  selectNetworkObjects,
+} from "../../features/networkObject/DraftNetworkObjectSlice";
 export interface CardProps {
   index: number;
   rule: Rule;
@@ -34,6 +45,10 @@ export const ItemTypes = {
  * @returns A properly formatted Rule card
  */
 function card({ index, rule, modifyCard }: CardProps) {
+  const searchAbleElements = useAppSelector(selectService).services;
+  const searchAbleObjects = useAppSelector(selectNetworkObjects).networkObjects;
+  const dispatch = useAppDispatch();
+
   const [name, setName] = useState(rule.name);
   const [comment, setComment] = useState(rule.comment);
   const [source, setSource] = useState(rule.source);
@@ -82,24 +97,43 @@ function card({ index, rule, modifyCard }: CardProps) {
               onChange(() => setName(data));
             }}
           />
-          <Source
-            value={rule.source}
-            parentId={rule.id}
-            onChange={(data: IPV4) => {
-              onChange(() => setSource(data));
+          <DroppableInputField
+            droppableType={"object"}
+            inputID={rule.id + "sourceinput"}
+            fieldType={"SOURCE"}
+            elements={source}
+            searchAbleElements={searchAbleObjects}
+            onCreateNewService={(name: string) => {
+              dispatch(initiateNewObject(name));
+            }}
+            onUpdateElements={(elements: NetworkObjectElement[]) => {
+              onChange(() => setSource(elements));
             }}
           />
-          <Destination
-            value={destination}
-            onChange={(data: IPV4) => {
-              onChange(() => setDestination(data));
+          <DroppableInputField
+            droppableType={"object"}
+            inputID={rule.id + "destinationinput"}
+            fieldType={"DESTINATION"}
+            elements={destination}
+            searchAbleElements={searchAbleObjects}
+            onCreateNewService={(name: string) => {
+              dispatch(initiateNewObject(name));
+            }}
+            onUpdateElements={(elements: NetworkObjectElement[]) => {
+              onChange(() => setDestination(elements));
             }}
           />
-          <DroppableField id={rule.id} droppableType={"service"} />
-          <ServiceInput
-            value={service}
-            onChange={(data: PortService) => {
-              onChange(() => setService(data));
+          <DroppableInputField
+            droppableType={"service"}
+            inputID={rule.id + "serviceinput"}
+            fieldType={"SERVICE"}
+            elements={service}
+            searchAbleElements={searchAbleElements}
+            onCreateNewService={(name: string) => {
+              dispatch(initiateNewService(name));
+            }}
+            onUpdateElements={(elements: ServiceElement[]) => {
+              onChange(() => setService(elements));
             }}
           />
           <Direction

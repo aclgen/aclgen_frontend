@@ -78,7 +78,7 @@ export function RenderWorkSpace() {
     <>
       <div className="flex flex-row items-center h-12">
         <h2 className="text-lg font-light items-start">Workspace</h2>
-        <PlusButtonSVG />
+        <PlusButtonSVG isHovering={false} />
       </div>
 
       <ul className="pl-4 space-y-1">
@@ -103,7 +103,7 @@ export function RenderObjectsAndServices() {
           className="outline-none ml-auto"
           onClick={() => setDropdown(!droppedDown)}
         >
-          <PlusButtonSVG />
+          <PlusButtonSVG isHovering={false} />
         </button>
       </div>
       <ul

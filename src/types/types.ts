@@ -7,9 +7,9 @@ export interface RuleElement extends EditableElement {
 }
 
 export interface Rule extends RuleElement {
-  source: NetworkObjectElement;
-  destination: NetworkObjectElement;
-  service: ServiceElement;
+  source: NetworkObjectElement[];
+  destination: NetworkObjectElement[];
+  service: ServiceElement[];
   direction: DIRECTION;
   policy: POLICY;
 }
@@ -47,6 +47,7 @@ export interface ServiceGroup
 
 export interface EditableElement {
   status: EditableElementStatus;
+  name: string;
   id: string;
 }
 

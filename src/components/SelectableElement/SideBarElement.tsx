@@ -3,7 +3,6 @@ import {
   ServiceElement,
   NetworkObjectElement,
   EditableElementStatus,
-  Rule,
 } from "../../types/types";
 import { createPortal } from "react-dom";
 import { getHeight, Size } from "../creationForm/PopUpForm";
@@ -11,15 +10,14 @@ import {
   useDraggable,
   DragOverlay,
   useDndMonitor,
-  MouseSensor,
-  useSensor,
-  useSensors,
+  DragStartEvent,
 } from "@dnd-kit/core";
 import { ReactNode, useState } from "react";
 import { useAppDispatch } from "../../app/hooks";
 import { addDraggedItem } from "../../features/draggable/draggableSlice";
 
 export interface SideBarElementProps {
+  type: "service" | "object";
   name: string;
   icon: string;
   id: string;
@@ -36,7 +34,7 @@ export function RenderSideBarElement({
 }) {
   return (
     <div
-      key={element.name}
+      key={element.id}
       onClick={element.onClick}
       className={`flex flex-row bg-white  hover:cursor-pointer hover:shadow-lg transition-shadow  ${statusStyle(
         element.status
@@ -61,13 +59,17 @@ export function RenderSideBarElement({
   );
 }
 
-function DraggableService({ element }: { element: SideBarElementProps }) {
+export function DraggableSideBarElement({
+  element,
+}: {
+  element: SideBarElementProps;
+}) {
   const [isDragging, setIsDragging] = useState(false);
   const dispatch = useAppDispatch();
 
   useDndMonitor({
     onDragStart(event) {
-      handleDragStart();
+      handleDragStart(event);
     },
 
     onDragEnd(event) {
@@ -78,21 +80,25 @@ function DraggableService({ element }: { element: SideBarElementProps }) {
     },
   });
 
-  function handleDragStart() {
-    setIsDragging(true);
+  function handleDragStart(event: DragStartEvent) {
+    if (event.active.id === element.id) setIsDragging(true);
   }
 
   function handleDragEnd(event) {
     setIsDragging(false);
     const { active, over } = event;
 
-    if (active.data.current === null || over === null) {
+    if (
+      active.data.current === null ||
+      over === null ||
+      event.active.id !== element.id
+    ) {
       return;
     }
 
     dispatch(
       addDraggedItem({
-        dropped: active.data.current.id,
+        dropped: { id: active.data.current.id, type: element.type },
         target: over.id,
       })
     );
@@ -100,7 +106,7 @@ function DraggableService({ element }: { element: SideBarElementProps }) {
 
   return (
     <>
-      <Draggable id={element.id}>
+      <Draggable id={element.id} type={element.type}>
         <RenderSideBarElement element={element} />
       </Draggable>
       {createPortal(
@@ -116,6 +122,7 @@ function DraggableService({ element }: { element: SideBarElementProps }) {
 export interface DraggableProps {
   children: ReactNode;
   id: string;
+  type: "object" | "service";
 }
 
 function Draggable(draggable: DraggableProps) {
@@ -123,6 +130,7 @@ function Draggable(draggable: DraggableProps) {
     id: draggable.id,
     data: {
       id: draggable.id,
+      type: draggable.type,
     },
   });
   return (
@@ -200,30 +208,36 @@ export function RenderService(
   onClick: () => void,
   onCommit: () => void
 ) {
-  const elementProps = {
+  const elementProps: SideBarElementProps = {
     ...service,
     icon: "/computer-networks.svg",
     alt: "Service",
     onClick: onClick,
     onClickCheck: onCommit,
+    type: "service",
   };
   if (service.status !== "deleted") {
-    return <DraggableService element={elementProps} />;
+    return <DraggableSideBarElement element={elementProps} />;
+  } else {
+    return <></>;
   }
 }
 
 export function RenderNetworkObjects(
   element: NetworkObjectElement,
   onClick: () => void
-): any {
-  const elementProps = {
+) {
+  const elementProps: SideBarElementProps = {
     ...element,
     icon: "/server.svg",
     alt: "Host",
     onClick: onClick,
+    type: "object",
   };
   if (element.status !== "deleted") {
-    return <RenderSideBarElement key={element.id} element={elementProps} />;
+    return <DraggableSideBarElement element={elementProps} />;
+  } else {
+    return <></>;
   }
 }
 
@@ -251,14 +265,15 @@ export function RenderFirewall({
   fireWall: FireWall;
   onClick: () => void;
 }) {
-  const element = {
+  const element: SideBarElementProps = {
     ...fireWall,
     icon: "/firewall.svg",
     alt: "firewall",
     onClick: () => {},
+    type: "object",
   };
 
-  return <RenderSideBarElement key={fireWall.id} element={element} />;
+  return <RenderSideBarElement element={element} />;
 }
 
 export const statusStyle = (status: EditableElementStatus) => {

@@ -15,19 +15,9 @@ import {
 } from "@dnd-kit/core";
 
 export default function MyApp({ Component, pageProps }: AppProps) {
-  const mouseSensor = useSensor(MouseSensor, {
-    activationConstraint: {
-      delay: 75,
-      tolerance: 5,
-    },
-  });
+  const mouseSensor = useSensor(MouseSensor, {});
 
-  const touchSensor = useSensor(TouchSensor, {
-    activationConstraint: {
-      delay: 75,
-      tolerance: 5,
-    },
-  });
+  const touchSensor = useSensor(TouchSensor, {});
   const keyboardSensor = useSensor(KeyboardSensor, {});
 
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);

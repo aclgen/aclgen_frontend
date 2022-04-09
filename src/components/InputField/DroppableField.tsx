@@ -6,41 +6,60 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import {
-  removeDraggedItem,
-  selectDraggable,
-} from "../../features/draggable/draggableSlice";
-import {
-  initiateNewService,
-  selectService,
-} from "../../features/service/DraftServiceSlice";
-import { ServiceElement } from "../../types/types";
+import { EditableElement, ServiceElement } from "../../types/types";
 import { XIcon } from "../creationForm/PopUpForm";
 import { PlusButtonSVG } from "../PLusButton";
 import { Label } from "../rule/RuleCard";
 import { CheckIconSVG, statusStyle } from "../SelectableElement/SideBarElement";
+import {
+  useCloseOnLostFocus,
+  useDroppableStateChange,
+  useEditableElements,
+  useSearchAble,
+} from "./hooks";
 
-export const ServiceInputField = ({ id }: { id: string }) => {};
-
-export interface DroppableFieldProps {
-  Children?: typeof React.Component;
-  isOver?: boolean;
-  id: string;
+export const DroppableInputField = ({
+  inputID,
+  fieldType,
+  elements,
+  searchAbleElements,
+  onCreateNewService: onCreateNewElement,
+  onUpdateElements,
+  droppableType,
+}: {
   droppableType: "object" | "service";
-}
-export const DroppableField = ({ id }: DroppableFieldProps) => {
+  inputID: string;
+  fieldType: string;
+  elements: EditableElement[];
+  searchAbleElements: EditableElement[];
+  onCreateNewService: (name: string) => void;
+  onUpdateElements: (elements: EditableElement[]) => void;
+}) => {
   const { isOver, setNodeRef } = useDroppable({
-    id: id,
+    id: inputID,
+    data: {
+      type: droppableType,
+    },
   });
 
   const { searchMenu, isOpen, setOpen } = useCloseOnLostFocus();
 
-  const { inputElements, addElement, removeElement, searchName } =
-    useSearchElement(id);
+  const { searchName } = useSearchAble(searchAbleElements);
 
-  function isElementPresent(name: string) {
-    return inputElements.includes(name);
+  const { addElement, removeElement } = useEditableElements(
+    elements,
+    onUpdateElements
+  );
+
+  useDroppableStateChange(
+    inputID,
+    droppableType,
+    addElement,
+    searchAbleElements
+  );
+
+  function isElementPresent(element: ServiceElement) {
+    return elements.includes(element);
   }
 
   return (
@@ -51,10 +70,11 @@ export const DroppableField = ({ id }: DroppableFieldProps) => {
         setOpen(true);
       }}
     >
-      <Label value="TESTDROP" />
+      <Label value={fieldType} />
       <FlexibleInputContainer
         isHovered={isOver}
-        inputElements={inputElements}
+        isCompatible={true}
+        inputElements={elements}
         removeElement={removeElement}
         onFocus={() => {
           setOpen(true);
@@ -67,6 +87,7 @@ export const DroppableField = ({ id }: DroppableFieldProps) => {
           search={searchName}
           addElement={addElement}
           setOpen={() => setOpen(false)}
+          createNew={onCreateNewElement}
         />
       </If>
     </div>
@@ -75,21 +96,27 @@ export const DroppableField = ({ id }: DroppableFieldProps) => {
 
 function FlexibleInputContainer({
   isHovered,
+  isCompatible,
   inputElements,
   removeElement,
   onFocus,
 }: {
   isHovered: boolean;
-  inputElements: string[];
-  removeElement: (name: string) => void;
+  isCompatible: boolean;
+  inputElements: EditableElement[];
+  removeElement: (name: EditableElement) => void;
   onFocus: () => void;
 }) {
   return (
-    <div tabIndex={0} onFocus={onFocus} className={composeStyle(isHovered)}>
+    <div
+      tabIndex={0}
+      onFocus={onFocus}
+      className={composeStyle(isHovered, isCompatible)}
+    >
       {inputElements.map((element) => (
-        <ElementSearchInput
-          key={element}
-          name={element}
+        <InputElement
+          key={element.id}
+          element={element}
           onRemove={removeElement}
           disableRemove={inputElements.length > 1}
         />
@@ -99,10 +126,11 @@ function FlexibleInputContainer({
 }
 interface SearchInputProps {
   searchRef: React.MutableRefObject<any>;
-  isElementPresent: (name: string) => boolean;
-  search: (input: string) => ServiceElement[];
-  addElement: (name: string) => void;
+  isElementPresent: (element: EditableElement) => boolean;
+  search: (input: string) => EditableElement[];
+  addElement: (name: EditableElement) => void;
   setOpen: () => void;
+  createNew: (input: string) => void;
 }
 
 function SearchInput({
@@ -111,11 +139,19 @@ function SearchInput({
   search,
   addElement,
   setOpen,
+  createNew,
 }: SearchInputProps) {
-  const dispatch = useAppDispatch();
   const [searchInput, setSearchInput] = useState("");
 
   const searchInputRef = useRef(null);
+
+  const tabPress = useKeyPress("Tab", searchInputRef);
+
+  useEffect(() => {
+    if (tabPress) {
+      setOpen();
+    }
+  });
 
   return (
     <div
@@ -160,7 +196,10 @@ function SearchInput({
         isAdded={isElementPresent}
         searchResults={search(searchInput)}
         addElement={addElement}
-        onCreateNew={(string) => dispatch(initiateNewService())}
+        onCreateNew={() => {
+          setOpen();
+          createNew(searchInput);
+        }}
         inputRef={searchInputRef}
         setOpen={setOpen}
       />
@@ -182,91 +221,6 @@ function If({
   }
 }
 
-function IfElse() {}
-
-export function useCloseOnLostFocus() {
-  const searchMenu = useRef(null);
-
-  const [isOpen, setOpen] = useState(false);
-
-  const closeOpenMenus = (e) => {
-    if (
-      searchMenu.current &&
-      isOpen &&
-      !searchMenu.current.contains(e.target)
-    ) {
-      setOpen(false);
-    }
-  };
-
-  document.addEventListener("mousedown", closeOpenMenus);
-
-  return { searchMenu, isOpen, setOpen };
-}
-
-export function useSearchElement(id: string) {
-  const dispatch = useAppDispatch();
-  const draggableState = useAppSelector(selectDraggable);
-  const useServiceState = useAppSelector(selectService);
-
-  useEffect(() => {
-    if (
-      draggableState.currentDroppedItem !== undefined &&
-      draggableState.currentDroppedItem.target === id
-    ) {
-      const match = searchId(draggableState.currentDroppedItem.dropped);
-      if (match !== undefined) {
-        addElement(match.name);
-        dispatch(removeDraggedItem());
-      }
-    }
-  }, [draggableState.currentDroppedItem]);
-
-  function searchName(input: string) {
-    if (input === "" || input === undefined) {
-      return [];
-    } else {
-      return useServiceState.services.filter((element) =>
-        element.name.toLowerCase().includes(input.toLowerCase())
-      );
-    }
-  }
-
-  function searchId(id: string) {
-    if (id === "" || id === undefined) {
-      return undefined;
-    } else {
-      return useServiceState.services.find((element) => element.id === id);
-    }
-  }
-
-  const [inputElements, setInputElements] = useState(["HTTP"]);
-
-  function removeElement(name: string) {
-    if (inputElements.length > 1) {
-      setInputElements(
-        inputElements.filter(
-          (element) => element.toLowerCase() !== name.toLowerCase()
-        )
-      );
-    }
-  }
-
-  function addElement(name: string) {
-    const element = inputElements.filter(
-      (element) => element.toLowerCase() === name.toLowerCase()
-    );
-
-    if (element.length === 0) {
-      setInputElements([...inputElements, name]);
-    } else {
-      removeElement(name);
-    }
-  }
-
-  return { inputElements, addElement, removeElement, searchName };
-}
-
 const useDidMountEffect = (func, deps) => {
   const didMount = useRef(false);
 
@@ -284,26 +238,27 @@ export function SearchResults({
   inputRef,
   setOpen,
 }: {
-  searchResults: ServiceElement[];
-  addElement: (name: string) => void;
-  isAdded: (name: string) => boolean;
-  onCreateNew: (name: string) => void;
+  searchResults: EditableElement[];
+  addElement: (name: EditableElement) => void;
+  isAdded: (name: EditableElement) => boolean;
+  onCreateNew: () => void;
   inputRef: React.RefObject<HTMLInputElement>;
   setOpen: () => void;
 }) {
   const [selected, setSelected] =
-    useState<React.SetStateAction<ServiceElement | undefined>>(undefined);
+    useState<React.SetStateAction<EditableElement | undefined>>(undefined);
 
   const downPress = useKeyPress("ArrowDown", inputRef);
   const upPress = useKeyPress("ArrowUp", inputRef);
   const enterPress = useKeyPress("Enter", inputRef);
-  const tabPress = useKeyPress("Tab", inputRef);
   const escapePress = useKeyPress("Escape", inputRef);
   const [cursor, setCursor] = useState<number>(0);
-  const [hovered, setHovered] = useState<ServiceElement | undefined>(undefined);
+  const [hovered, setHovered] = useState<EditableElement | undefined>(
+    undefined
+  );
 
   useEffect(() => {
-    if (searchResults.length && (downPress || tabPress)) {
+    if (searchResults.length && downPress) {
       if (cursor === searchResults.length - 1) {
         setCursor(0);
       } else {
@@ -312,7 +267,7 @@ export function SearchResults({
         );
       }
     }
-  }, [downPress, tabPress]);
+  }, [downPress]);
 
   useEffect(() => {
     if (searchResults.length && upPress) {
@@ -339,10 +294,10 @@ export function SearchResults({
 
   useDidMountEffect(() => {
     if (searchResults[cursor] && enterPress) {
-      addElement(searchResults[cursor].name);
+      addElement(searchResults[cursor]);
     }
     if (searchResults.length === 0) {
-      onCreateNew("new");
+      onCreateNew();
     }
   }, [enterPress]);
 
@@ -361,7 +316,7 @@ export function SearchResults({
             onMouseEnter={() => setHovered(element)}
             onMouseLeave={() => setHovered(undefined)}
             onClick={() => {
-              addElement(element.name);
+              addElement(element);
             }}
             className={`${
               cursor === i ? "bg-blue-500 text-white" : ""
@@ -369,7 +324,7 @@ export function SearchResults({
           >
             <div className="flex flex-row">
               <p>{element.name}</p>
-              {isAdded(element.name) ? (
+              {isAdded(element) ? (
                 <div className="ml-auto pr-1">
                   <CheckIconSVG size="sm" isHovering={cursor === i} />
                 </div>
@@ -386,8 +341,7 @@ export function SearchResults({
           onMouseEnter={() => setHovered(undefined)}
           onMouseLeave={() => setHovered(undefined)}
           onClick={() => {
-            addElement("new");
-            onCreateNew("new");
+            onCreateNew();
           }}
           className={`${
             cursor === 0 ? "bg-blue-500 text-white" : ""
@@ -414,10 +368,6 @@ const useKeyPress = function (
   const [keyPressed, setKeyPressed] = useState(false);
 
   function downHandler(event: KeyboardEvent) {
-    if (event.key === "Tab") {
-      event.preventDefault();
-    }
-
     if (event.key === targetKey) {
       setKeyPressed(true);
     }
@@ -442,32 +392,34 @@ const useKeyPress = function (
   return keyPressed;
 };
 
-export function ElementSearchInput({
-  name,
+export function InputElement({
+  element,
   onRemove,
   disableRemove,
 }: {
-  name: string;
-  onRemove: (name) => void;
+  element: EditableElement;
+  onRemove: (element: EditableElement) => void;
   disableRemove: boolean;
 }) {
   return (
     <div
-      key={name}
-      onClick={(e) => {
+      key={element.id}
+      onMouseDown={(e) => {
+        e.preventDefault();
         e.stopPropagation();
       }}
       className={`flex flex-row bg-white space-x-2 hover:cursor-pointer hover:shadow-lg transition-shadow  ${statusStyle(
         "source"
       )} outline-none shadow-md items-center px-2 py-1 rounded-md`}
     >
-      <p className="text-md select-none text-gray-700 ">{name}</p>
+      <p className="text-md select-none text-gray-700 ">{element.name}</p>
       <div className="ml-auto">
         {disableRemove ? (
           <XIcon
             onClick={(e) => {
               e.stopPropagation();
-              onRemove(name);
+
+              onRemove(element);
             }}
             size="sm"
           />
@@ -479,15 +431,19 @@ export function ElementSearchInput({
   );
 }
 
-function composeStyle(isHovering: boolean): string {
+function composeStyle(isHovering: boolean, isComatible = true): string {
   const baseStyle =
     "bg-gray-50 flex flex-row flex-wrap outline-none hover:cursor-text h-auto block p-1 w-32 rounded-lg overflow-wrap";
 
   const text = "text-gray-900 text-sm";
 
-  const border = `border-2 ${
+  let border = `border-2 ${
     isHovering ? "border-blue-500" : "border-gray-300"
   } hover:border-blue-500 active:border-blue-500 focus:border-blue-500`;
+
+  if (!isComatible) {
+    border = `opacity-50 border-2 ease-in-out transition duration-150`;
+  }
 
   return `${baseStyle} ${text} ${border} `;
 }
