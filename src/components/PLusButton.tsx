@@ -1,4 +1,10 @@
-export function PlusButtonSVG({ inverted = false }: { inverted?: boolean }) {
+export function PlusButtonSVG({
+  inverted = false,
+  isHovering = false,
+}: {
+  inverted?: boolean;
+  isHovering: boolean;
+}) {
   if (inverted) {
     return (
       <svg
@@ -8,7 +14,9 @@ export function PlusButtonSVG({ inverted = false }: { inverted?: boolean }) {
       >
         <path
           d="m256 0c-141.164062 0-256 114.835938-256 256s114.835938 256 256 256 256-114.835938 256-256-114.835938-256-256-256zm0 0"
-          className="fill-white first-line:group-hover:shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+          className={` ${
+            isHovering ? "opacity-100" : "opacity-0 "
+          } fill-white first-line:group-hover:shadow-md group-hover:opacity-100 transition-opacity duration-150`}
         />
 
         <path

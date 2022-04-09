@@ -156,6 +156,7 @@ export const Name = ({
       name="Name"
       id="name"
       value={value}
+      autoFocus={true}
       onChange={(event) => onChange(event.target.value)}
       className={defaultClass}
       placeholder="Service name..."

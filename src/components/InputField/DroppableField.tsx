@@ -56,6 +56,9 @@ export const DroppableField = ({ id }: DroppableFieldProps) => {
         isHovered={isOver}
         inputElements={inputElements}
         removeElement={removeElement}
+        onFocus={() => {
+          setOpen(true);
+        }}
       />
       <If condition={isOpen}>
         <SearchInput
@@ -74,13 +77,15 @@ function FlexibleInputContainer({
   isHovered,
   inputElements,
   removeElement,
+  onFocus,
 }: {
   isHovered: boolean;
   inputElements: string[];
   removeElement: (name: string) => void;
+  onFocus: () => void;
 }) {
   return (
-    <div className={composeStyle(isHovered)}>
+    <div tabIndex={0} onFocus={onFocus} className={composeStyle(isHovered)}>
       {inputElements.map((element) => (
         <ElementSearchInput
           key={element}
@@ -113,7 +118,12 @@ function SearchInput({
   const searchInputRef = useRef(null);
 
   return (
-    <div ref={searchRef} className={`w-50 ${composeStylePlus(true)} `}>
+    <div
+      ref={searchRef}
+      className={`w-50 ${composeStylePlus(true)} ${
+        true ? "scale-100" : "scale-0"
+      } transform origin-top ease-in-out duration-150 transition `}
+    >
       <div className="flex flex-row items-center px-1 overflow-hidden">
         <svg
           className={`h-4 fill-gray-700 ${
@@ -337,7 +347,7 @@ export function SearchResults({
   }, [enterPress]);
 
   useDidMountEffect(() => {
-    if (searchResults[cursor] && escapePress) {
+    if (escapePress) {
       setOpen();
     }
   }, [escapePress]);
@@ -361,7 +371,7 @@ export function SearchResults({
               <p>{element.name}</p>
               {isAdded(element.name) ? (
                 <div className="ml-auto pr-1">
-                  <CheckIconSVG size="sm" />
+                  <CheckIconSVG size="sm" isHovering={cursor === i} />
                 </div>
               ) : (
                 ""
@@ -386,7 +396,7 @@ export function SearchResults({
           <div className="flex flex-row font-light text-md items-center">
             <p>Create new</p>
             <div className="ml-auto">
-              <PlusButtonSVG inverted={true} />
+              <PlusButtonSVG inverted={true} isHovering={cursor === 0} />
             </div>
           </div>
         </li>
@@ -477,7 +487,7 @@ function composeStyle(isHovering: boolean): string {
 
   const border = `border-2 ${
     isHovering ? "border-blue-500" : "border-gray-300"
-  } hover:border-blue-500 active:border-blue-500`;
+  } hover:border-blue-500 active:border-blue-500 focus:border-blue-500`;
 
   return `${baseStyle} ${text} ${border} `;
 }
