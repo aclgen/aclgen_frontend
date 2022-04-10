@@ -17,109 +17,93 @@ import {
   Rule,
   PortService,
   ServiceType,
+  NetworkObjectElement,
+  ServiceElement,
 } from "../../types/types";
 import { createNewRule, selectRule } from "./ruleSlice";
 import { v4 as uuidv4 } from "uuid";
+import {
+  RuleCreationPopupProps,
+  RulePopUpForm,
+} from "../../components/creationForm/RulePopupForm";
+import {
+  initiateNewObject,
+  selectNetworkObjects,
+} from "../networkObject/DraftNetworkObjectSlice";
+import {
+  initiateNewService,
+  selectService,
+} from "../service/DraftServiceSlice";
 
-function ServiceCreationPopup() {
+function RuleCreationPopUp() {
   const dispatch = useAppDispatch();
-  const state = useAppSelector(selectRule);
+  const rulestate = useAppSelector(selectRule);
+  const serviceState = useAppSelector(selectService);
+  const networkObjectState = useAppSelector(selectNetworkObjects);
 
   const [name, setName] = useState("");
   const [comment, setComment] = useState("");
-  const [index, setIndex] = useState(state.rules.length);
-  const [source, setSource] = useState(defaultIP);
-  const [destination, setDestination] = useState(defaultIP);
+  const [index, setIndex] = useState(rulestate.rules.length);
+  const [source, setSource] = useState([]);
+  const [destination, setDestination] = useState([]);
   const [direction, setDirection] = useState(DIRECTION.INBOUND);
-  const [service, setService] = useState(defaultService);
+  const [service, setService] = useState([]);
   const [policy, setPolicy] = useState(POLICY.ACCEPT);
   const id = uuidv4();
 
-  return (
-    <div
-      className={`${
-        state.newRuleStatus === "creating" ? "scale-100 h-fit" : "scale-y-0 h-0"
-      } absolute inset-x-0  bottom-2 transform origin-bottom  duration-300 transition`}
-    >
-      <div className="mx-auto px-4 h-24 container bg-slate-100 shadow-lg rounded-md border-2 border-blue-400 flex-row items-center">
-        <form
-          className="space-y-2 flex flex-row justify-between space-x-4"
-          action="#"
-        >
-          <div className="space-y-2 flex justify-self-start flex-row justify-between space-x-4 ">
-            <Index value={index} />
-            <Type />
-            <Name value={name} onChange={setName} />
-            <Source
-              parentId={id}
-              value={source}
-              onChange={(data: IPV4) => setSource(data)}
-            />
-            <Destination
-              value={destination}
-              onChange={(data: IPV4) => setDestination(data)}
-            />
-            <ServiceInput
-              value={service}
-              onChange={(data: PortService) => setService(data)}
-            />
-            <Direction
-              value={direction}
-              onChange={(data: DIRECTION) => setDirection(data)}
-            />
-            <Policy
-              value={policy}
-              onChange={(data: POLICY) => setPolicy(data)}
-            />
-            <Comment value={comment} onChange={setComment} />
-          </div>
-          <div className="flex justify-self-end items-center flex-row justify-between space-x-4">
-            <CheckIcon
-              onClick={() => {
-                const newRule: Rule = {
-                  source: source,
-                  destination: destination,
-                  service: service,
-                  direction: direction,
-                  policy: policy,
-                  name: name,
-                  comment: comment,
-                  id: id,
-                  status: "new",
-                };
-                dispatch(createNewRule(newRule));
-              }}
-            />
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+  const newRule: Rule = {
+    source: source,
+    destination: destination,
+    service: service,
+    direction: direction,
+    policy: policy,
+    name: name,
+    comment: comment,
+    device: "",
+    status: "new",
+    id: id,
+  };
+
+  const ruleProps: RuleCreationPopupProps = {
+    isVisible: rulestate.newRuleStatus === "creating",
+    name: name,
+    element: newRule,
+    setName: function (name: string): void {
+      setName(name);
+    },
+    comment: comment,
+    setComment: function (comment: string): void {
+      setComment(comment);
+    },
+    source: source,
+    destination: destination,
+    service: service,
+    setSource: function (element: NetworkObjectElement[]): void {
+      setSource(element);
+    },
+    setDestination: function (element: NetworkObjectElement[]): void {
+      setDestination(element);
+    },
+    setService: function (element: ServiceElement[]): void {
+      setService(element);
+    },
+    onCreateNewObject: function (name: string): void {
+      dispatch(initiateNewObject(name));
+    },
+    onCreateNewService: function (name: string): void {
+      dispatch(initiateNewService(name));
+    },
+    searchAbleElements: serviceState.services,
+    searchAbleObjects: networkObjectState.networkObjects,
+    onSubmit: function (): void {
+      dispatch(createNewRule(newRule));
+    },
+  };
+
+  return <RulePopUpForm rule={ruleProps} />;
 }
 
-export const defaultClass: string =
-  "bg-gray-50 border border-gray-300 w-32 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white outline-none";
-
-export const Index: React.FC<{ value: number }> = ({ value }) => (
-  <p className="block pt-11 mb-2 text-sm font-light text-gray-400 dark:text-white">
-    {`#${value}`}
-  </p>
-);
-
-export const Type = () => (
-  <div>
-    <Label value="TYPE" />
-    <h2
-      className={
-        "bg-gray-50 border border-gray-300 w-32 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white outline-none"
-      }
-    >
-      Rule
-    </h2>
-  </div>
-);
-
-export const TrashIcon = () => {
+const TrashIcon = () => {
   return (
     <div>
       <img src="/square.svg" className=" mr-3 h-6" />
@@ -127,7 +111,7 @@ export const TrashIcon = () => {
   );
 };
 
-export const CheckIcon = ({ onClick }: { onClick: () => void }) => {
+const CheckIcon = ({ onClick }: { onClick: () => void }) => {
   return (
     <div
       onClick={onClick}
@@ -153,23 +137,4 @@ export const CheckIcon = ({ onClick }: { onClick: () => void }) => {
   );
 };
 
-export const defaultService: PortService = {
-  sourcePort: 80,
-  destinationPort: 80,
-  protocol: "",
-  status: "new",
-  type: ServiceType.PORT,
-  name: "",
-  id: "0",
-  comment: "",
-};
-
-export const defaultIP: IPV4 = {
-  ip: "",
-  id: "0",
-  name: "",
-  comment: "",
-  status: "new",
-};
-
-export default ServiceCreationPopup;
+export default RuleCreationPopUp;

@@ -113,6 +113,7 @@ function FlexibleInputContainer({
       onFocus={onFocus}
       className={composeStyle(isHovered, isCompatible)}
     >
+      <div className="text-md py-1 opacity-0 w-0">E</div>
       {inputElements.map((element) => (
         <InputElement
           key={element.id}
