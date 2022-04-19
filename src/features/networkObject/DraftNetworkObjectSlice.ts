@@ -4,10 +4,8 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { AppState } from "../../app/store";
 import {
   cancelCreationPopUp,
-  initiateNewService,
   initiatePopUp,
 } from "../service/DraftServiceSlice";
-import { initiateNewRule } from "../rules/ruleSlice";
 
 export interface DraftNetworkObjectState {
   networkObjects: NetworkObjectElement[];
