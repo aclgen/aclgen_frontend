@@ -62,14 +62,13 @@ export const selectRepositoryAsync = createAsyncThunk(
     });
 
     rules = rules.map((element: any) => {
-      console.log(
-        networkObjects.filter((source) => source.id === element.destination.id)
-      );
       return {
         ...element,
-        source: networkObjects,
-        destination: networkObjects,
-        service: services,
+        source: networkObjects.filter((source) => source.id === element.source),
+        destination: networkObjects.filter(
+          (source) => source.id === element.destination
+        ),
+        service: services.filter((source) => source.id === element.service),
       };
     });
 
