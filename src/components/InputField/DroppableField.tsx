@@ -71,7 +71,6 @@ export const DroppableInputField = ({
     const height = ref.current.getBoundingClientRect().top;
     const screenSize = document.body.getBoundingClientRect().height;
     if (height > screenSize / 2) {
-      console.log("inverted");
       setInverted(true);
     }
   });

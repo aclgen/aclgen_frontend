@@ -15,10 +15,9 @@ import { DroppableInputField } from "../InputField/DroppableField";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
   initiateNewService,
+  initiatePopUp,
   selectService,
 } from "../../features/service/DraftServiceSlice";
-import { v4 as uuidv4 } from "uuid";
-import { selectDraggable } from "../../features/draggable/draggableSlice";
 import {
   initiateNewObject,
   selectNetworkObjects,
@@ -81,7 +80,7 @@ function card({ index, rule, modifyCard }: CardProps) {
   return (
     <div
       key={rule.id}
-      className={`p-2  pl-4 container bg-white container-xl transition-opacity ${statusStyle(
+      className={`p-2 pl-4 container bg-white container-xl transition-opacity ${statusStyle(
         rule.status
       )} hover:cursor-pointer outline-none active:border-blue-500 rounded-md shadow-md dark:bg-gray-800 dark:border-gray-700`}
     >
@@ -104,6 +103,7 @@ function card({ index, rule, modifyCard }: CardProps) {
             elements={source}
             searchAbleElements={searchAbleObjects}
             onCreateNewService={(name: string) => {
+              dispatch(initiatePopUp());
               dispatch(initiateNewObject(name));
             }}
             onUpdateElements={(elements: NetworkObjectElement[]) => {
@@ -117,6 +117,7 @@ function card({ index, rule, modifyCard }: CardProps) {
             elements={destination}
             searchAbleElements={searchAbleObjects}
             onCreateNewService={(name: string) => {
+              dispatch(initiatePopUp());
               dispatch(initiateNewObject(name));
             }}
             onUpdateElements={(elements: NetworkObjectElement[]) => {
@@ -130,6 +131,7 @@ function card({ index, rule, modifyCard }: CardProps) {
             elements={service}
             searchAbleElements={searchAbleElements}
             onCreateNewService={(name: string) => {
+              dispatch(initiatePopUp());
               dispatch(initiateNewService(name));
             }}
             onUpdateElements={(elements: ServiceElement[]) => {

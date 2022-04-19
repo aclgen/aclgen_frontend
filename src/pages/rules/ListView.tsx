@@ -12,6 +12,7 @@ import SideBar from "../../features/sidebar/SideBar";
 import { selectDraftRepository } from "../../features/repository/DraftRepositorySlice";
 import { FireWall } from "../../types/repository";
 import CountableCheckButton from "../../components/CountableCheckButton";
+import { initiatePopUp } from "../../features/service/DraftServiceSlice";
 
 function ListView() {
   const dispatch = useAppDispatch();
@@ -51,6 +52,7 @@ function ListView() {
             <button
               className="outline-none h-10 "
               onClick={() => {
+                dispatch(initiatePopUp());
                 dispatch(initiateNewRule());
               }}
             >
