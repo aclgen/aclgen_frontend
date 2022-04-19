@@ -465,6 +465,9 @@ export function InputElement({
         e.preventDefault();
         e.stopPropagation();
       }}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
       className={`flex flex-row bg-white space-x-2 hover:cursor-pointer hover:shadow-lg transition-shadow  ${statusStyle(
         "source"
       )} outline-none shadow-md items-center px-2 py-1 rounded-md`}

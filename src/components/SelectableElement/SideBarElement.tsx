@@ -41,7 +41,7 @@ export function RenderSideBarElement({
     >
       <img className="h-5" src={element.icon} alt={element.alt} />
       <p className="text-md select-none text-gray-700  pl-2">{element.name}</p>
-      <div className="ml-auto flex flex-row space-x-1">
+      <div className="ml-auto flex flex-row pl-2 space-x-1">
         <EditIcon
           onClick={(e) => {
             e.stopPropagation();
