@@ -83,12 +83,12 @@ export function useEditableElements(
     }
   }
 
-  function addElement(addElement: EditableElement) {
+  function addElement(addElement: EditableElement, remove: boolean = false) {
     const element = elements.filter((element) => element.id === addElement.id);
 
     if (element.length === 0) {
       onChange([...elements, addElement]);
-    } else {
+    } else if (remove) {
       removeElement(addElement);
     }
   }

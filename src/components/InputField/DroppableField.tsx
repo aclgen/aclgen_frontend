@@ -129,7 +129,7 @@ interface SearchInputProps {
   searchRef: React.MutableRefObject<any>;
   isElementPresent: (element: EditableElement) => boolean;
   search: (input: string) => EditableElement[];
-  addElement: (name: EditableElement) => void;
+  addElement: (name: EditableElement, remove?: boolean) => void;
   setOpen: () => void;
   createNew: (input: string) => void;
 }
@@ -240,7 +240,7 @@ export function SearchResults({
   setOpen,
 }: {
   searchResults: EditableElement[];
-  addElement: (name: EditableElement) => void;
+  addElement: (name: EditableElement, remove?: boolean) => void;
   isAdded: (name: EditableElement) => boolean;
   onCreateNew: () => void;
   inputRef: React.RefObject<HTMLInputElement>;
@@ -295,7 +295,7 @@ export function SearchResults({
 
   useDidMountEffect(() => {
     if (searchResults[cursor] && enterPress) {
-      addElement(searchResults[cursor]);
+      addElement(searchResults[cursor], true);
     }
     if (searchResults.length === 0) {
       onCreateNew();
@@ -317,7 +317,7 @@ export function SearchResults({
             onMouseEnter={() => setHovered(element)}
             onMouseLeave={() => setHovered(undefined)}
             onClick={() => {
-              addElement(element);
+              addElement(element, true);
             }}
             className={`${
               cursor === i ? "bg-blue-500 text-white" : ""
