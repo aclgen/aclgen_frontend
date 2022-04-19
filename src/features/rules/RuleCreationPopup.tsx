@@ -32,6 +32,7 @@ import {
 } from "../networkObject/DraftNetworkObjectSlice";
 import {
   initiateNewService,
+  initiatePopUp,
   selectService,
 } from "../service/DraftServiceSlice";
 
@@ -88,14 +89,17 @@ function RuleCreationPopUp() {
       setService(element);
     },
     onCreateNewObject: function (name: string): void {
+      dispatch(initiatePopUp());
       dispatch(initiateNewObject(name));
     },
     onCreateNewService: function (name: string): void {
+      dispatch(initiatePopUp());
       dispatch(initiateNewService(name));
     },
     searchAbleElements: serviceState.services,
     searchAbleObjects: networkObjectState.networkObjects,
     onSubmit: function (): void {
+      dispatch(initiatePopUp());
       dispatch(createNewRule(newRule));
     },
   };

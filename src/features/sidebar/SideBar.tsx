@@ -25,6 +25,7 @@ import {
 import {
   initiateModifyService,
   initiateNewService,
+  initiatePopUp,
   selectService,
   updateServices,
 } from "../service/DraftServiceSlice";
@@ -177,6 +178,7 @@ export function RenderObjects() {
           return (
             <li key={element.id}>
               {RenderNetworkObjects(element, () => {
+                dispatch(initiatePopUp());
                 dispatch(initiateModifyNetworkObject(element));
               })}
             </li>
@@ -221,6 +223,7 @@ export function RenderServices() {
               {RenderService(
                 element,
                 () => {
+                  dispatch(initiatePopUp());
                   dispatch(initiateModifyService(element));
                 },
                 () => {

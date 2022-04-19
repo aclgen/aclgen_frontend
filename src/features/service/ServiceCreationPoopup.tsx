@@ -7,6 +7,7 @@ import { PortService, ServiceType } from "../../types/types";
 import {
   cancelCreationPopUp,
   createNewService,
+  initiatePopUp,
   modifyService,
   selectService,
 } from "./DraftServiceSlice";
@@ -64,10 +65,18 @@ export function ServiceEditingPopup() {
     setDestinationPort: setDestinationPort,
     protocol: protocol,
     setProtocol: setProtocol,
-    onSubmit: () => dispatch(modifyService(newService)),
-    onCancel: () => dispatch(cancelCreationPopUp()),
-    onDelete: () =>
-      dispatch(modifyService({ ...newService, status: "deleted" })),
+    onSubmit: () => {
+      dispatch(initiatePopUp());
+      dispatch(modifyService(newService));
+    },
+    onCancel: () => {
+      dispatch(initiatePopUp());
+      dispatch(cancelCreationPopUp());
+    },
+    onDelete: () => {
+      dispatch(initiatePopUp());
+      dispatch(modifyService({ ...newService, status: "deleted" }));
+    },
   };
   return <ServicePopupForm service={serviceProps} />;
 }
@@ -106,8 +115,14 @@ function ServiceCreationPopup() {
     setDestinationPort: setDestinationPort,
     protocol: protocol,
     setProtocol: setProtocol,
-    onSubmit: () => dispatch(createNewService(service)),
-    onCancel: () => dispatch(cancelCreationPopUp()),
+    onSubmit: () => {
+      dispatch(initiatePopUp());
+      dispatch(createNewService(service));
+    },
+    onCancel: () => {
+      dispatch(initiatePopUp());
+      dispatch(cancelCreationPopUp());
+    },
   };
 
   return <ServicePopupForm service={serviceProps} />;

@@ -4,7 +4,10 @@ import NetworkObjectPopup, {
   NetworkObjectPopupProps,
 } from "../../components/creationForm/NetworkObjectCreationForm";
 import { IPV4 } from "../../types/types";
-import { cancelCreationPopUp } from "../service/DraftServiceSlice";
+import {
+  cancelCreationPopUp,
+  initiatePopUp,
+} from "../service/DraftServiceSlice";
 import {
   selectNetworkObjects,
   modifyNetworkObject,
@@ -55,10 +58,18 @@ function ObjectEditPopup() {
     setComment: (comment) => setComment(comment),
     ip: ip,
     setIp: setIp,
-    onSubmit: () => dispatch(modifyNetworkObject(newObject)),
-    onCancel: () => dispatch(cancelCreationPopUp()),
-    onDelete: () =>
-      dispatch(modifyNetworkObject({ ...newObject, status: "deleted" })),
+    onSubmit: () => {
+      dispatch(initiatePopUp());
+      dispatch(modifyNetworkObject(newObject));
+    },
+    onCancel: () => {
+      dispatch(initiatePopUp());
+      dispatch(cancelCreationPopUp());
+    },
+    onDelete: () => {
+      dispatch(initiatePopUp());
+      dispatch(modifyNetworkObject({ ...newObject, status: "deleted" }));
+    },
   };
 
   return (
@@ -91,8 +102,18 @@ function ObjectCreationPopup() {
     setComment: setComment,
     ip: ip,
     setIp: setIp,
-    onSubmit: () => dispatch(createNewNetworkObject(newObject)),
-    onCancel: () => dispatch(cancelCreationPopUp()),
+    onSubmit: () => {
+      dispatch(initiatePopUp());
+      dispatch(createNewNetworkObject(newObject));
+    },
+    onCancel: () => {
+      dispatch(initiatePopUp());
+      dispatch(cancelCreationPopUp());
+    },
+    onDelete: () => {
+      dispatch(initiatePopUp());
+      dispatch(modifyNetworkObject({ ...newObject, status: "deleted" }));
+    },
   };
 
   return (
