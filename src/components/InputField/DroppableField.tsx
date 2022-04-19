@@ -7,7 +7,7 @@ import React, {
   useState,
 } from "react";
 import { EditableElement, ServiceElement } from "../../types/types";
-import { XIcon } from "../creationForm/PopUpForm";
+import { getHeight, XIcon } from "../creationForm/PopUpForm";
 import { PlusButtonSVG } from "../PLusButton";
 import { Label } from "../rule/RuleCard";
 import { CheckIconSVG, statusStyle } from "../SelectableElement/SideBarElement";
@@ -62,34 +62,66 @@ export const DroppableInputField = ({
     return elements.includes(element);
   }
 
+  const [height, setHeight] = useState(0);
+  const [inverted, setInverted] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    setHeight(ref.current.clientHeight);
+    const height = ref.current.getBoundingClientRect().top;
+    const screenSize = document.body.getBoundingClientRect().height;
+    if (height > screenSize / 2) {
+      console.log("inverted");
+      setInverted(true);
+    }
+  });
+
   return (
-    <div
-      ref={setNodeRef}
-      className="relative hover:cursor-text"
-      onClick={() => {
-        setOpen(true);
-      }}
-    >
-      <Label value={fieldType} />
-      <FlexibleInputContainer
-        isHovered={isOver}
-        isCompatible={true}
-        inputElements={elements}
-        removeElement={removeElement}
-        onFocus={() => {
+    <div ref={setNodeRef}>
+      <div
+        ref={ref}
+        className="relative hover:cursor-text"
+        onClick={() => {
           setOpen(true);
         }}
-      />
-      <If condition={isOpen}>
-        <SearchInput
-          searchRef={searchMenu}
-          isElementPresent={isElementPresent}
-          search={searchName}
-          addElement={addElement}
-          setOpen={() => setOpen(false)}
-          createNew={onCreateNewElement}
-        />
-      </If>
+      >
+        <If condition={isOpen && inverted}>
+          <SearchInput
+            searchRef={searchMenu}
+            isElementPresent={isElementPresent}
+            search={searchName}
+            addElement={addElement}
+            setOpen={() => setOpen(false)}
+            createNew={onCreateNewElement}
+            height={height}
+            inverted={inverted}
+          />
+        </If>
+        <Label value={fieldType} />
+        <div>
+          <FlexibleInputContainer
+            isHovered={isOver}
+            isCompatible={true}
+            inputElements={elements}
+            removeElement={removeElement}
+            onFocus={() => {
+              setOpen(true);
+            }}
+          />
+        </div>
+        <If condition={isOpen && !inverted}>
+          <SearchInput
+            searchRef={searchMenu}
+            isElementPresent={isElementPresent}
+            search={searchName}
+            addElement={addElement}
+            setOpen={() => setOpen(false)}
+            createNew={onCreateNewElement}
+            inverted={inverted}
+            height={height}
+          />
+        </If>
+      </div>
     </div>
   );
 };
@@ -132,6 +164,8 @@ interface SearchInputProps {
   addElement: (name: EditableElement, remove?: boolean) => void;
   setOpen: () => void;
   createNew: (input: string) => void;
+  inverted: boolean;
+  height: number;
 }
 
 function SearchInput({
@@ -141,6 +175,8 @@ function SearchInput({
   addElement,
   setOpen,
   createNew,
+  inverted,
+  height,
 }: SearchInputProps) {
   const [searchInput, setSearchInput] = useState("");
 
@@ -153,15 +189,32 @@ function SearchInput({
       setOpen();
     }
   });
-
   return (
     <div
+      style={{ bottom: `${inverted ? `${height - 20}px` : ""}` }}
       ref={searchRef}
       className={`w-50 ${composeStylePlus(true)} ${
         true ? "scale-100" : "scale-0"
-      } transform origin-top ease-in-out duration-150 transition `}
+      } transform origin-top ease-in-out duration-150 transition`}
     >
-      <div className="flex flex-row items-center px-1 overflow-hidden">
+      <If condition={inverted}>
+        <SearchResults
+          isAdded={isElementPresent}
+          searchResults={search(searchInput)}
+          addElement={addElement}
+          onCreateNew={() => {
+            setOpen();
+            createNew(searchInput);
+          }}
+          inputRef={searchInputRef}
+          setOpen={setOpen}
+        />
+      </If>
+      <div
+        className={`flex flex-row items-center px-1 ${
+          inverted ? "border-t" : "border-b"
+        } overflow-hidden`}
+      >
         <svg
           className={`h-4 fill-gray-700 ${
             searchInput === ""
@@ -189,21 +242,23 @@ function SearchInput({
           placeholder="Search..."
           onChange={(event) => setSearchInput(event.target.value)}
           className={
-            "outline-none border-none m-0 text-md w-full py-1 border-b border-gray-300 h-8 inline bg-gray-50"
+            "outline-none  m-0 text-md w-full py-2  h-8 inline bg-gray-50"
           }
         />
       </div>
-      <SearchResults
-        isAdded={isElementPresent}
-        searchResults={search(searchInput)}
-        addElement={addElement}
-        onCreateNew={() => {
-          setOpen();
-          createNew(searchInput);
-        }}
-        inputRef={searchInputRef}
-        setOpen={setOpen}
-      />
+      <If condition={!inverted}>
+        <SearchResults
+          isAdded={isElementPresent}
+          searchResults={search(searchInput)}
+          addElement={addElement}
+          onCreateNew={() => {
+            setOpen();
+            createNew(searchInput);
+          }}
+          inputRef={searchInputRef}
+          setOpen={setOpen}
+        />
+      </If>
     </div>
   );
 }
@@ -309,7 +364,7 @@ export function SearchResults({
   }, [escapePress]);
 
   return (
-    <ul className="flex flex-col w-full flex-wrap border-t border-gray-200 space-y-1 ">
+    <ul className="flex flex-col w-fullspace-y-1 ">
       {searchResults.map((element, i) => {
         return (
           <li
@@ -451,7 +506,7 @@ function composeStyle(isHovering: boolean, isComatible = true): string {
 
 function composeStylePlus(isHovering: boolean): string {
   const baseStyle =
-    "bg-gray-50 absolute pt-2 flex flex-col flew-wrap mt-1 min-h-20 w-56 h-fit z-50 flex flex-row outline-none rounded-lg";
+    "bg-gray-50 absolute flex flex-col flew-wrap mt-1 min-h-20 w-56 h-fit z-50 flex flex-row outline-none rounded-lg";
 
   const text = "text-gray-900 text-sm";
 
