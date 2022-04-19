@@ -5,6 +5,7 @@ import {
   initiateNewRule,
   setRules,
   modifyRule,
+  modifyRuleWithIndex,
 } from "../../features/rules/ruleSlice";
 import { useEffect, useState } from "react";
 import { Rule, RuleElement } from "../../types/types";
@@ -32,7 +33,9 @@ function ListView() {
         key={rule.id}
         index={index}
         rule={rule}
-        modifyCard={(card) => dispatch(modifyRule(card))}
+        modifyCard={(card) =>
+          dispatch(modifyRuleWithIndex({ rule: card, index }))
+        }
       />
     );
   };

@@ -63,7 +63,16 @@ export const DraftRuleSlice = createSlice({
         action.payload,
         ...state.rules.slice(index + 1),
       ];
-      state.testValue = uuidv4();
+    },
+    modifyRuleWithIndex: (
+      state,
+      action: PayloadAction<{ rule: RuleElement; index: number }>
+    ) => {
+      state.rules = [
+        ...state.rules.slice(0, action.payload.index),
+        action.payload.rule,
+        ...state.rules.slice(action.payload.index + 1),
+      ];
     },
     createNewRule: (state, action: PayloadAction<Rule>) => {
       state.newRule = undefined;
@@ -96,6 +105,7 @@ export const {
   initiateNewRule,
   createNewRule,
   setRules,
+  modifyRuleWithIndex,
   saveRulesToDraft,
 } = DraftRuleSlice.actions;
 
