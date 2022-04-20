@@ -2,21 +2,17 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import type { AppState } from "../../app/store";
 import { Rule, RuleElement } from "../../types/types";
-import { initiateNewObject } from "../networkObject/DraftNetworkObjectSlice";
 import {
   cancelCreationPopUp,
-  initiateNewService,
   initiatePopUp,
 } from "../service/DraftServiceSlice";
 import { fetchRules } from "./ruleAPI";
-import { v4 as uuidv4 } from "uuid";
 
 export interface DraftRuleState {
   rules: RuleElement[];
   status: "empty" | "idle" | "loading" | "failed";
   newRule: Rule | undefined;
   newRuleStatus: "idle" | "creating" | "loading";
-  testValue: string;
 }
 
 const initialState: DraftRuleState = {
@@ -24,7 +20,6 @@ const initialState: DraftRuleState = {
   status: "empty",
   newRule: undefined,
   newRuleStatus: "idle",
-  testValue: uuidv4(),
 };
 
 // The function below is called a thunk and allows us to perform async logic. It

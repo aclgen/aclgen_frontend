@@ -62,6 +62,14 @@ function card({ index, rule, modifyCard }: CardProps) {
     modifyCard(createCard());
   }
 
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      modifyCard(createCard());
+    }, 1000);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [name, comment]);
+
   function createCard(): Rule {
     return {
       source: source,
@@ -93,7 +101,7 @@ function card({ index, rule, modifyCard }: CardProps) {
           <Name
             value={name}
             onChange={(data) => {
-              onChange(() => setName(data));
+              setName(data);
             }}
           />
           <DroppableInputField
@@ -153,7 +161,7 @@ function card({ index, rule, modifyCard }: CardProps) {
           <Comment
             value={comment}
             onChange={(data) => {
-              onChange(() => setComment(data));
+              setComment(data);
             }}
           />
         </div>
