@@ -64,8 +64,10 @@ function card({ index, rule, modifyCard }: CardProps) {
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      modifyCard(createCard());
-    }, 1000);
+      if (name !== rule.name || comment !== rule.comment) {
+        modifyCard(createCard());
+      }
+    }, 300);
 
     return () => clearTimeout(delayDebounceFn);
   }, [name, comment]);
