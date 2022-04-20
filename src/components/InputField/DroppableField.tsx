@@ -7,7 +7,7 @@ import React, {
   useState,
 } from "react";
 import { EditableElement, ServiceElement } from "../../types/types";
-import { getHeight, XIcon } from "../creationForm/PopUpForm";
+import { XIcon } from "../creationForm/PopUpForm";
 import { PlusButtonSVG } from "../PLusButton";
 import { Label } from "../rule/RuleCard";
 import { CheckIconSVG, statusStyle } from "../SelectableElement/SideBarElement";
@@ -26,6 +26,7 @@ export const DroppableInputField = ({
   onCreateNewService: onCreateNewElement,
   onUpdateElements,
   droppableType,
+  disabled = false,
 }: {
   droppableType: "object" | "service";
   inputID: string;
@@ -34,9 +35,11 @@ export const DroppableInputField = ({
   searchAbleElements: EditableElement[];
   onCreateNewService: (name: string) => void;
   onUpdateElements: (elements: EditableElement[]) => void;
+  disabled?: boolean;
 }) => {
   const { isOver, setNodeRef } = useDroppable({
     id: inputID,
+    disabled: disabled,
     data: {
       type: droppableType,
     },
@@ -102,7 +105,7 @@ export const DroppableInputField = ({
         <div>
           <FlexibleInputContainer
             isHovered={isOver}
-            isCompatible={true}
+            isCompatible={!disabled}
             inputElements={elements}
             removeElement={removeElement}
             onFocus={() => {

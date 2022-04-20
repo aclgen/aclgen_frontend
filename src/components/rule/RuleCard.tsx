@@ -22,6 +22,7 @@ import {
   initiateNewObject,
   selectNetworkObjects,
 } from "../../features/networkObject/DraftNetworkObjectSlice";
+import { selectDraggable } from "../../features/draggable/draggableSlice";
 export interface CardProps {
   index: number;
   rule: Rule;
@@ -45,6 +46,7 @@ export const ItemTypes = {
  */
 function card({ index, rule, modifyCard }: CardProps) {
   const searchAbleElements = useAppSelector(selectService).services;
+  const dragState = useAppSelector(selectDraggable).currentDraggedItem;
   const searchAbleObjects = useAppSelector(selectNetworkObjects).networkObjects;
   const dispatch = useAppDispatch();
 
@@ -119,6 +121,7 @@ function card({ index, rule, modifyCard }: CardProps) {
             onUpdateElements={(elements: NetworkObjectElement[]) => {
               onChange(() => setSource(elements));
             }}
+            disabled={dragState !== undefined && dragState.type !== "object"}
           />
           <DroppableInputField
             droppableType={"object"}
@@ -133,6 +136,7 @@ function card({ index, rule, modifyCard }: CardProps) {
             onUpdateElements={(elements: NetworkObjectElement[]) => {
               onChange(() => setDestination(elements));
             }}
+            disabled={dragState !== undefined && dragState.type !== "object"}
           />
           <DroppableInputField
             droppableType={"service"}
@@ -147,6 +151,7 @@ function card({ index, rule, modifyCard }: CardProps) {
             onUpdateElements={(elements: ServiceElement[]) => {
               onChange(() => setService(elements));
             }}
+            disabled={dragState !== undefined && dragState.type !== "service"}
           />
           <Direction
             value={direction}

@@ -8,6 +8,8 @@ import { DroppableInputField } from "../InputField/DroppableField";
 import { PopUpForm, PopUpFormProps } from "./PopUpForm";
 import { Type, Name, CheckIcon, TrashIcon } from "./ServiceCreationForm";
 import { Comment } from "../../components/rule/RuleCard";
+import { useAppSelector } from "../../app/hooks";
+import { selectDraggable } from "../../features/draggable/draggableSlice";
 
 export interface RuleCreationPopupProps extends PopUpFormProps {
   isVisible: boolean;
@@ -32,6 +34,8 @@ export interface RuleCreationPopupProps extends PopUpFormProps {
 }
 
 export function RulePopUpForm({ rule }: { rule: RuleCreationPopupProps }) {
+  const dragState = useAppSelector(selectDraggable).currentDraggedItem;
+
   return (
     <PopUpForm popUp={rule}>
       <form
@@ -54,6 +58,7 @@ export function RulePopUpForm({ rule }: { rule: RuleCreationPopupProps }) {
             searchAbleElements={rule.searchAbleObjects}
             onCreateNewService={rule.onCreateNewObject}
             onUpdateElements={rule.setSource}
+            disabled={dragState !== undefined && dragState.type !== "object"}
           />
           <DroppableInputField
             droppableType={"object"}
@@ -63,6 +68,7 @@ export function RulePopUpForm({ rule }: { rule: RuleCreationPopupProps }) {
             searchAbleElements={rule.searchAbleObjects}
             onCreateNewService={rule.onCreateNewObject}
             onUpdateElements={rule.setDestination}
+            disabled={dragState !== undefined && dragState.type !== "object"}
           />
           <DroppableInputField
             droppableType={"service"}
@@ -72,6 +78,7 @@ export function RulePopUpForm({ rule }: { rule: RuleCreationPopupProps }) {
             searchAbleElements={rule.searchAbleElements}
             onCreateNewService={rule.onCreateNewService}
             onUpdateElements={rule.setService}
+            disabled={dragState !== undefined && dragState.type !== "service"}
           />
           <Comment
             value={rule.comment}

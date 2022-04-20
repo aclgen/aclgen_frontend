@@ -11,10 +11,15 @@ import {
   DragOverlay,
   useDndMonitor,
   DragStartEvent,
+  DragCancelEvent,
 } from "@dnd-kit/core";
 import { ReactNode, useState } from "react";
 import { useAppDispatch } from "../../app/hooks";
-import { addDraggedItem } from "../../features/draggable/draggableSlice";
+import {
+  addDraggedItem,
+  startDragging,
+  stopDragging,
+} from "../../features/draggable/draggableSlice";
 
 export interface SideBarElementProps {
   type: "service" | "object";
@@ -82,16 +87,25 @@ export function DraggableSideBarElement({
       handleDragEnd(event);
     },
     onDragCancel(event) {
-      setIsDragging(false);
+      handleDragCancel(event);
     },
   });
 
   function handleDragStart(event: DragStartEvent) {
-    if (event.active.id === element.id) setIsDragging(true);
+    if (event.active.id === element.id) {
+      setIsDragging(true);
+      dispatch(startDragging({ id: element.id, type: element.type }));
+    }
+  }
+
+  function handleDragCancel(event: DragCancelEvent) {
+    setIsDragging(false);
+    dispatch(stopDragging());
   }
 
   function handleDragEnd(event) {
     setIsDragging(false);
+    dispatch(stopDragging());
     const { active, over } = event;
 
     if (
