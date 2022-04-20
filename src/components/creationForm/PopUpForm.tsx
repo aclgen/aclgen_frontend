@@ -18,11 +18,11 @@ export function PopUpForm({
   return (
     <div
       className={`${
-        popUp.isVisible ? "scale-100 h-fit" : "scale-y-0 h-0"
+        popUp.isVisible ? "scale-100" : "scale-y-0 h-0"
       } absolute inset-x-0 bottom-2 transform origin-bottom  duration-300 transition`}
     >
       <div
-        className={`mx-auto h-24 container relative bg-slate-100 shadow-lg rounded-md border-2 ${
+        className={`mx-auto container relative bg-slate-100 shadow-lg rounded-md border-2 ${
           popUp.element.status === "new"
             ? "border-green-400"
             : "border-blue-400"
@@ -43,7 +43,7 @@ export const XIcon = ({
   onClick,
   size,
 }: {
-  onClick: () => void;
+  onClick: (event?) => void;
   size: Size;
 }) => {
   const height = getHeight(size);

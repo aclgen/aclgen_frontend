@@ -4,7 +4,7 @@ import {
   selectRule,
   initiateNewRule,
   setRules,
-  modifyRule,
+  modifyRuleWithIndex,
 } from "../../features/rules/ruleSlice";
 import { useEffect, useState } from "react";
 import { Rule, RuleElement } from "../../types/types";
@@ -12,33 +12,11 @@ import SideBar from "../../features/sidebar/SideBar";
 import { selectDraftRepository } from "../../features/repository/DraftRepositorySlice";
 import { FireWall } from "../../types/repository";
 import CountableCheckButton from "../../components/CountableCheckButton";
-import { selectService } from "../../features/service/DraftServiceSlice";
-import { selectNetworkObjects } from "../../features/networkObject/DraftNetworkObjectSlice";
+import { initiatePopUp } from "../../features/service/DraftServiceSlice";
+import { render } from "@testing-library/react";
 
 function ListView() {
   const dispatch = useAppDispatch();
-  const state = useAppSelector(selectRule);
-  const draftRepoState = useAppSelector(selectDraftRepository);
-  const serviceState = useAppSelector(selectService);
-  const objectState = useAppSelector(selectNetworkObjects);
-
-  useEffect(() => {
-    if (state.status === "empty" && draftRepoState.status == "idle") {
-      const firewall = draftRepoState.repository.workSpace[0] as FireWall;
-      dispatch(setRules(firewall.rules));
-    }
-  });
-
-  const renderCard = (rule: Rule, index: number) => {
-    return (
-      <RuleCard
-        key={rule.id}
-        index={index}
-        rule={rule}
-        modifyCard={(card) => dispatch(modifyRule(card))}
-      />
-    );
-  };
 
   return (
     <div className="flex flex-1 ">
@@ -55,6 +33,7 @@ function ListView() {
             <button
               className="outline-none h-10 "
               onClick={() => {
+                dispatch(initiatePopUp());
                 dispatch(initiateNewRule());
               }}
             >
@@ -62,13 +41,43 @@ function ListView() {
             </button>
             <ModifiedCounter />
           </div>
-          <div>
-            {state.rules
-              .map((ruleElement) => ruleElementtoRule(ruleElement))
-              .map((card, i) => renderCard(card, i))}
-          </div>
+          <RuleList />
         </div>
       </div>
+    </div>
+  );
+}
+
+function RuleList() {
+  const state = useAppSelector(selectRule);
+  const draftRepoState = useAppSelector(selectDraftRepository);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (state.status === "empty" && draftRepoState.status == "idle") {
+      const firewall = draftRepoState.repository.workSpace[0] as FireWall;
+      dispatch(setRules(firewall.rules));
+    }
+  });
+
+  const renderCard = (rule: Rule, index: number) => {
+    return (
+      <RuleCard
+        key={ruleElementtoRule(state.rules[index]).id}
+        index={index}
+        rule={ruleElementtoRule(state.rules[index])}
+        modifyCard={(card) =>
+          dispatch(modifyRuleWithIndex({ rule: card, index }))
+        }
+      />
+    );
+  };
+
+  return (
+    <div className="flex flex-col space-y-1">
+      {state.rules
+        .map((ruleElement) => ruleElementtoRule(ruleElement))
+        .map((rule, index) => renderCard(rule, index))}
     </div>
   );
 }

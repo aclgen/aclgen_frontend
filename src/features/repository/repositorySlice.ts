@@ -51,7 +51,7 @@ export const selectRepositoryAsync = createAsyncThunk(
       fetchNetworkObjectsWithRepoId(id),
       fetchDevicesWithRepoId(id),
     ]);
-    const rules = await fetchRulesWithDeviceId(id, all[2][0].id);
+    let rules = await fetchRulesWithDeviceId(id, all[2][0].id);
 
     const services = all[0].map((element) => {
       return { ...element, status: "source" } as PortService;
@@ -61,16 +61,14 @@ export const selectRepositoryAsync = createAsyncThunk(
       return { ...element, status: "source" } as IPV4;
     });
 
-    rules.map((element) => {
+    rules = rules.map((element: any) => {
       return {
         ...element,
-        source: networkObjects.find((source) => source.id == element.source.id),
-        destination: networkObjects.find(
-          (destination) => destination.id == element.destination.id
+        source: networkObjects.filter((source) => source.id === element.source),
+        destination: networkObjects.filter(
+          (source) => source.id === element.destination
         ),
-        service: networkObjects.find(
-          (service) => service.id == element.service.id
-        ),
+        service: services.filter((source) => source.id === element.service),
       };
     });
 

@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { DropDownButton } from "../../components/DropDownButton";
+import {
+  ObjectDropDownButton,
+  ServiceDropDownButton,
+} from "../../components/DropDownButton";
 import { PlusButtonSVG } from "../../components/PLusButton";
 import {
   RenderNetworkElement,
@@ -25,6 +28,7 @@ import {
 import {
   initiateModifyService,
   initiateNewService,
+  initiatePopUp,
   selectService,
   updateServices,
 } from "../service/DraftServiceSlice";
@@ -78,7 +82,7 @@ export function RenderWorkSpace() {
     <>
       <div className="flex flex-row items-center h-12">
         <h2 className="text-lg font-light items-start">Workspace</h2>
-        <PlusButtonSVG />
+        <PlusButtonSVG isHovering={false} />
       </div>
 
       <ul className="pl-4 space-y-1">
@@ -103,7 +107,7 @@ export function RenderObjectsAndServices() {
           className="outline-none ml-auto"
           onClick={() => setDropdown(!droppedDown)}
         >
-          <PlusButtonSVG />
+          <PlusButtonSVG isHovering={false} />
         </button>
       </div>
       <ul
@@ -163,7 +167,7 @@ export function RenderObjects() {
   const [droppedDown, setDropdown] = useState(false);
   return (
     <div className="h-fit flex flex-col">
-      <DropDownButton
+      <ObjectDropDownButton
         isDropped={droppedDown}
         onClick={setDropdown}
         title="Network Objects"
@@ -177,6 +181,7 @@ export function RenderObjects() {
           return (
             <li key={element.id}>
               {RenderNetworkObjects(element, () => {
+                dispatch(initiatePopUp());
                 dispatch(initiateModifyNetworkObject(element));
               })}
             </li>
@@ -205,7 +210,7 @@ export function RenderServices() {
 
   return (
     <div>
-      <DropDownButton
+      <ServiceDropDownButton
         isDropped={droppedDown}
         onClick={setDropdown}
         title="Services"
@@ -221,6 +226,7 @@ export function RenderServices() {
               {RenderService(
                 element,
                 () => {
+                  dispatch(initiatePopUp());
                   dispatch(initiateModifyService(element));
                 },
                 () => {
@@ -253,6 +259,45 @@ export function CommitServiceWithCounter() {
       (element) => element.status !== "source"
     );
     dispatch(commitServicesAsync(services));
+  }
+
+  return (
+    <>
+      {modified > 0 ? (
+        <div className={"ml-auto"}>
+          <CountableCheckButton
+            number={modified}
+            onClick={(event) => {
+              event.stopPropagation();
+              onClick();
+            }}
+          />
+        </div>
+      ) : (
+        ""
+      )}
+    </>
+  );
+}
+
+export function CommitObjectWithCounter() {
+  const state = useAppSelector(selectNetworkObjects);
+  const dispatch = useAppDispatch();
+
+  const [modified, setModified] = useState(0);
+  useEffect(() => {
+    setModified(
+      state.networkObjects
+        .map((element) => (element.status === "source" ? 0 : 1))
+        .reduce((prev, next) => prev + next, 0)
+    );
+  }, [state.networkObjects]);
+
+  function onClick() {
+    const objects = state.networkObjects.filter(
+      (element) => element.status !== "source"
+    );
+    dispatch(commitServicesAsync([]));
   }
 
   return (
