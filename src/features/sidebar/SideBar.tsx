@@ -118,6 +118,7 @@ export function RenderObjectsAndServices() {
         <li
           onClick={() => {
             setDropdown(false);
+            dispatch(initiatePopUp());
             dispatch(initiateNewObject());
           }}
           className="hover:bg-blue-600 hover:cursor-pointer group py-2 px-0 select-none border-b flex-row"
@@ -129,6 +130,7 @@ export function RenderObjectsAndServices() {
         <li
           onClick={() => {
             setDropdown(false);
+            dispatch(initiatePopUp());
             dispatch(initiateNewService());
           }}
           className="hover:bg-blue-600 group hover:cursor-pointer py-2 px-0 select-none border-b flex-row items-center"
