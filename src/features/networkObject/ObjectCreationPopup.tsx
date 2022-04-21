@@ -117,7 +117,7 @@ function ObjectCreationPopup() {
   };
 
   return (
-    <NetworkObjectPopup key={newObject.id} object={newNetworkObjectProps} />
+    <NetworkObjectPopup object={newNetworkObjectProps} />
   );
 }
 
