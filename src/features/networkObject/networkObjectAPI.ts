@@ -1,5 +1,5 @@
 import { NetworkObjectElement } from "../../types/types";
-import { createAPIRoute } from "../common/APIRoutes";
+import { createAPIRoute, host } from "../common/APIRoutes";
 
 export async function fetchNetworkObjects(): Promise<{
   data: NetworkObjectElement[];

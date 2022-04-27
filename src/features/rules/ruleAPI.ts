@@ -1,11 +1,12 @@
 import { Rule, RuleElement } from "../../types/types";
-import { createAPIRoute } from "../common/APIRoutes";
+import { createAPIRoute, host } from "../common/APIRoutes";
 
 export async function fetchRules(): Promise<{ data: RuleElement[] }> {
   const response = await fetch("/api/rules", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": host(),
     },
     body: JSON.stringify({}),
   });

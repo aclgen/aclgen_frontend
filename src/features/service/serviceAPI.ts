@@ -1,5 +1,5 @@
 import { ServiceElement } from "../../types/types";
-import { createAPIRoute } from "../common/APIRoutes";
+import { createAPIRoute, host } from "../common/APIRoutes";
 
 export async function fetchServices(): Promise<{ data: ServiceElement[] }> {
   const response = await fetch("/api/service", {

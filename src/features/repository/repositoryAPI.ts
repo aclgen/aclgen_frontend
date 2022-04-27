@@ -1,12 +1,13 @@
 import { Repository } from "../../types/repository";
 import { ServiceElement } from "../../types/types";
-import { createAPIRoute } from "../common/APIRoutes";
+import { createAPIRoute, host } from "../common/APIRoutes";
 import { RepositoryIdentifier } from "../common/APITypes";
 import { ServiceTransaction } from "../PushActions/types";
 
 export async function fetchRepositories(): Promise<{
   data: RepositoryIdentifier[];
 }> {
+
   const response = await fetch(createAPIRoute("repo/"), {
     method: "GET",
     headers: {
@@ -14,7 +15,6 @@ export async function fetchRepositories(): Promise<{
     },
   });
   const result = await response.json();
-
   return { data: result };
 }
 
