@@ -28,6 +28,25 @@ export function useSearchAble(searchAbleElements: EditableElement[]) {
   return { searchName, searchId };
 }
 
+export function useHeightSensor() {
+  const [height, setHeight] = useState(0);
+  const [inverted, setInverted] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    setHeight(ref.current.clientHeight);
+    const height = ref.current.getBoundingClientRect().top;
+    const screenSize = document.body.getBoundingClientRect().height;
+    if (height > screenSize / 2) {
+      setInverted(true);
+    } else {
+      setInverted(false);
+    }
+  });
+
+  return { inverted,height,  ref };
+}
+
 export function useDroppableStateChange(
   id: string,
   type: "service" | "object",

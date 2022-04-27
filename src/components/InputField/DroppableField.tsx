@@ -15,6 +15,7 @@ import {
   useCloseOnLostFocus,
   useDroppableStateChange,
   useEditableElements,
+  useHeightSensor,
   useSearchAble,
 } from "./hooks";
 
@@ -65,20 +66,7 @@ export const DroppableInputField = ({
     return elements.includes(element);
   }
 
-  const [height, setHeight] = useState(0);
-  const [inverted, setInverted] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    setHeight(ref.current.clientHeight);
-    const height = ref.current.getBoundingClientRect().top;
-    const screenSize = document.body.getBoundingClientRect().height;
-    if (height > screenSize / 2) {
-      setInverted(true);
-    } else {
-      setInverted(false);
-    }
-  });
+const {inverted, height,  ref} = useHeightSensor();
 
   return (
     <div ref={setNodeRef}>
