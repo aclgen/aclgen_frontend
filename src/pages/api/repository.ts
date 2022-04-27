@@ -3,7 +3,6 @@ import {
   ACCESS,
   FireWall,
   Repository,
-  WorkSpace,
 } from "../../types/repository";
 import { createDummyNetwork, createDummyService, ruleList } from "./rules";
 import { v4 as uuidv4 } from "uuid";

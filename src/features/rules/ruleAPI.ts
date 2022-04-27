@@ -1,4 +1,4 @@
-import RuleSet, { Rule, RuleElement } from "../../types/types";
+import { Rule, RuleElement } from "../../types/types";
 import { createAPIRoute } from "../common/APIRoutes";
 
 export async function fetchRules(): Promise<{ data: RuleElement[] }> {
