@@ -10,11 +10,11 @@ export const port: string = ":8000";
 export const baseRoute: string = "/api/";
 
 export function createAPIRoute(route: string) {
-  if(env.NODE_ENV == "development"){
+  if(process.env.NODE_ENV == "development"){
     return `${host}${baseRoute}${route}`;
   
-  }else if(env.NODE_ENV == "production"){
+  }else if(process.env.NODE_ENV == "production"){
     return `${realhost}${baseRoute}${route}`;
   }
-}
   
+}

@@ -44,7 +44,7 @@ function SideBar() {
   const state = useAppSelector(selectRepository);
 
   useEffect(() => {
-    if (state.repositories.length == 0) {
+    if (state.repositories.length == 0 && state.status == "empty") {
       dispatch(updateRepositoriesAsync());
     }
 
@@ -160,9 +160,7 @@ export function RenderObjects() {
       draftRepositoryState.status == "idle" &&
       objectState.status === "empty"
     ) {
-      dispatch(
-        updateNetworkObjects(draftRepositoryState.repository.networkObjects)
-      );
+      dispatch(updateNetworkObjects(draftRepositoryState.repository.networkObjects));
     }
   });
 

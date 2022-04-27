@@ -51,6 +51,7 @@ export const selectRepositoryAsync = createAsyncThunk(
       fetchNetworkObjectsWithRepoId(id),
       fetchDevicesWithRepoId(id),
     ]);
+    console.log("test");
     let rules = await fetchRulesWithDeviceId(id, all[2][0].id);
 
     const services = all[0].map((element) => {
@@ -133,6 +134,9 @@ export const RepositorySlice = createSlice({
       })
       .addCase(updateRepositoriesAsync.fulfilled, (state, action) => {
         state.status = "idle";
+        if (action.payload.length == 0){
+            state.status = "failed";
+        }
         state.repositories = action.payload;
       });
     builder.addCase(commitServicesAsync.pending, (state, action) => {
