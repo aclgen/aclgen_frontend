@@ -26,13 +26,14 @@ export function ruleList(): Rule[] {
       const rule: Rule = {
         id: uuidv4(),
         name: `name: ${i}`,
-        source: createDummyNetwork(),
-        destination: createDummyNetwork(),
-        service: createDummyService(),
+        source: [],
+        destination: [],
+        service: [],
         direction: DIRECTION.INBOUND,
         policy: POLICY.ACCEPT,
         comment: "test",
         status: "source",
+        device: ""
       };
       return rule;
     }

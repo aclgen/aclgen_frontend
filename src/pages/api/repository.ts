@@ -27,12 +27,12 @@ function repoList(): Repository[] {
 
 function createDummyRepository(): Repository {
   const repo: Repository = {
-    UUID: uuidv4(),
+    id: uuidv4(),
     access: ACCESS.SHARED,
     repo: "Test Repo",
     description: "repo used for internal testing",
     logo: "logo",
-    workSpace: createDefaultWorkspace(),
+    workSpace: [],
     networkObjects: [createDummyNetwork()],
     services: [createDummyService()],
   };
@@ -40,25 +40,3 @@ function createDummyRepository(): Repository {
   return repo;
 }
 
-function createDefaultWorkspace(): WorkSpace {
-  const workSpaceId = uuidv4();
-  const firewall: FireWall = {
-    name: "Default FireWall",
-    rules: {
-      id: uuidv4(),
-      parentId: workSpaceId,
-      rules: ruleList(),
-      name: "Default Firewall",
-    },
-    type: "firewall",
-    status: "source",
-    id: workSpaceId,
-  };
-
-  const workspace: WorkSpace = {
-    children: [firewall, { ...firewall, id: uuidv4() }],
-    status: "source",
-    id: uuidv4(),
-  };
-  return workspace;
-}
