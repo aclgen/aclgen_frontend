@@ -21,15 +21,13 @@ function ListView() {
 
   return (
     <div className="flex flex-1 ">
-      <div className="grid grid-flow-col space-4 w-full">
-        <div className="flex flex-1 ">
-          <div className="flex flex-1 flex-col border-r overflow-x-visible">
-            <div className="flex flex-1 relative p-3 overflow-y-auto ">
+      <div className="grid grid-flow-col auto-cols-auto space-4 w-full">
+          <div className="flex flex-1 flex-col col-span-1 border-r overflow-x-visible">
+            <div className="flex flex-1 relative p-3 basis-1/4 overflow-y-auto ">
               <SideBar />
             </div>
           </div>
-        </div>
-        <div className="px-4 flex flex-col space-y-2 scrollbar overflow-y-scroll content-area py-2">
+        <div className="px-4 flex flex-col space-y-2 scrollbar overflow-y-scroll content-area py-2 col-span-3">
           <div className="container flex flex-row items-center space-x-2 bg-white container-xl transition-opacity rounded-md border-2 border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
             <button
               className="outline-none h-10 "
