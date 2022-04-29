@@ -31,6 +31,7 @@ import {
   selectNetworkObjects,
 } from "../networkObject/DraftNetworkObjectSlice";
 import {
+  cancelCreationPopUp,
   initiateNewService,
   initiatePopUp,
   selectService,
@@ -101,6 +102,10 @@ function RuleCreationPopUp() {
     onSubmit: function (): void {
       dispatch(initiatePopUp());
       dispatch(createNewRule(newRule));
+    },
+    onCancel: () => {
+      dispatch(initiatePopUp());
+      dispatch(cancelCreationPopUp());
     },
   };
 
