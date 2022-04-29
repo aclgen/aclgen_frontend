@@ -15,7 +15,7 @@ import { saveServicesToDraft } from "../service/DraftServiceSlice";
 import { saveWorkSpaceToDraft } from "../workSpaceDraft/DraftWorkSpaceSlice";
 import { saveNetworkObjectsToDraft } from "../networkObject/DraftNetworkObjectSlice";
 import { saveRulesToDraft } from "../rules/ruleSlice";
-import { commitServices } from "./repositoryAPI";
+import { PushNetworkObjects, PushServices } from "./repositoryAPI";
 
 export interface DraftRepositoryState {
   repository: Repository;
@@ -32,12 +32,29 @@ export const commitServicesAsync = createAsyncThunk<
   ServiceElement[],
   { dispatch: AppDispatch; state: AppState }
 >(
-  "draftRepository/commitServices",
+  "draftRepository/pushServices",
   async (services: ServiceElement[], thunkAPI) => {
     thunkAPI.dispatch(
       saveServicesToDraft(thunkAPI.getState().service.services)
     );
-    const response = await commitServices({ services: services }, thunkAPI.getState().draftRepository.repository.id);
+    const response = await PushServices({ services: services }, thunkAPI.getState().draftRepository.repository.id);
+    // The value we return becomes the `fulfilled` action payload
+
+    return response.data;
+  }
+);
+
+export const commitObjectsAsync = createAsyncThunk<
+  NetworkObjectElement[],
+  NetworkObjectElement[],
+  { dispatch: AppDispatch; state: AppState }
+>(
+  "draftRepository/pushObjetcs",
+  async (objects: NetworkObjectElement[], thunkAPI) => {
+    thunkAPI.dispatch(
+      saveNetworkObjectsToDraft(thunkAPI.getState().networkObject.networkObjects)
+    );
+    const response = await PushNetworkObjects({ objects: objects }, thunkAPI.getState().draftRepository.repository.id);
     // The value we return becomes the `fulfilled` action payload
 
     return response.data;
@@ -115,6 +132,22 @@ export const DraftRepositorySlice = createSlice({
           return service == undefined;
         }),
       };
+      
+    });
+    builder.addCase(commitObjectsAsync.pending, (state) => {
+      state.status = "loading";
+    });
+    builder.addCase(commitObjectsAsync.fulfilled, (state, action) => {
+      state.status = "idle";
+      const services = action.payload;
+      state.repository = {
+        ...state.repository,
+        networkObjects: state.repository.services.filter((element) => {
+          const object = services.find((service) => service.id === element.id);
+          return object == undefined;
+        }),
+      };
+    
     });
   },
 });

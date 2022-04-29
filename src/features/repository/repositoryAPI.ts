@@ -1,6 +1,6 @@
 import { servicesVersion } from "typescript";
 import { Repository } from "../../types/repository";
-import { ServiceElement } from "../../types/types";
+import { NetworkObjectElement, ServiceElement } from "../../types/types";
 import { createAPIRoute, host } from "../common/APIRoutes";
 import { RepositoryIdentifier } from "../common/APITypes";
 import { ServiceTransaction } from "../PushActions/types";
@@ -19,7 +19,7 @@ export async function fetchRepositories(): Promise<{
   return { data: result };
 }
 
-export async function commitServices(commit: ServiceTransaction, repoId: string): Promise<{
+export async function PushServices(commit: ServiceTransaction, repoId: string): Promise<{
   data: ServiceElement[];
 }> {
   const responseNew = await fetch(createAPIRoute(`repo/${repoId}/service/`), {
@@ -50,3 +50,36 @@ export async function commitServices(commit: ServiceTransaction, repoId: string)
 
   return {data: responseNew.concat(responseModified)};
 }
+
+export async function PushNetworkObjects({objects}: {objects: NetworkObjectElement[]}, repoId: string): Promise<{
+  data: ServiceElement[];
+}> {
+  const responseNew = await fetch(createAPIRoute(`repo/${repoId}/object/`), {
+    method: "post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(objects.filter(service => service.status == "new").map(element => {return {
+      ...element,
+      range_start: 2,
+      range_end: 2 
+    }})),
+  }).then(response => response.json()).catch(e => []);
+
+  const responseModified = await fetch(createAPIRoute(`repo/${repoId}/object/`), {
+    method: "put",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(objects.filter(service => service.status == "modified").map(element => {return {
+      ...element,
+      range_start: 2,
+      range_end: 2 
+    }})),
+  }).then(response => response.json()).catch(e => []);
+
+  //const result2 = await responseModeified.json();
+
+  return {data: responseNew.concat(responseModified)};
+}
+

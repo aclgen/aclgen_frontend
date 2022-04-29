@@ -9,7 +9,7 @@ import {
   Repository,
 } from "../../types/repository";
 import EmptyRepository from "./EmptyRepository";
-import { commitServicesAsync } from "./DraftRepositorySlice";
+import { commitObjectsAsync, commitServicesAsync } from "./DraftRepositorySlice";
 import { fetchServicesWithRepoId } from "../service/serviceAPI";
 import { fetchNetworkObjectsWithRepoId } from "../networkObject/networkObjectAPI";
 import { fetchDevicesWithRepoId } from "../workSpaceDraft/WorkSpaceAPI";
@@ -144,7 +144,7 @@ export const RepositorySlice = createSlice({
     builder.addCase(commitServicesAsync.fulfilled, (state, action) => {
       state.status = "idle";
       //...state.repositories[0].services
-
+/** 
       const newService: ServiceElement[] = [];
       for (let i = 0; i < action.payload.length; i++) {
         const index = newService.findIndex(
@@ -162,7 +162,35 @@ export const RepositorySlice = createSlice({
           }
         }
       }
-
+*/
+      state.selectedRepository = EmptyRepository;
+      state.status = "idle";
+    });
+    builder.addCase(commitObjectsAsync.pending, (state, action) => {
+      state.status = "loading";
+    });
+    builder.addCase(commitObjectsAsync.fulfilled, (state, action) => {
+      state.status = "idle";
+      //...state.repositories[0].services
+/** 
+      const newService: ServiceElement[] = [];
+      for (let i = 0; i < action.payload.length; i++) {
+        const index = newService.findIndex(
+          (element) => action.payload[i].id === element.id
+        );
+        if (index >= 0) {
+          if (action.payload[i].status === "deleted") {
+            newService.splice(index);
+          } else {
+            newService[index] = { ...action.payload[i], status: "source" };
+          }
+        } else {
+          if (action.payload[i].status !== "deleted") {
+            newService.push({ ...action.payload[i], status: "source" });
+          }
+        }
+      }
+*/
       state.selectedRepository = EmptyRepository;
       state.status = "idle";
     });

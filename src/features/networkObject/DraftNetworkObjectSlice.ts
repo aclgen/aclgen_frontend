@@ -6,6 +6,7 @@ import {
   cancelCreationPopUp,
   initiatePopUp,
 } from "../service/DraftServiceSlice";
+import { selectRepositoryAsync } from "../repository/repositorySlice";
 
 export interface DraftNetworkObjectState {
   networkObjects: NetworkObjectElement[];
@@ -85,6 +86,10 @@ export const DraftNetworkObjectSlice = createSlice({
     });
     builder.addCase(cancelCreationPopUp, (state) => {
       state.newObjectStatus = "idle";
+    });
+    builder.addCase(selectRepositoryAsync.fulfilled, (state, payload) => {
+      state.networkObjects = [];
+      state.status = "empty";
     });
   },
 });

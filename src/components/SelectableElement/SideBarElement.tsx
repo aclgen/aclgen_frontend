@@ -310,13 +310,15 @@ export function RenderService(
 
 export function RenderNetworkObjects(
   element: NetworkObjectElement,
-  onClick: () => void
+  onClick: () => void, 
+   onCommit: () => void
 ) {
   const elementProps: SideBarElementProps = {
     ...element,
     icon: "/server.svg",
     alt: "Host",
     onClick: onClick,
+    onClickCheck: onCommit,
     type: "object",
   };
   if (element.status !== "deleted") {

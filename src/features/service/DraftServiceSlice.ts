@@ -4,7 +4,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { AppState, AppThunk } from "../../app/store";
 import { initiateNewRule } from "../rules/ruleSlice";
 import { initiateNewObject } from "../networkObject/DraftNetworkObjectSlice";
-import { commitServices } from "../repository/repositoryAPI";
+import { PushServices } from "../repository/repositoryAPI";
 import { commitServicesAsync } from "../repository/DraftRepositorySlice";
 import { selectRepositoryAsync, setSelectedRepository } from "../repository/repositorySlice";
 

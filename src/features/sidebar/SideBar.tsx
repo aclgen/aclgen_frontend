@@ -17,6 +17,7 @@ import {
   updateNetworkObjects,
 } from "../networkObject/DraftNetworkObjectSlice";
 import {
+  commitObjectsAsync,
   commitServicesAsync,
   selectDraftRepository,
 } from "../repository/DraftRepositorySlice";
@@ -183,7 +184,8 @@ export function RenderObjects() {
               {RenderNetworkObjects(element, () => {
                 dispatch(initiatePopUp());
                 dispatch(initiateModifyNetworkObject(element));
-              })}
+              }, 
+              () => dispatch(commitObjectsAsync([element])))}
             </li>
           );
         })}
@@ -297,7 +299,7 @@ export function CommitObjectWithCounter() {
     const objects = state.networkObjects.filter(
       (element) => element.status !== "source"
     );
-    dispatch(commitServicesAsync([]));
+    dispatch(commitObjectsAsync(objects));
   }
 
   return (
