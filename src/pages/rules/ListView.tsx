@@ -13,7 +13,8 @@ import { selectDraftRepository } from "../../features/repository/DraftRepository
 import { FireWall } from "../../types/repository";
 import CountableCheckButton from "../../components/CountableCheckButton";
 import { initiatePopUp } from "../../features/service/DraftServiceSlice";
-import { render } from "@testing-library/react";
+import { Virtuoso } from 'react-virtuoso'
+import React from "react";
 
 function ListView() {
   const dispatch = useAppDispatch();
@@ -63,9 +64,9 @@ function RuleList() {
   const renderCard = (rule: Rule, index: number) => {
     return (
       <RuleCard
-        key={ruleElementtoRule(state.rules[index]).id}
+        key={index}
         index={index}
-        rule={ruleElementtoRule(state.rules[index])}
+        rule={rule}
         modifyCard={(card) =>
           dispatch(modifyRuleWithIndex({ rule: card, index }))
         }
@@ -73,15 +74,24 @@ function RuleList() {
     );
   };
 
+
+  const RuleEntry = (index: number) => {
+    return renderCard(state.rules[index] as Rule, index);
+  }
+
   return (
-    <div className="flex flex-col space-y-1">
-      {state.rules
-        .map((ruleElement) => ruleElementtoRule(ruleElement))
-        .map((rule, index) => renderCard(rule, index))}
-    </div>
+    <Virtuoso
+    totalCount={state.rules.length} 
+    overscan={200}
+    itemContent={index => RuleEntry(index)}>
+        </Virtuoso>
   );
 }
-
+/** 
+{state.rules
+  .map((ruleElement) => ruleElementtoRule(ruleElement))
+  .map((rule, index) => renderCard(rule, index))}
+*/
 function ruleElementtoRule(element: RuleElement): Rule {
   return element as Rule;
 }
