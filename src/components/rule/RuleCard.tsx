@@ -94,7 +94,7 @@ function card({ index, rule, modifyCard }: CardProps) {
       key={rule.id}
       className={`p-2 pl-4 container bg-white container-xl transition-opacity ${statusStyle(
         rule.status
-      )} hover:cursor-pointer outline-none active:border-blue-500 rounded-md shadow-md dark:bg-gray-800 dark:border-gray-700`}
+      )} mb-2 hover:cursor-pointer outline-none active:border-blue-500 rounded-md shadow-md dark:bg-gray-800 dark:border-gray-700`}
     >
       <form
         className="space-y-2 flex flex-row justify-between space-x-4"
