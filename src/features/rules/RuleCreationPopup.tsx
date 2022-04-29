@@ -31,6 +31,7 @@ import {
   selectNetworkObjects,
 } from "../networkObject/DraftNetworkObjectSlice";
 import {
+  cancelCreationPopUp,
   initiateNewService,
   initiatePopUp,
   selectService,
@@ -53,9 +54,9 @@ function RuleCreationPopUp() {
   const id = uuidv4();
 
   const newRule: Rule = {
-    source: source,
-    destination: destination,
-    service: service,
+    sources: source,
+    destinations: destination,
+    services: service,
     direction: direction,
     policy: policy,
     name: name,
@@ -101,6 +102,10 @@ function RuleCreationPopUp() {
     onSubmit: function (): void {
       dispatch(initiatePopUp());
       dispatch(createNewRule(newRule));
+    },
+    onCancel: () => {
+      dispatch(initiatePopUp());
+      dispatch(cancelCreationPopUp());
     },
   };
 
