@@ -55,7 +55,7 @@ function SideBar() {
       dispatch(selectRepositoryAsync(state.repositories[0].id));
       //dispatch(setSelectedRepository(state.repositories[0]));
     }
-  }, [state.status]);
+  }, [state.status, state.selectedRepository]);
 
   return (
     <div className="flex flex-col space-y-4 min-w-90">
@@ -204,7 +204,7 @@ export function RenderServices() {
     ) {
       dispatch(updateServices(draftRepositoryState.repository.services));
     }
-  });
+  }, [draftRepositoryState.repository]);
 
   const [droppedDown, setDropdown] = useState(false);
 

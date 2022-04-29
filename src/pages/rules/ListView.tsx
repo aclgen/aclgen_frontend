@@ -1,6 +1,6 @@
 import RuleCard from "../../components/rule/RuleCard";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
-import {
+import ruleSlice, {
   selectRule,
   initiateNewRule,
   setRules,
@@ -22,12 +22,12 @@ function ListView() {
   return (
     <div className="flex flex-1 ">
       <div className="grid grid-flow-col auto-cols-auto space-4 w-full">
-          <div className="flex flex-1 flex-col col-span-1 border-r overflow-x-visible">
+          <div className="flex flex-1 flex-col col-span-1 scrollbar border-r overflow-x-visible content-area  overflow-y-scroll">
             <div className="flex flex-1 relative p-3 basis-1/4 overflow-y-auto ">
               <SideBar />
             </div>
           </div>
-        <div className="px-4 flex flex-col space-y-2 scrollbar overflow-y-scroll content-area py-2 col-span-3">
+        <div className="px-4 flex flex-col space-y-2 content-area py-2 col-span-6">
           <div className="container flex flex-row items-center space-x-2 bg-white container-xl transition-opacity rounded-md border-2 border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
             <button
               className="outline-none h-10 "
@@ -80,16 +80,13 @@ function RuleList() {
   return (
     <Virtuoso
     totalCount={state.rules.length} 
-    overscan={200}
+    overscan={500}
     itemContent={index => RuleEntry(index)}>
         </Virtuoso>
   );
+
 }
-/** 
-{state.rules
-  .map((ruleElement) => ruleElementtoRule(ruleElement))
-  .map((rule, index) => renderCard(rule, index))}
-*/
+
 function ruleElementtoRule(element: RuleElement): Rule {
   return element as Rule;
 }

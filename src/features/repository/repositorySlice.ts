@@ -14,7 +14,7 @@ import { fetchServicesWithRepoId } from "../service/serviceAPI";
 import { fetchNetworkObjectsWithRepoId } from "../networkObject/networkObjectAPI";
 import { fetchDevicesWithRepoId } from "../workSpaceDraft/WorkSpaceAPI";
 import { fetchRulesWithDeviceId } from "../rules/ruleAPI";
-import { IPV4, PortService, Rule, RuleAPIResponse } from "../../types/types";
+import { IPV4, PortService, Rule, RuleAPIResponse, ServiceElement } from "../../types/types";
 import { RepositoryIdentifier } from "../common/APITypes";
 
 export interface RepositoryState {
@@ -144,7 +144,8 @@ export const RepositorySlice = createSlice({
     builder.addCase(commitServicesAsync.fulfilled, (state, action) => {
       state.status = "idle";
       //...state.repositories[0].services
-      const newService = [];
+
+      const newService: ServiceElement[] = [];
       for (let i = 0; i < action.payload.length; i++) {
         const index = newService.findIndex(
           (element) => action.payload[i].id === element.id
@@ -161,12 +162,9 @@ export const RepositorySlice = createSlice({
           }
         }
       }
-      state.repositories = [
-        {
-          ...state.repositories[0],
-          //services: newService,
-        },
-      ];
+
+      state.selectedRepository = EmptyRepository;
+      state.status = "idle";
     });
   },
 });

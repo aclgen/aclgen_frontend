@@ -37,9 +37,9 @@ export const commitServicesAsync = createAsyncThunk<
     thunkAPI.dispatch(
       saveServicesToDraft(thunkAPI.getState().service.services)
     );
-    const response = await commitServices({ services: services });
-    console.log(response);
+    const response = await commitServices({ services: services }, thunkAPI.getState().draftRepository.repository.id);
     // The value we return becomes the `fulfilled` action payload
+
     return response.data;
   }
 );
