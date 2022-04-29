@@ -53,9 +53,9 @@ function RuleCreationPopUp() {
   const id = uuidv4();
 
   const newRule: Rule = {
-    source: source,
-    destination: destination,
-    service: service,
+    sources: source,
+    destinations: destination,
+    services: service,
     direction: direction,
     policy: policy,
     name: name,

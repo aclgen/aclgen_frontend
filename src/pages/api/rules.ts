@@ -26,9 +26,9 @@ export function ruleList(): Rule[] {
       const rule: Rule = {
         id: uuidv4(),
         name: `name: ${i}`,
-        source: [],
-        destination: [],
-        service: [],
+        sources: [],
+        destinations: [],
+        services: [],
         direction: DIRECTION.INBOUND,
         policy: POLICY.ACCEPT,
         comment: "test",

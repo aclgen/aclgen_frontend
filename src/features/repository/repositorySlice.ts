@@ -14,7 +14,7 @@ import { fetchServicesWithRepoId } from "../service/serviceAPI";
 import { fetchNetworkObjectsWithRepoId } from "../networkObject/networkObjectAPI";
 import { fetchDevicesWithRepoId } from "../workSpaceDraft/WorkSpaceAPI";
 import { fetchRulesWithDeviceId } from "../rules/ruleAPI";
-import { IPV4, PortService } from "../../types/types";
+import { IPV4, PortService, Rule, RuleAPIResponse } from "../../types/types";
 import { RepositoryIdentifier } from "../common/APITypes";
 
 export interface RepositoryState {
@@ -51,8 +51,8 @@ export const selectRepositoryAsync = createAsyncThunk(
       fetchNetworkObjectsWithRepoId(id),
       fetchDevicesWithRepoId(id),
     ]);
-    console.log("test");
-    let rules = await fetchRulesWithDeviceId(id, all[2][0].id);
+   
+    const apiRules = await fetchRulesWithDeviceId(id, all[2][0].id);
 
     const services = all[0].map((element) => {
       return { ...element, status: "source" } as PortService;
@@ -62,17 +62,16 @@ export const selectRepositoryAsync = createAsyncThunk(
       return { ...element, status: "source" } as IPV4;
     });
 
-    rules = rules.map((element: any) => {
+//networkObjects.filter((source) => source.id === element.source),
+    const rules = apiRules.map((element) => {
       return {
         ...element,
-        source: networkObjects.filter((source) => source.id === element.source),
-        destination: networkObjects.filter(
-          (source) => source.id === element.destination
-        ),
-        service: services.filter((source) => source.id === element.service),
+        sources: element.sources.map((elementSource) => networkObjects.find(serviceElement => serviceElement.id === elementSource)),
+        destinations: element.destinations.map((elemenDestinations) => networkObjects.find(serviceElement => serviceElement.id === elemenDestinations)),
+        services: element.services.map((elementService: string) => services.find(serviceElement => serviceElement.id === elementService)),
       };
     });
-
+  
     const workSpace: NetworkElement[] = all[2].map((element) => {
       return { ...element, status: "source" };
     });

@@ -52,10 +52,10 @@ function card({ index, rule, modifyCard }: CardProps) {
 
   const [name, setName] = useState(rule.name);
   const [comment, setComment] = useState(rule.comment);
-  const [source, setSource] = useState(rule.source);
-  const [destination, setDestination] = useState(rule.destination);
+  const [source, setSource] = useState(rule.sources);
+  const [destination, setDestination] = useState(rule.destinations);
   const [direction, setDirection] = useState(rule.direction);
-  const [service, setService] = useState(rule.service);
+  const [service, setService] = useState(rule.services);
   const [policy, setPolicy] = useState(rule.policy);
   const [status, setStatus] = useState(rule.status);
 
@@ -76,10 +76,10 @@ function card({ index, rule, modifyCard }: CardProps) {
 
   function createCard(): Rule {
     return {
-      source: source,
-      destination: destination,
+      sources: source,
+      destinations: destination,
       device: rule.device,
-      service: service,
+      services: service,
       direction: direction,
       policy: policy,
       name: name,

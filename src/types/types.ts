@@ -7,9 +7,17 @@ export interface RuleElement extends EditableElement {
 }
 
 export interface Rule extends RuleElement {
-  source: NetworkObjectElement[];
-  destination: NetworkObjectElement[];
-  service: ServiceElement[];
+  sources: NetworkObjectElement[];
+  destinations: NetworkObjectElement[];
+  services: ServiceElement[];
+  direction: DIRECTION;
+  policy: POLICY;
+}
+
+export interface RuleAPIResponse extends RuleElement {
+  sources: string[];
+  destinations: string[];
+  services: string[];
   direction: DIRECTION;
   policy: POLICY;
 }

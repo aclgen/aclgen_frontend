@@ -1,4 +1,4 @@
-import { Rule, RuleElement } from "../../types/types";
+import { Rule, RuleAPIResponse, RuleElement } from "../../types/types";
 import { createAPIRoute, host } from "../common/APIRoutes";
 
 export async function fetchRules(): Promise<{ data: RuleElement[] }> {
@@ -17,7 +17,7 @@ export async function fetchRules(): Promise<{ data: RuleElement[] }> {
 export async function fetchRulesWithDeviceId(
   repoId: string,
   deviceId: string
-): Promise<Rule[]> {
+): Promise<RuleAPIResponse[]> {
   const response = await fetch(
     createAPIRoute(`repo/${repoId}/device/${deviceId}/rule`),
     {
