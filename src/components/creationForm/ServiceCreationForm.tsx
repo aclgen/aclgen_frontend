@@ -182,7 +182,7 @@ export const Name = ({
       name="Name"
       id="name"
       value={value}
-      autoFocus={true}
+      autoFocus={value === "" && value === undefined ? true : false}
       onChange={(event) => onChange(event.target.value)}
       className={defaultClass}
       placeholder="Service name..."

@@ -13,7 +13,7 @@ import { selectDraftRepository } from "../../features/repository/DraftRepository
 import { FireWall } from "../../types/repository";
 import CountableCheckButton from "../../components/CountableCheckButton";
 import { initiatePopUp } from "../../features/service/DraftServiceSlice";
-import { Virtuoso } from 'react-virtuoso'
+import { Virtuoso } from "react-virtuoso";
 import React from "react";
 
 function ListView() {
@@ -22,11 +22,11 @@ function ListView() {
   return (
     <div className="flex flex-1 ">
       <div className="grid grid-flow-col auto-cols-auto space-4 w-full">
-          <div className="flex flex-1 flex-col col-span-1 scrollbar border-r overflow-x-visible content-area  overflow-y-scroll">
-            <div className="flex flex-1 relative p-3 basis-1/4 overflow-y-auto ">
-              <SideBar />
-            </div>
+        <div className="flex flex-1 flex-col col-span-1 scrollbar border-r overflow-x-visible content-area  overflow-y-scroll">
+          <div className="flex flex-1 relative p-3 basis-1/4 overflow-y-auto ">
+            <SideBar />
           </div>
+        </div>
         <div className="px-4 flex flex-col space-y-2 content-area py-2 col-span-6">
           <div className="container flex flex-row items-center space-x-2 bg-white container-xl transition-opacity rounded-md border-2 border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
             <button
@@ -72,19 +72,18 @@ function RuleList() {
     );
   };
 
-
   const RuleEntry = (index: number) => {
     return renderCard(state.rules[index] as Rule, index);
-  }
+  };
 
   return (
     <Virtuoso
-    totalCount={state.rules.length} 
-    overscan={500}
-    itemContent={index => RuleEntry(index)}>
-        </Virtuoso>
+      totalCount={state.rules.length}
+      overscan={500}
+      increaseViewportBy={200}
+      itemContent={(index) => RuleEntry(index)}
+    ></Virtuoso>
   );
-
 }
 
 function ruleElementtoRule(element: RuleElement): Rule {

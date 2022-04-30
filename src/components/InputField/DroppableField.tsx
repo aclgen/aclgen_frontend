@@ -79,18 +79,6 @@ export const DroppableInputField = ({
           setOpen(true);
         }}
       >
-        <If condition={isOpen && inverted}>
-          <SearchInput
-            searchRef={searchMenu}
-            isElementPresent={isElementPresent}
-            search={searchName}
-            addElement={addElement}
-            setOpen={() => setOpen(false)}
-            createNew={onCreateNewElement}
-            height={height}
-            inverted={inverted}
-          />
-        </If>
         <Label value={fieldType} />
         <div>
           <FlexibleInputContainer
@@ -103,13 +91,15 @@ export const DroppableInputField = ({
             }}
           />
         </div>
-        <If condition={isOpen && !inverted}>
+        <If condition={isOpen}>
           <SearchInput
             searchRef={searchMenu}
             isElementPresent={isElementPresent}
             search={searchName}
             addElement={addElement}
-            setOpen={() => setOpen(false)}
+            setOpen={() => {
+              setOpen(false);
+            }}
             createNew={onCreateNewElement}
             inverted={inverted}
             height={height}
@@ -180,9 +170,11 @@ function SearchInput({
 
   useEffect(() => {
     if (tabPress) {
+      console.log("tab");
       setOpen();
     }
-  });
+  }, [tabPress]);
+
   return (
     <div
       style={{ bottom: `${inverted ? `${height - 20}px` : ""}` }}

@@ -1,6 +1,7 @@
 import React from "react";
 import { RefObject, useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { isFirefox } from "../../features/common/BrowserDetection";
 import {
   removeDraggedItem,
   selectDraggable,
@@ -55,6 +56,11 @@ export const useKeyPress = function (
   const [keyPressed, setKeyPressed] = useState(false);
 
   function downHandler(event: KeyboardEvent) {
+    if (event.key === "Tab") {
+      if (isFirefox()) {
+        event.stopPropagation();
+      }
+    }
     event.key === "Enter" ? event.stopPropagation() : () => {};
     if (event.key === targetKey) {
       setKeyPressed(true);

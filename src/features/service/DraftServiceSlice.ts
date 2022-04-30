@@ -38,7 +38,8 @@ export const ServiceSlice = createSlice({
       state.newServiceStatus = "idle";
     },
     initiateNewService: (state, action?: PayloadAction<string>) => {
-      state.newService = createServiceFromState(action.payload);
+      state.newService = createServiceFromState({ name: action.payload });
+      console.log(state.newService);
       state.newServiceStatus = "creating";
       //action? state.newService = {name: action.payload, id:}
     },

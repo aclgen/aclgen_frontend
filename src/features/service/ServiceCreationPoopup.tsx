@@ -78,15 +78,11 @@ function ServiceCreationPopup() {
   const dispatch = useAppDispatch();
   const state = useAppSelector(selectService);
 
-  console.log(state.newService);
-
   const newService: ServiceElement = createServiceFromState(state.newService);
 
   const baseFields = ServiceEditingBase(newService);
 
   const serviceFields = ServiceEditingFields(newService);
-
-  console.log(newService);
 
   const serviceProps: ServicePopUpProps = {
     isVisible: state.newServiceStatus === "creating",
@@ -237,7 +233,9 @@ export function createServiceFromState(service: any): ServiceElement {
   if (service === undefined) {
     return createPortService({});
   } else if (service.type !== undefined) {
-    createServiceFromType(service, service.type);
+    return createServiceFromType(service, service.type);
+  } else {
+    return createServiceFromType(service, ServiceType.PORT);
   }
 }
 
@@ -279,7 +277,6 @@ export function createPortService(service: any) {
     portStart: service.portStart ? service.portStart : 0,
     portEnd: service.portEnd ? service.portEnd : 0,
   };
+  console.log(newService);
   return newService;
-
-  return service;
 }
