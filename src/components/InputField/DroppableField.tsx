@@ -1,11 +1,5 @@
 import { useDroppable } from "@dnd-kit/core";
-import React, {
-  ReactNode,
-  RefObject,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { EditableElement, ServiceElement } from "../../types/types";
 import { XIcon } from "../creationForm/PopUpForm";
 import { If } from "../If";

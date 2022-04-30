@@ -23,6 +23,7 @@ import {
   selectNetworkObjects,
 } from "../../features/networkObject/DraftNetworkObjectSlice";
 import { selectDraggable } from "../../features/draggable/draggableSlice";
+
 export interface CardProps {
   index: number;
   rule: Rule;
@@ -198,6 +199,9 @@ function composeStyle(isHovering: boolean): string {
 export const defaultClass: string =
   "bg-gray-50 outline-none border-2 border-gray-300 w-32 text-gray-900 text-sm rounded-lg  focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white";
 
+export const defaultClassPlaceholder: string =
+  "bg-gray-50 animate-pulse outline-none border-2 bg-gray-300 border-gray-300 w-32 text-gray-900 text-sm rounded-lg  focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white";
+
 export const Index: React.FC<{ value: number }> = ({ value }) => (
   <p className="block pt-11 mb-2 text-sm font-light text-gray-400 dark:text-white">
     {`#${value}`}
@@ -239,8 +243,10 @@ export const CheckIcon = () => {
 export const Name = ({
   value,
   onChange,
+  disabled = false,
 }: {
   value: string;
+  disabled?: boolean;
   onChange: (value: string) => void;
 }) => (
   <div>
@@ -249,11 +255,27 @@ export const Name = ({
       type="name"
       name="Name"
       id="name"
+      disabled={disabled}
       value={value}
       onChange={(event) => onChange(event.target.value)}
       className={defaultClass}
       placeholder="Rule Name..."
       required
+    />
+  </div>
+);
+
+export const PlaceholderName = ({}: {}) => (
+  <div>
+    <Label value="Name" />
+    <input
+      type="placeholder"
+      name="placeholder"
+      id="placeholder"
+      disabled={true}
+      value={""}
+      className={defaultClassPlaceholder}
+      placeholder="..."
     />
   </div>
 );

@@ -79,15 +79,11 @@ function RuleList() {
   return (
     <Virtuoso
       totalCount={state.rules.length}
-      overscan={500}
-      increaseViewportBy={200}
+      overscan={1200}
+      increaseViewportBy={400}
       itemContent={(index) => RuleEntry(index)}
     ></Virtuoso>
   );
-}
-
-function ruleElementtoRule(element: RuleElement): Rule {
-  return element as Rule;
 }
 
 function ModifiedCounter() {
