@@ -29,7 +29,6 @@ export interface RuleGroup extends RuleElement {
 export enum ServiceType {
   PORT,
   PORT_RANGE,
-  PORT_GROUP,
 }
 export interface ServiceElement extends EditableElement {
   name: string;
@@ -40,8 +39,13 @@ export interface ServiceElement extends EditableElement {
 }
 
 export interface PortService extends ServiceElement {
-  sourcePort: number;
-  destinationPort: number;
+  port: number;
+  protocol: string;
+}
+
+export interface PortRange extends ServiceElement {
+  portStart: number;
+  portEnd: number;
   protocol: string;
 }
 

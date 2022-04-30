@@ -1,30 +1,23 @@
-import { EditableElement } from "../../types/types";
-import { PopUpForm, PopUpFormProps } from "./PopUpForm";
+import {
+  PortPopUpProps,
+  PortRangePopUpProps,
+  ServicePopUpProps,
+  ServiceTypeToName,
+} from "../../features/service/ServiceCreationPoopup";
+import { ServiceType } from "../../types/types";
+import { If } from "../If";
+import { PopUpForm } from "./PopUpForm";
 
-export interface ServicePopupProps extends PopUpFormProps {
-  isVisible: boolean;
-  name: string;
-  element: EditableElement;
-  setName: (string) => void;
-  comment: string;
-  setComment: (string) => void;
-  sourcePort: number;
-  setSourcePort: (string) => void;
-  destinationPort: number;
-  setDestinationPort: (string) => void;
-  protocol: string;
-  setProtocol: (string) => void;
-  onSubmit: () => void;
-  onCancel?: () => void;
-  onDelete?: () => void;
-}
-
-export function ServicePopupForm({ service }: { service: ServicePopupProps }) {
+export function ServicePopupForm({ service }: { service: ServicePopUpProps }) {
   return (
     <PopUpForm popUp={service}>
       <form
         className="space-y-3 py-1  px-6 flex flex-row justify-between space-x-4"
         action="#"
+        autoComplete={"off"}
+        onSubmit={(e) => {
+          e.preventDefault();
+        }}
       >
         <div className="flex justify-self-start items-center flex-row justify-between space-x-4 ">
           <img
@@ -32,34 +25,64 @@ export function ServicePopupForm({ service }: { service: ServicePopupProps }) {
             src={"/computer-networks.svg"}
             alt={"Service"}
           />
-          <Type />
+          <Type name={ServiceTypeToName(service.type)} />
           <Name
             value={service.name}
             onChange={(name) => service.setName(name)}
           />
-          <Port
-            value={service.destinationPort}
-            onChange={(port) => service.setDestinationPort(port)}
-          />
-          <Port
-            value={service.sourcePort}
-            onChange={(port) => service.setSourcePort(port)}
-          />
-          <Protocol
-            value={service.protocol}
-            onChange={(protocol) => service.setProtocol(protocol)}
-          />
+          <ServiceTypeInputs service={service} />
           <Comment
             value={service.comment}
             onChange={(comment) => service.setComment(comment)}
           />
         </div>
         <div className="flex justify-self-end items-center flex-row justify-between space-x-4">
-          <CheckIcon onClick={service.onSubmit} />
-          {service.onDelete ? <TrashIcon onClick={service.onDelete} /> : <></>}
+          <CheckIcon onClick={() => service.onSubmit()} />
+          <If condition={service.onDelete !== undefined}>
+            <TrashIcon onClick={service.onDelete} />
+          </If>
         </div>
       </form>
     </PopUpForm>
+  );
+}
+
+export function ServiceTypeInputs({ service }: { service: ServicePopUpProps }) {
+  if (service.type == ServiceType.PORT_RANGE) {
+    return <PortRangeInputs service={service as PortRangePopUpProps} />;
+  } else if (service.type == ServiceType.PORT) {
+    return <PortInputs service={service as PortPopUpProps} />;
+  }
+}
+
+export function PortRangeInputs({ service }: { service: PortRangePopUpProps }) {
+  return (
+    <>
+      <Port
+        value={service.rangeStart}
+        onChange={(port) => service.setRangeStart(port)}
+      />
+      <Port
+        value={service.rangeEnd}
+        onChange={(port) => service.setRangeEnd(port)}
+      />
+      <Protocol
+        value={service.protocol}
+        onChange={(protocol) => service.setProtocol(protocol)}
+      />
+    </>
+  );
+}
+
+export function PortInputs({ service }: { service: PortPopUpProps }) {
+  return (
+    <>
+      <Port value={service.port} onChange={(port) => service.setPort(port)} />
+      <Protocol
+        value={service.protocol}
+        onChange={(protocol) => service.setProtocol(protocol)}
+      />
+    </>
   );
 }
 
@@ -103,10 +126,13 @@ export const TrashIcon = ({ onClick }: { onClick: () => void }) => {
   );
 };
 
-export const CheckIcon = ({ onClick }: { onClick: (event: any) => void }) => {
+export const CheckIcon = ({ onClick }: { onClick?: (event: any) => void }) => {
   return (
-    <div
+    <button
       onClick={onClick}
+      onKeyPress={(e) => {
+        e.key === "Enter" ? onClick(e) : {};
+      }}
       className="border-2 border-gray-100 rounded-md hover:cursor-pointer hover:border-blue-400 h-10 w-10 hover:shadow-lg"
     >
       <svg
@@ -125,11 +151,11 @@ export const CheckIcon = ({ onClick }: { onClick: (event: any) => void }) => {
           className="fill-blue-700"
         ></path>
       </svg>
-    </div>
+    </button>
   );
 };
 
-export const Type = () => (
+export const Type = ({ name }: { name: string }) => (
   <div>
     <Label value="TYPE" />
     <h2
@@ -137,7 +163,7 @@ export const Type = () => (
         "bg-gray-50 border border-gray-300 w-32 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white outline-none"
       }
     >
-      Service
+      {name}
     </h2>
   </div>
 );

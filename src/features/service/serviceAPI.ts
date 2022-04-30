@@ -1,4 +1,9 @@
-import { ServiceElement } from "../../types/types";
+import {
+  PortRange,
+  PortService,
+  ServiceElement,
+  ServiceType,
+} from "../../types/types";
 import { createAPIRoute, host } from "../common/APIRoutes";
 
 export async function fetchServices(): Promise<{ data: ServiceElement[] }> {
@@ -23,5 +28,18 @@ export async function fetchServicesWithRepoId(
     },
   });
   const result = await response.json();
-  return result;
+
+  return result.map((element: any) => createServiceElement(element));
+}
+function createServiceElement(element: any): ServiceElement {
+  if (element.range_start === element.range_end) {
+    return { ...element, type: ServiceType.PORT } as PortService;
+  } else {
+    return {
+      ...element,
+      type: ServiceType.PORT_RANGE,
+      portStart: element.range_start,
+      portEnd: element.range_end,
+    } as PortRange;
+  }
 }

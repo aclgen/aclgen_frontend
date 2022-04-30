@@ -48,7 +48,7 @@ export function RulePopUpForm({ rule }: { rule: RuleCreationPopupProps }) {
             src={"/computer-networks.svg"}
             alt={"Service"}
           />
-          <Type />
+          <Type name="Rule" />
           <Name value={rule.name} onChange={(name) => rule.setName(name)} />
           <DroppableInputField
             droppableType={"object"}

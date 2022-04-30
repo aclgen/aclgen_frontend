@@ -1,12 +1,10 @@
 import { ServiceElement } from "../../types/types";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import type { AppState, AppThunk } from "../../app/store";
-import { initiateNewRule } from "../rules/ruleSlice";
-import { initiateNewObject } from "../networkObject/DraftNetworkObjectSlice";
-import { PushServices } from "../repository/repositoryAPI";
-import { commitServicesAsync } from "../repository/DraftRepositorySlice";
-import { selectRepositoryAsync, setSelectedRepository } from "../repository/repositorySlice";
+import type { AppState } from "../../app/store";
+
+import { selectRepositoryAsync } from "../repository/repositorySlice";
+import { createServiceFromState } from "./ServiceCreationPoopup";
 
 export interface ServiceState {
   services: ServiceElement[];
@@ -40,7 +38,7 @@ export const ServiceSlice = createSlice({
       state.newServiceStatus = "idle";
     },
     initiateNewService: (state, action?: PayloadAction<string>) => {
-      state.newService = undefined;
+      state.newService = createServiceFromState(action.payload);
       state.newServiceStatus = "creating";
       //action? state.newService = {name: action.payload, id:}
     },

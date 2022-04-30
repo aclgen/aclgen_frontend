@@ -33,7 +33,7 @@ export function ruleList(): Rule[] {
         policy: POLICY.ACCEPT,
         comment: "test",
         status: "source",
-        device: ""
+        device: "",
       };
       return rule;
     }
@@ -46,8 +46,7 @@ export function createDummyService(): ServiceElement {
     id: uuidv4(),
     name: "HTTP",
     protocol: "TCP",
-    sourcePort: 80,
-    destinationPort: 80,
+    port: 80,
     status: "source",
     comment: "",
     type: ServiceType.PORT,

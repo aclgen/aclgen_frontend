@@ -114,7 +114,7 @@ function card({ index, rule, modifyCard }: CardProps) {
             fieldType={"SOURCE"}
             elements={source}
             searchAbleElements={searchAbleObjects}
-            onCreateNewService={(name: string) => {
+            onCreateNewElement={(name: string) => {
               dispatch(initiatePopUp());
               dispatch(initiateNewObject(name));
             }}
@@ -129,7 +129,7 @@ function card({ index, rule, modifyCard }: CardProps) {
             fieldType={"DESTINATION"}
             elements={destination}
             searchAbleElements={searchAbleObjects}
-            onCreateNewService={(name: string) => {
+            onCreateNewElement={(name: string) => {
               dispatch(initiatePopUp());
               dispatch(initiateNewObject(name));
             }}
@@ -144,7 +144,7 @@ function card({ index, rule, modifyCard }: CardProps) {
             fieldType={"SERVICE"}
             elements={service}
             searchAbleElements={searchAbleElements}
-            onCreateNewService={(name: string) => {
+            onCreateNewElement={(name: string) => {
               dispatch(initiatePopUp());
               dispatch(initiateNewService(name));
             }}
