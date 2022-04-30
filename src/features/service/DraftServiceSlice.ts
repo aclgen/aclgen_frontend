@@ -5,11 +5,13 @@ import type { AppState } from "../../app/store";
 
 import { selectRepositoryAsync } from "../repository/repositorySlice";
 import { createServiceFromState } from "./ServiceCreationPoopup";
+import { v4 as uuidv4 } from "uuid";
 
 export interface ServiceState {
   services: ServiceElement[];
   newService: ServiceElement | undefined;
   newServiceStatus: "idle" | "creating" | "editing";
+  newServiceHash: string;
   status: "empty" | "idle" | "loading" | "failed";
 }
 
@@ -17,6 +19,7 @@ const initialState: ServiceState = {
   services: [],
   status: "empty",
   newService: undefined,
+  newServiceHash: uuidv4(),
   newServiceStatus: "idle",
 };
 
@@ -37,9 +40,9 @@ export const ServiceSlice = createSlice({
       state.services = [...state.services, action.payload];
       state.newServiceStatus = "idle";
     },
-    initiateNewService: (state, action?: PayloadAction<string>) => {
-      state.newService = createServiceFromState({ name: action.payload });
-      console.log(state.newService);
+    initiateNewService: (state, action?: PayloadAction<{}>) => {
+      state.newService = createServiceFromState({ ...action.payload });
+      state.newServiceHash = uuidv4();
       state.newServiceStatus = "creating";
       //action? state.newService = {name: action.payload, id:}
     },
@@ -61,6 +64,7 @@ export const ServiceSlice = createSlice({
         state.newServiceStatus = "idle";
       } else {
         state.newService = action.payload;
+        state.newServiceHash = uuidv4();
         state.newServiceStatus = "editing";
       }
     },

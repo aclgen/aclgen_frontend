@@ -2,9 +2,8 @@ import {
   PortPopUpProps,
   PortRangePopUpProps,
   ServicePopUpProps,
-  ServiceTypeToName,
 } from "../../features/service/ServiceCreationPoopup";
-import { ServiceType } from "../../types/types";
+import { ServiceElement, ServiceType } from "../../types/types";
 import { If } from "../If";
 import { PopUpForm } from "./PopUpForm";
 
@@ -25,15 +24,17 @@ export function ServicePopupForm({ service }: { service: ServicePopUpProps }) {
             src={"/computer-networks.svg"}
             alt={"Service"}
           />
-          <Type name={ServiceTypeToName(service.type)} />
+          <ServiceTypeInput value={service.type} onChange={service.setType} />
           <Name
             value={service.name}
+            isFocus={isFocused(service) == INPUT_ELEMENTS.NAME}
             onChange={(name) => service.setName(name)}
           />
           <ServiceTypeInputs service={service} />
           <Comment
             value={service.comment}
             onChange={(comment) => service.setComment(comment)}
+            isFocus={false}
           />
         </div>
         <div className="flex justify-self-end items-center flex-row justify-between space-x-4">
@@ -45,6 +46,20 @@ export function ServicePopupForm({ service }: { service: ServicePopUpProps }) {
       </form>
     </PopUpForm>
   );
+}
+
+enum INPUT_ELEMENTS {
+  NAME,
+  PORT,
+  PROTOCOL,
+}
+
+function isFocused(service: ServiceElement): INPUT_ELEMENTS {
+  if (service.name == "") {
+    return INPUT_ELEMENTS.NAME;
+  }
+
+  return INPUT_ELEMENTS.PORT;
 }
 
 export function ServiceTypeInputs({ service }: { service: ServicePopUpProps }) {
@@ -61,14 +76,19 @@ export function PortRangeInputs({ service }: { service: PortRangePopUpProps }) {
       <Port
         value={service.rangeStart}
         onChange={(port) => service.setRangeStart(port)}
+        isFocus={isFocused(service) == INPUT_ELEMENTS.PORT}
+        name={"Port Start"}
       />
       <Port
         value={service.rangeEnd}
         onChange={(port) => service.setRangeEnd(port)}
+        isFocus={false}
+        name={"Port End"}
       />
       <Protocol
         value={service.protocol}
         onChange={(protocol) => service.setProtocol(protocol)}
+        isFocus={false}
       />
     </>
   );
@@ -77,8 +97,14 @@ export function PortRangeInputs({ service }: { service: PortRangePopUpProps }) {
 export function PortInputs({ service }: { service: PortPopUpProps }) {
   return (
     <>
-      <Port value={service.port} onChange={(port) => service.setPort(port)} />
+      <Port
+        isFocus={isFocused(service) == INPUT_ELEMENTS.PORT}
+        name={"Port"}
+        value={service.port}
+        onChange={(port) => service.setPort(port)}
+      />
       <Protocol
+        isFocus={false}
         value={service.protocol}
         onChange={(protocol) => service.setProtocol(protocol)}
       />
@@ -126,6 +152,35 @@ export const TrashIcon = ({ onClick }: { onClick: () => void }) => {
   );
 };
 
+export const ServiceTypeInput = ({
+  value,
+  onChange,
+}: {
+  value: ServiceType;
+  onChange: (type: ServiceType) => void;
+}) => (
+  <div>
+    <label className="block mb-2 text-sm font-light text-gray-500 dark:text-gray-300">
+      Type
+    </label>
+    <select
+      name="port"
+      id="port"
+      placeholder="Port"
+      className="bg-gray-50 border max-w-sm  border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+      required
+      value={value}
+      onChange={(event) => onChange(ServiceType[event.target.value])}
+    >
+      {Object.values(ServiceType).map((value) => (
+        <option aria-selected="true" key={value} value={value}>
+          {ServiceType[value]}
+        </option>
+      ))}
+    </select>
+  </div>
+);
+
 export const CheckIcon = ({ onClick }: { onClick?: (event: any) => void }) => {
   return (
     <button
@@ -171,7 +226,9 @@ export const Type = ({ name }: { name: string }) => (
 export const Name = ({
   value,
   onChange,
+  isFocus = false,
 }: {
+  isFocus: boolean;
   value: string;
   onChange: (value: string) => void;
 }) => (
@@ -182,7 +239,7 @@ export const Name = ({
       name="Name"
       id="name"
       value={value}
-      autoFocus={value === "" && value === undefined ? true : false}
+      autoFocus={isFocus}
       onChange={(event) => onChange(event.target.value)}
       className={defaultClass}
       placeholder="Service name..."
@@ -194,17 +251,22 @@ export const Name = ({
 export const Port = ({
   value,
   onChange,
+  name,
+  isFocus = false,
 }: {
+  isFocus: boolean;
+  name: string;
   value: number;
-  onChange: (value: number) => void;
+  onChange: (value: any) => void;
 }) => (
   <div>
-    <Label value="PORT" />
+    <Label value={name} />
     <input
-      type="number"
-      name="number"
-      id="number"
-      onChange={(event) => onChange(event.target.value as unknown as number)}
+      type="text"
+      name="port"
+      id="port"
+      autoFocus={isFocus}
+      onChange={(event) => onChange(event.target.value)}
       value={value}
       placeholder="80"
       className={defaultClass}
@@ -216,7 +278,9 @@ export const Port = ({
 export const Protocol = ({
   value,
   onChange,
+  isFocus = false,
 }: {
+  isFocus: boolean;
   value: string;
   onChange: (value: string) => void;
 }) => (
@@ -226,6 +290,7 @@ export const Protocol = ({
       type="protocol"
       name="protocol"
       id="protocol"
+      autoFocus={isFocus}
       value={value}
       onChange={(event) => onChange(event.target.value)}
       placeholder="TCP"
@@ -238,7 +303,9 @@ export const Protocol = ({
 export const Comment = ({
   value,
   onChange,
+  isFocus = false,
 }: {
+  isFocus: boolean;
   value: string;
   onChange: (value: string) => void;
 }) => (
@@ -251,6 +318,7 @@ export const Comment = ({
       id="comment"
       placeholder=""
       value={value}
+      autoFocus={isFocus}
       onChange={(event) => onChange(event.target.value)}
       className="bg-gray-50 border border-gray-300 resize-x text-gray-900 text-sm rounded-lg outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
       required

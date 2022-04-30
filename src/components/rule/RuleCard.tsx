@@ -23,6 +23,7 @@ import {
   selectNetworkObjects,
 } from "../../features/networkObject/DraftNetworkObjectSlice";
 import { selectDraggable } from "../../features/draggable/draggableSlice";
+import Image from "next/image";
 
 export interface CardProps {
   index: number;
@@ -45,7 +46,7 @@ export const ItemTypes = {
  * @param key index of the Rule
  * @returns A properly formatted Rule card
  */
-function card({ index, rule, modifyCard }: CardProps) {
+function Card({ index, rule, modifyCard }: CardProps) {
   const searchAbleElements = useAppSelector(selectService).services;
   const dragState = useAppSelector(selectDraggable).currentDraggedItem;
   const searchAbleObjects = useAppSelector(selectNetworkObjects).networkObjects;
@@ -73,6 +74,7 @@ function card({ index, rule, modifyCard }: CardProps) {
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name, comment]);
 
   function createCard(): Rule {
@@ -147,7 +149,7 @@ function card({ index, rule, modifyCard }: CardProps) {
             searchAbleElements={searchAbleElements}
             onCreateNewElement={(name: string) => {
               dispatch(initiatePopUp());
-              dispatch(initiateNewService(name));
+              dispatch(initiateNewService({ name: name }));
             }}
             onUpdateElements={(elements: ServiceElement[]) => {
               onChange(() => setService(elements));
@@ -210,32 +212,37 @@ export const Index: React.FC<{ value: number }> = ({ value }) => (
 
 export const BoxIcon = () => {
   return (
-    <div>
-      <img src="/square.svg" className=" mr-3 h-6" />
+    <div className="relative">
+      <Image
+        src="/square.svg"
+        layout="fill"
+        className=" mr-3 h-6"
+        alt="checkbox"
+      />
     </div>
   );
 };
 
 export const DragIcon = () => {
   return (
-    <div>
-      <img src="/hamburger_menu.svg" className=" mr-3 h-6" />
+    <div className="relative mr-3 h-6">
+      <Image src="/hamburger_menu.svg" layout="fill" alt="dragIcon" />
     </div>
   );
 };
 
 export const LockIcon = () => {
   return (
-    <div>
-      <img src="/locked.svg" className=" mr-3 h-6" />
+    <div className="relative mr-3 h-6">
+      <Image src="/locked.svg" layout="fill" alt="locked" />
     </div>
   );
 };
 
 export const CheckIcon = () => {
   return (
-    <div>
-      <img src="/tick.svg" className=" mr-3 h-6" />
+    <div className="relative mr-3 h-6">
+      <Image src="/tick.svg" layout="fill" alt="tickbox" />
     </div>
   );
 };
@@ -446,4 +453,4 @@ export const Label = ({ value }: { value: string }) => (
   </label>
 );
 
-export default card;
+export default Card;

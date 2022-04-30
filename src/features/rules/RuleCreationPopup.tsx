@@ -95,7 +95,7 @@ function RuleCreationPopUp() {
     },
     onCreateNewService: function (name: string): void {
       dispatch(initiatePopUp());
-      dispatch(initiateNewService(name));
+      dispatch(initiateNewService({ name: name }));
     },
     searchAbleElements: serviceState.services,
     searchAbleObjects: networkObjectState.networkObjects,
