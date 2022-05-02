@@ -94,14 +94,14 @@ export const selectRepositoryAsync = createAsyncThunk(
     });
 
     /**
-     * Testing scrolling behaviour when there are too many elements 
+    // Testing scrolling behaviour when there are too many elements
     rules = rules.flatMap((i) => [i, i]);
     rules = rules.flatMap((i) => [i, i]);
     rules = rules.flatMap((i) => [i, i]);
     rules = rules.flatMap((i) => [i, i]);
     rules = rules.flatMap((i) => [i, i]);
     rules = rules.flatMap((i) => [i, i]);
-    */
+ */
 
     const workSpace: NetworkElement[] = all[2].map((element) => {
       return { ...element, status: "source" };

@@ -3,6 +3,7 @@ import {
   PortRangePopUpProps,
   ServicePopUpProps,
 } from "../../features/service/ServiceCreationPoopup";
+import { StringInputHandler } from "../../features/service/ServiceInputHandler";
 import { ServiceElement, ServiceType } from "../../types/types";
 import { If } from "../If";
 import { PopUpForm } from "./PopUpForm";
@@ -38,7 +39,10 @@ export function ServicePopupForm({ service }: { service: ServicePopUpProps }) {
           />
         </div>
         <div className="flex justify-self-end items-center flex-row justify-between space-x-4">
-          <CheckIcon onClick={() => service.onSubmit()} />
+          <CheckIcon
+            onClick={() => service.onSubmit()}
+            disabled={isInputError(service)}
+          />
           <If condition={service.onDelete !== undefined}>
             <TrashIcon onClick={service.onDelete} />
           </If>
@@ -74,46 +78,39 @@ export function PortRangeInputs({ service }: { service: PortRangePopUpProps }) {
   return (
     <>
       <Port
-        value={service.rangeStart}
-        onChange={(port) => service.setRangeStart(port)}
         isFocus={isFocused(service) == INPUT_ELEMENTS.PORT}
         name={"Port Start"}
+        inputHandler={service.portRangeInputHandler.portFromHandler}
       />
       <Port
-        value={service.rangeEnd}
-        onChange={(port) => service.setRangeEnd(port)}
-        isFocus={false}
+        isFocus={isFocused(service) == INPUT_ELEMENTS.PORT}
         name={"Port End"}
+        inputHandler={service.portRangeInputHandler.portToHandler}
       />
-      <Protocol
-        value={service.protocol}
-        onChange={(protocol) => service.setProtocol(protocol)}
-        isFocus={false}
-      />
+      <Protocol isFocus={false} inputHandler={service.protocolInputHandler} />
     </>
   );
 }
 
 export function PortInputs({ service }: { service: PortPopUpProps }) {
+  console.log(service);
   return (
     <>
       <Port
         isFocus={isFocused(service) == INPUT_ELEMENTS.PORT}
         name={"Port"}
-        value={service.port}
-        onChange={(port) => service.setPort(port)}
+        inputHandler={service.portInputHandler}
       />
-      <Protocol
-        isFocus={false}
-        value={service.protocol}
-        onChange={(protocol) => service.setProtocol(protocol)}
-      />
+      <Protocol isFocus={false} inputHandler={service.protocolInputHandler} />
     </>
   );
 }
 
 export const defaultClass: string =
-  "bg-gray-50 border border-gray-300 w-32 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white outline-none";
+  "bg-gray-50 border-2 border-gray-300 w-32 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white outline-none";
+
+export const errorClass: string =
+  "bg-gray-50 border-2 border-red-600 w-32 text-gray-900 text-sm rounded-lg focus:ring-red-600 focus:border-red-600 block p-2.5 dark:bg-gray-600 dark:border-red-500 dark:placeholder-gray-400 dark:text-white outline-none";
 
 export const Index: React.FC<{ value: number }> = ({ value }) => (
   <p className="block pt-11 mb-2 text-sm font-light text-gray-400 dark:text-white">
@@ -181,14 +178,25 @@ export const ServiceTypeInput = ({
   </div>
 );
 
-export const CheckIcon = ({ onClick }: { onClick?: (event: any) => void }) => {
+export const CheckIcon = ({
+  onClick,
+  disabled,
+}: {
+  disabled: boolean;
+  onClick?: (event: any) => void;
+}) => {
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       onKeyPress={(e) => {
         e.key === "Enter" ? onClick(e) : {};
       }}
-      className="border-2 border-gray-100 rounded-md hover:cursor-pointer hover:border-blue-400 h-10 w-10 hover:shadow-lg"
+      className={`border-2 border-gray-100 rounded-md ${
+        disabled
+          ? " hover:cursor-not-allowed "
+          : "hover:cursor-pointer hover:border-blue-400"
+      }  h-10 w-10 hover:shadow-lg`}
     >
       <svg
         version="1.1"
@@ -203,7 +211,7 @@ export const CheckIcon = ({ onClick }: { onClick?: (event: any) => void }) => {
           d="M504.502,75.496c-9.997-9.998-26.205-9.998-36.204,0L161.594,382.203L43.702,264.311c-9.997-9.998-26.205-9.997-36.204,0
 			c-9.998,9.997-9.998,26.205,0,36.203l135.994,135.992c9.994,9.997,26.214,9.99,36.204,0L504.502,111.7
 			C514.5,101.703,514.499,85.494,504.502,75.496z"
-          className="fill-blue-700"
+          className={`${disabled ? " fill-gray-300 " : "fill-blue-700"}`}
         ></path>
       </svg>
     </button>
@@ -249,15 +257,13 @@ export const Name = ({
 );
 
 export const Port = ({
-  value,
-  onChange,
+  inputHandler,
   name,
   isFocus = false,
 }: {
+  inputHandler: StringInputHandler;
   isFocus: boolean;
   name: string;
-  value: number;
-  onChange: (value: any) => void;
 }) => (
   <div>
     <Label value={name} />
@@ -266,23 +272,32 @@ export const Port = ({
       name="port"
       id="port"
       autoFocus={isFocus}
-      onChange={(event) => onChange(event.target.value)}
-      value={value}
+      onChange={(event) => inputHandler.setInputValue(event.target.value)}
+      value={inputHandler.inputValue}
       placeholder="80"
-      className={defaultClass}
+      className={inputStyle(inputHandler.isError)}
       required
     />
+    <If condition={inputHandler.isError}>
+      <p>{inputHandler.error}</p>
+    </If>
   </div>
 );
 
+const inputStyle = (isError: boolean) => {
+  if (isError) {
+    return errorClass;
+  } else {
+    return defaultClass;
+  }
+};
+
 export const Protocol = ({
-  value,
-  onChange,
   isFocus = false,
+  inputHandler,
 }: {
+  inputHandler: StringInputHandler;
   isFocus: boolean;
-  value: string;
-  onChange: (value: string) => void;
 }) => (
   <div>
     <Label value="PROTOCOL" />
@@ -291,12 +306,15 @@ export const Protocol = ({
       name="protocol"
       id="protocol"
       autoFocus={isFocus}
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
+      value={inputHandler.inputValue}
+      onChange={(event) => inputHandler.setInputValue(event.target.value)}
       placeholder="TCP"
-      className={defaultClass}
+      className={inputStyle(inputHandler.isError)}
       required
     />
+    <If condition={inputHandler.isError}>
+      <p>{inputHandler.error}</p>
+    </If>
   </div>
 );
 
@@ -333,3 +351,28 @@ export const Label = ({ value }: { value: string }) => (
 );
 
 export default ServicePopupForm;
+function isInputError(service: ServicePopUpProps): boolean {
+  switch (service.type) {
+    case ServiceType.PORT:
+      return isPortInputError(service as PortPopUpProps);
+    case ServiceType.PORT_RANGE:
+      return isPortRangeInputError(service as PortRangePopUpProps);
+  }
+}
+function isPortInputError(service: PortPopUpProps): boolean {
+  if (service.portInputHandler.isError) {
+    return true;
+  } else if (service.protocolInputHandler.isError) {
+    return true;
+  }
+}
+
+function isPortRangeInputError(service: PortRangePopUpProps): boolean {
+  if (service.portRangeInputHandler.portFromHandler.isError) {
+    return true;
+  } else if (service.portRangeInputHandler.portToHandler.isError) {
+    return true;
+  } else if (service.protocolInputHandler.isError) {
+    return true;
+  }
+}
