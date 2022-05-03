@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import ServicePopupForm from "../../components/creationForm/ServiceCreationForm";
 import {
+  EditableElementStatus,
   PortRange,
   PortService,
   ServiceElement,
@@ -15,15 +16,16 @@ import {
   modifyService,
   selectService,
 } from "./DraftServiceSlice";
-import { v4 as uuidv4 } from "uuid";
 import { PopUpFormProps } from "../../components/creationForm/PopUpForm";
 import {
+  convertPortToPortRangeService,
   PortRangeInputHandler,
   StringInputHandler,
   usePortInputHandler,
   usePortRangeInputHandler,
   useProtocolInputHandler,
 } from "./ServiceInputHandler";
+import { createNewServiceFromInputs } from "./ServiceFactory";
 
 export function ServicePopup() {
   const state = useAppSelector(selectService);
@@ -32,7 +34,12 @@ export function ServicePopup() {
     case "idle":
       return <></>;
     default:
-      return <ServiceCreationPopup service={state.newService} />;
+      return (
+        <ServiceCreationPopup
+          key={state.newService.id}
+          service={state.newService}
+        />
+      );
   }
 }
 
@@ -68,6 +75,9 @@ function CreatePortServiceInput({ newService }: { newService: PortService }) {
           protocolInputHandler: protocolInput,
         }),
         type: ServiceType.PORT_RANGE,
+        portStart: portInput.inputValue,
+        portEnd: portInput.inputValue,
+        protocol: protocolInput.inputValue,
       })
     )
   );
@@ -79,6 +89,15 @@ function CreatePortServiceInput({ newService }: { newService: PortService }) {
 
   const protocolInput = useProtocolInputHandler(newService.protocol);
 
+  const onSubmitAction = useServiceSubmitAction(
+    () =>
+      createNewServiceFromInputs(newService, baseFields, {
+        portInputHandler: portInput,
+        protocolInputHandler: protocolInput,
+      }),
+    baseFields.status
+  );
+
   const serviceProps: ServicePopUpProps = {
     ...newService,
     ...baseFields,
@@ -87,17 +106,7 @@ function CreatePortServiceInput({ newService }: { newService: PortService }) {
     ...portInput,
     isVisible: true,
     element: newService,
-    onSubmit: () => {
-      dispatch(initiatePopUp());
-      dispatch(
-        createNewService(
-          createNewServiceFromInputs(newService, baseFields, {
-            portInputHandler: portInput,
-            protocolInputHandler: protocolInput,
-          })
-        )
-      );
-    },
+    onSubmit: onSubmitAction,
     onCancel: () => {
       dispatch(initiatePopUp());
       dispatch(cancelCreationPopUp());
@@ -105,6 +114,7 @@ function CreatePortServiceInput({ newService }: { newService: PortService }) {
   };
   return <ServicePopupForm service={serviceProps} />;
 }
+
 function CreatePortRangeServiceInput({
   newService,
 }: {
@@ -131,6 +141,15 @@ function CreatePortRangeServiceInput({
 
   const protocolInput = useProtocolInputHandler(newService.protocol);
 
+  const onSubmitAction = useServiceSubmitAction(
+    () =>
+      createNewServiceFromInputs(newService, baseFields, {
+        portRangeInputHandler: portInput,
+        protocolInputHandler: protocolInput,
+      }),
+    baseFields.status
+  );
+
   const serviceProps: PortRangePopUpProps = {
     ...newService,
     ...baseFields,
@@ -139,17 +158,7 @@ function CreatePortRangeServiceInput({
     ...portInput,
     isVisible: true,
     element: newService,
-    onSubmit: () => {
-      dispatch(initiatePopUp());
-      dispatch(
-        createNewService(
-          createNewServiceFromInputs(newService, baseFields, {
-            portRangeInputHandler: portInput,
-            protocolInputHandler: protocolInput,
-          })
-        )
-      );
-    },
+    onSubmit: onSubmitAction,
     onCancel: () => {
       dispatch(initiatePopUp());
       dispatch(cancelCreationPopUp());
@@ -157,63 +166,6 @@ function CreatePortRangeServiceInput({
   };
   return <ServicePopupForm service={serviceProps} />;
 }
-
-export const convertPortToPortRangeService = (execute: () => void) => {
-  return {
-    handleSingleInput: (input: string) => {
-      if (String(input).includes("-")) {
-        execute();
-      }
-    },
-  };
-};
-
-function createNewServiceFromInputs(
-  service: ServiceElement,
-  baseElements: EditingBase,
-  serviceElements: portEditingFields | PortRangeEditingFields
-): PortService | PortRange {
-  const newService: ServiceElement = {
-    name: baseElements.name,
-    type: service.type,
-    id: service.id,
-    comment: baseElements.comment,
-    status: service.status === "new" ? "new" : "modified",
-  };
-
-  switch (baseElements.type) {
-    case ServiceType.PORT: {
-      const elements = serviceElements as portEditingFields;
-      return {
-        ...newService,
-        port: Number.parseInt(elements.portInputHandler.inputValue),
-        protocol: elements.protocolInputHandler.inputValue,
-      };
-    }
-    case ServiceType.PORT_RANGE: {
-      const elements = serviceElements as PortRangeEditingFields;
-      return {
-        ...newService,
-        portStart: Number.parseInt(
-          elements.portRangeInputHandler.portFromHandler.inputValue
-        ),
-        portEnd: Number.parseInt(
-          elements.portRangeInputHandler.portToHandler.inputValue
-        ),
-        protocol: elements.protocolInputHandler.inputValue,
-      };
-    }
-  }
-}
-
-type EditingBase = {
-  name: string;
-  setName: (name: string) => void;
-  comment: string;
-  setComment: (comment: string) => void;
-  type: ServiceType;
-  setType: (type: ServiceType) => void;
-};
 
 export function ServiceEditingBase(
   service: ServiceElement,
@@ -223,31 +175,34 @@ export function ServiceEditingBase(
   const [comment, setComment] = useState(service.comment);
   const [type, setlocalType] = useState(service.type);
 
+  const status = service.status === "new" ? "new" : "modified";
+
   function setType(type: ServiceType) {
     updateServiceType(type);
     setlocalType(type);
   }
-  return { name, setName, comment, setComment, type, setType };
+  return { name, setName, comment, setComment, type, setType, status };
 }
 
-type PortRangeEditingFields = {
+export type EditingBase = {
+  name: string;
+  setName: (name: string) => void;
+  comment: string;
+  setComment: (comment: string) => void;
+  type: ServiceType;
+  setType: (type: ServiceType) => void;
+  status: EditableElementStatus;
+};
+
+export type PortRangeEditingFields = {
   protocolInputHandler: StringInputHandler;
   portRangeInputHandler: PortRangeInputHandler;
 };
 
-type portEditingFields = {
+export type portEditingFields = {
   protocolInputHandler: StringInputHandler;
   portInputHandler: StringInputHandler;
 };
-
-export function ServiceTypeToName(type: ServiceType): string {
-  switch (type) {
-    case ServiceType.PORT:
-      return "Port";
-    case ServiceType.PORT_RANGE:
-      return "Port Range";
-  }
-}
 
 export interface PortRangePopUpProps
   extends ServicePopupBaseProps,
@@ -264,56 +219,23 @@ export interface ServicePopupBaseProps
 
 export type ServicePopUpProps = PortPopUpProps | PortRangePopUpProps;
 
-export default ServicePopup;
-
-export function createServiceFromState(service: any): ServiceElement {
-  if (service === undefined) {
-    return createPortService({});
-  } else if (service.type !== undefined) {
-    return createServiceFromType(service, service.type);
+function useServiceSubmitAction(
+  createNewServiceFromInputs: () => ServiceElement,
+  status: EditableElementStatus
+) {
+  console.log(status);
+  const dispatch = useAppDispatch();
+  if (status === "modified") {
+    return () => {
+      dispatch(initiatePopUp());
+      dispatch(modifyService(createNewServiceFromInputs()));
+    };
   } else {
-    return createServiceFromType(service, ServiceType.PORT);
+    return () => {
+      dispatch(initiatePopUp());
+      dispatch(createNewService(createNewServiceFromInputs()));
+    };
   }
 }
 
-function createServiceFromType(service: any, type: ServiceType) {
-  switch (type) {
-    case ServiceType.PORT_RANGE:
-      return createPortRangeService(service);
-    default:
-      return createPortService(service);
-  }
-}
-
-export function createPortRangeService(service: any) {
-  const newService: PortRange = {
-    ...createServiceElement(service, ServiceType.PORT_RANGE),
-    portStart: service.portStart ? service.portStart : 0,
-    portEnd: service.portEnd ? service.portEnd : 0,
-    protocol: service.protocol ? service.protocol : "TCP",
-    type: ServiceType.PORT_RANGE,
-  };
-
-  return newService;
-}
-
-export function createServiceElement(service: any, type: ServiceType) {
-  const newService: ServiceElement = {
-    name: service.name ? service.name : "",
-    type: type,
-    id: service.id ? service.id : uuidv4(),
-    comment: service.comment ? service.comment : "",
-    status: service.state ? service.status : "new",
-  };
-  return newService;
-}
-
-export function createPortService(service: any) {
-  const newService: PortService = {
-    ...createServiceElement(service, ServiceType.PORT),
-    protocol: service.protocol ? service.protocol : "TCP",
-    type: ServiceType.PORT,
-    port: service.port ? service.port : 0,
-  };
-  return newService;
-}
+export default ServicePopup;

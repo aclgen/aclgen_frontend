@@ -352,6 +352,7 @@ export const Label = ({ value }: { value: string }) => (
 
 export default ServicePopupForm;
 function isInputError(service: ServicePopUpProps): boolean {
+  console.log(service);
   switch (service.type) {
     case ServiceType.PORT:
       return isPortInputError(service as PortPopUpProps);
@@ -359,6 +360,7 @@ function isInputError(service: ServicePopUpProps): boolean {
       return isPortRangeInputError(service as PortRangePopUpProps);
   }
 }
+
 function isPortInputError(service: PortPopUpProps): boolean {
   if (service.portInputHandler.isError) {
     return true;

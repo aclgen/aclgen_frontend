@@ -25,6 +25,7 @@ import {
   ServiceElement,
 } from "../../types/types";
 import { RepositoryIdentifier } from "../common/APITypes";
+import { createServiceFromState } from "../service/ServiceFactory";
 
 export interface RepositoryState {
   repositories: RepositoryIdentifier[];
@@ -63,9 +64,7 @@ export const selectRepositoryAsync = createAsyncThunk(
 
     const apiRules = await fetchRulesWithDeviceId(id, all[2][0].id);
 
-    const services = all[0].map((element) => {
-      return { ...element, status: "source" } as PortService;
-    });
+    const services = all[0].map((element) => createServiceFromState(element));
 
     const networkObjects = all[1].map((element) => {
       return { ...element, status: "source" } as IPV4;

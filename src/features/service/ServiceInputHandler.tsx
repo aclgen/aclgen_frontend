@@ -196,3 +196,13 @@ export type ErrorInputHandler = {
   setErrorMessage: (input: string) => void;
   clearErrorMessage: () => void;
 };
+
+export const convertPortToPortRangeService = (execute: () => void) => {
+  return {
+    handleSingleInput: (input: string) => {
+      if (String(input).includes("-")) {
+        execute();
+      }
+    },
+  };
+};

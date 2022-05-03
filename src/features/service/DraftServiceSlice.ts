@@ -4,14 +4,13 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { AppState } from "../../app/store";
 
 import { selectRepositoryAsync } from "../repository/repositorySlice";
-import { createServiceFromState } from "./ServiceCreationPoopup";
 import { v4 as uuidv4 } from "uuid";
+import { createServiceFromState } from "./ServiceFactory";
 
 export interface ServiceState {
   services: ServiceElement[];
   newService: ServiceElement | undefined;
   newServiceStatus: "idle" | "creating" | "editing";
-  newServiceHash: string;
   status: "empty" | "idle" | "loading" | "failed";
 }
 
@@ -19,7 +18,6 @@ const initialState: ServiceState = {
   services: [],
   status: "empty",
   newService: undefined,
-  newServiceHash: uuidv4(),
   newServiceStatus: "idle",
 };
 
@@ -42,7 +40,6 @@ export const ServiceSlice = createSlice({
     },
     initiateNewService: (state, action?: PayloadAction<{}>) => {
       state.newService = createServiceFromState({ ...action.payload });
-      state.newServiceHash = uuidv4();
       state.newServiceStatus = "creating";
       //action? state.newService = {name: action.payload, id:}
     },
@@ -63,8 +60,7 @@ export const ServiceSlice = createSlice({
         state.newService = undefined;
         state.newServiceStatus = "idle";
       } else {
-        state.newService = action.payload;
-        state.newServiceHash = uuidv4();
+        state.newService = createServiceFromState({ ...action.payload });
         state.newServiceStatus = "editing";
       }
     },
