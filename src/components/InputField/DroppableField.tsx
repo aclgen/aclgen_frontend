@@ -331,7 +331,7 @@ export function SearchResults({
   }, [escapePress]);
 
   return (
-    <ul className="flex flex-col w-fullspace-y-1 ">
+    <ul className="flex flex-col w-fullspace-y-1 max-h-[calc(calc(100vh/2)-100px)] overflow-y-auto">
       {searchResults.map((element, i) => {
         return (
           <li
