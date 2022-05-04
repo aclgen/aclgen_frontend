@@ -1,63 +1,22 @@
 import { useState } from "react";
+import {
+  createMessage,
+  InputValidationResult,
+  StringInputHandler,
+  useErrorInputHandler,
+  useInputTypeValidator,
+  useStringInputHandler,
+} from "../input/baseInput";
 
 export function usePortInputHandler(
   initialPort: string,
   specialInputHandler?: specialInputConditions
 ): StringInputHandler {
-  const [inputValue, setPortNumber] = useState(initialPort);
-  const errorHandler = useErrorInputHandler();
-
-  const setInputValue = useInputTypeValidator(
+  return useStringInputHandler(
+    initialPort,
     validatePortNumber,
-    setPortNumber,
-    errorHandler,
     specialInputHandler
   );
-
-  return {
-    isError: errorHandler.isError,
-    error: errorHandler.error,
-    inputValue,
-    setInputValue,
-  };
-}
-
-export function useErrorInputHandler(): ErrorInputHandler {
-  const [isError, setIsError] = useState(false);
-  const [error, setError] = useState("");
-
-  function setErrorMessage(message: string) {
-    setError(message);
-    setIsError(true);
-  }
-
-  function clearErrorMessage() {
-    setErrorMessage("");
-    setIsError(false);
-  }
-  return { isError, error, setErrorMessage, clearErrorMessage };
-}
-
-export function useInputTypeValidator(
-  validator: (input: any) => InputValidationResult,
-  onInputSuccess: (input: any) => void,
-  errorHandler: ErrorInputHandler,
-  specialInputHandler?: specialInputConditions
-) {
-  return function setInputValue(input: string): void {
-    specialInputHandler?.handleSingleInput(input);
-
-    const validatorResult = validator(input);
-    console.log(validatorResult);
-    if (validatorResult.isValid) {
-      console.log(input);
-      errorHandler.clearErrorMessage();
-    } else {
-      errorHandler.setErrorMessage(validatorResult.message);
-    }
-
-    onInputSuccess(input);
-  };
 }
 
 export function useProtocolInputHandler(
@@ -142,13 +101,6 @@ export function validatePortNumber(input: string): InputValidationResult {
   }
 }
 
-export function createMessage(
-  isValid: boolean,
-  message: string = ""
-): InputValidationResult {
-  return { isValid: isValid, message: message };
-}
-
 function validateProtocolInput(inputValue: string) {
   switch (inputValue.toUpperCase()) {
     case "TCP":
@@ -163,17 +115,12 @@ function validateProtocolInput(inputValue: string) {
       return createMessage(true);
     case "ANY":
       return createMessage(true);
+    case "ICMP":
+      return createMessage(true);
     default:
       return createMessage(false, "not a valid protocol");
   }
 }
-
-export type StringInputHandler = {
-  isError: boolean;
-  error: string;
-  inputValue: string;
-  setInputValue: (newInput: string) => void;
-};
 
 export type PortRangeInputHandler = {
   portFromHandler: StringInputHandler;
@@ -184,18 +131,6 @@ export interface specialInputConditions {
   handleSingleInput?: (input: string) => void;
   handleDualInput?: (input1: string, input2: string) => void;
 }
-
-export type InputValidationResult = {
-  isValid: boolean;
-  message: string;
-};
-
-export type ErrorInputHandler = {
-  isError: boolean;
-  error: string;
-  setErrorMessage: (input: string) => void;
-  clearErrorMessage: () => void;
-};
 
 export const convertPortToPortRangeService = (execute: () => void) => {
   return {

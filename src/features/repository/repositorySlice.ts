@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import type { AppState, AppThunk } from "../../app/store";
+import type { AppState } from "../../app/store";
 import { fetchRepositories } from "./repositoryAPI";
 import {
   ACCESS,
@@ -17,13 +17,6 @@ import { fetchServicesWithRepoId } from "../service/serviceAPI";
 import { fetchNetworkObjectsWithRepoId } from "../networkObject/networkObjectAPI";
 import { fetchDevicesWithRepoId } from "../workSpaceDraft/WorkSpaceAPI";
 import { fetchRulesWithDeviceId } from "../rules/ruleAPI";
-import {
-  IPV4,
-  PortService,
-  Rule,
-  RuleAPIResponse,
-  ServiceElement,
-} from "../../types/types";
 import { RepositoryIdentifier } from "../common/APITypes";
 import { createServiceFromState } from "../service/ServiceFactory";
 
@@ -64,11 +57,9 @@ export const selectRepositoryAsync = createAsyncThunk(
 
     const apiRules = await fetchRulesWithDeviceId(id, all[2][0].id);
 
-    const services = all[0].map((element) => createServiceFromState(element));
+    const services = all[0].data.map((element) => createServiceFromState(element));
 
-    const networkObjects = all[1].map((element) => {
-      return { ...element, status: "source" } as IPV4;
-    });
+    const networkObjects = all[1].data;
 
     //networkObjects.filter((source) => source.id === element.source),
     let rules = apiRules.map((element) => {
@@ -84,7 +75,7 @@ export const selectRepositoryAsync = createAsyncThunk(
             (serviceElement) => serviceElement.id === elemenDestinations
           )
         ),
-        services: element.services.map((elementService: string) =>
+        services: element.services_sources.map((elementService: string) =>
           services.find(
             (serviceElement) => serviceElement.id === elementService
           )

@@ -3,10 +3,22 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import NetworkObjectPopup, {
   NetworkObjectPopupProps,
 } from "../../components/creationForm/NetworkObjectCreationForm";
-import { IPV4 } from "../../types/types";
+import {
+  EditableElementStatus,
+  IPV4,
+  NetworkObjectElement,
+  NetworkObjectType,
+  PortRange,
+  PortService,
+  ServiceElement,
+  ServiceType,
+} from "../../types/types";
 import {
   cancelCreationPopUp,
+  createNewService,
+  initiateNewService,
   initiatePopUp,
+  modifyService,
 } from "../service/DraftServiceSlice";
 import {
   selectNetworkObjects,
@@ -14,20 +26,113 @@ import {
   createNewNetworkObject,
 } from "./DraftNetworkObjectSlice";
 import { v4 as uuidv4 } from "uuid";
+import {
+  convertPortToPortRangeService,
+  PortRangeInputHandler,
+  usePortInputHandler,
+  useProtocolInputHandler,
+} from "../service/ServiceInputHandler";
+import { createNewServiceFromInputs } from "../service/ServiceFactory";
+import ServicePopupForm from "../../components/creationForm/ServiceCreationForm";
+import {
+  EditingBase,
+  portEditingFields,
+  PortRangeEditingFields,
+  ServiceEditingBase,
+  ServicePopUpProps,
+} from "../service/ServiceCreationPoopup";
+import {
+  createNewNetworkObjectFromInput,
+  initiateNewNetworkObject,
+} from "./NetworkObjectFactory";
+import { PopUpFormProps } from "../../components/creationForm/PopUpForm";
+import {
+  IpRangeInputHandler,
+  useObjectEditingBase,
+  validateIp,
+} from "./NetworkInputHandler";
+import { StringInputHandler, useStringInputHandler } from "../input/baseInput";
 
 function NetworkObjectPopupController() {
   const state = useAppSelector(selectNetworkObjects);
 
   switch (state.newObjectStatus) {
-    case "creating":
-      return <ObjectCreationPopup />;
-    case "editing":
-      //Need to add key property to this component to force it to rerender when changing service. Wierd Bug...
-      return <ObjectEditPopup key={state.newObject.id} />;
-    default:
+    case "idle":
       return <></>;
+    default:
+      return (
+        <ObjectEditingPopup key={state.newObject.id} object={state.newObject} />
+      );
   }
 }
+
+function ObjectEditingPopup({ object }: { object: NetworkObjectElement }) {
+  switch (object.type) {
+    case "IPV4":
+      return <CreateIPV4Input object={object as IPV4} />;
+    case "IPV4_RANGE":
+      return <CreateIPV4RangeInput newService={object as IPV4_Range} />;
+  }
+}
+
+function CreateIPV4Input({ object }: { object: IPV4 }) {
+  const dispatch = useAppDispatch();
+
+  function updateNetworkObjectType(type: NetworkObjectType) {
+    dispatch(
+      initiateNewNetworkObject({
+        ...object,
+        ...baseFields,
+        type: type,
+      })
+    );
+  }
+
+  const baseFields = useObjectEditingBase(object, updateNetworkObjectType);
+
+  const specialInputHandler = convertPortToPortRangeService(() =>
+    dispatch(
+      initiateNewNetworkObject({
+        ...createNewNetworkObjectFromInput(object, baseFields, ipInput),
+      })
+    )
+  );
+
+  const ipInput = useStringInputHandler(
+    object.ip,
+    validateIp,
+    specialInputHandler
+  );
+
+  const onSubmitAction = useObjectSubmitAction(
+    () => createNewNetworkObjectFromInput(object, baseFields, ipInput),
+    baseFields.status
+  );
+
+  const objectProps: IPV4PopUpProps = {
+    ...object,
+    ...baseFields,
+    InputHandler: ipInput,
+    isVisible: true,
+    element: object,
+    onSubmit: onSubmitAction,
+    onCancel: () => {
+      dispatch(initiatePopUp());
+      dispatch(cancelCreationPopUp());
+    },
+  };
+  return <NetworkObjectPopup key={object.id} object={objectProps} />;
+}
+
+export type ObjectEditingBase = {
+  name: string;
+  setName: (name: string) => void;
+  comment: string;
+  setComment: (comment: string) => void;
+  type: NetworkObjectType;
+  setType: (type: NetworkObjectType) => void;
+  status: EditableElementStatus;
+};
 
 function ObjectEditPopup() {
   const dispatch = useAppDispatch();
@@ -116,9 +221,48 @@ function ObjectCreationPopup() {
     },
   };
 
-  return (
-    <NetworkObjectPopup object={newNetworkObjectProps} />
-  );
+  return <NetworkObjectPopup object={newNetworkObjectProps} />;
 }
+
+function useObjectSubmitAction(
+  createNewObjectFromInput: () => NetworkObjectElement,
+  status: EditableElementStatus
+) {
+  const dispatch = useAppDispatch();
+  if (status === "modified") {
+    return () => {
+      dispatch(initiatePopUp());
+      dispatch(modifyNetworkObject(createNewObjectFromInput()));
+    };
+  } else {
+    return () => {
+      dispatch(initiatePopUp());
+      dispatch(createNewNetworkObject(createNewObjectFromInput()));
+    };
+  }
+}
+
+export type IPV4RangeEditingFields = {
+  RangeInputHandler: IpRangeInputHandler;
+};
+
+export type IPV4EditingFields = {
+  InputHandler: StringInputHandler;
+};
+
+export interface IPV4RangePopUpProps
+  extends ObjectPopUpBaseProps,
+    IPV4RangeEditingFields {}
+
+export interface IPV4PopUpProps
+  extends ObjectPopUpBaseProps,
+    IPV4EditingFields {}
+
+export interface ObjectPopUpBaseProps
+  extends PopUpFormProps,
+    ObjectEditingBase,
+    NetworkObjectElement {}
+
+export type NetworkObjectPopUpProps = IPV4RangePopUpProps | IPV4PopUpProps;
 
 export default NetworkObjectPopupController;

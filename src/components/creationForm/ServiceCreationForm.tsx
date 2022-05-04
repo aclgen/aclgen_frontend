@@ -3,10 +3,10 @@ import {
   PortRangePopUpProps,
   ServicePopUpProps,
 } from "../../features/service/ServiceCreationPoopup";
-import { StringInputHandler } from "../../features/service/ServiceInputHandler";
 import { ServiceElement, ServiceType } from "../../types/types";
 import { If } from "../If";
 import { PopUpForm } from "./PopUpForm";
+import { StringInputHandler } from "../../features/input/baseInput";
 
 export function ServicePopupForm({ service }: { service: ServicePopUpProps }) {
   return (
@@ -83,7 +83,7 @@ export function PortRangeInputs({ service }: { service: PortRangePopUpProps }) {
         inputHandler={service.portRangeInputHandler.portFromHandler}
       />
       <Port
-        isFocus={isFocused(service) == INPUT_ELEMENTS.PORT}
+        isFocus={false}
         name={"Port End"}
         inputHandler={service.portRangeInputHandler.portToHandler}
       />
@@ -284,7 +284,7 @@ export const Port = ({
   </div>
 );
 
-const inputStyle = (isError: boolean) => {
+export const inputStyle = (isError: boolean) => {
   if (isError) {
     return errorClass;
   } else {
@@ -352,7 +352,6 @@ export const Label = ({ value }: { value: string }) => (
 
 export default ServicePopupForm;
 function isInputError(service: ServicePopUpProps): boolean {
-  console.log(service);
   switch (service.type) {
     case ServiceType.PORT:
       return isPortInputError(service as PortPopUpProps);

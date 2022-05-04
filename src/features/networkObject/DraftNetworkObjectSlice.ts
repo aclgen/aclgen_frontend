@@ -7,6 +7,7 @@ import {
   initiatePopUp,
 } from "../service/DraftServiceSlice";
 import { selectRepositoryAsync } from "../repository/repositorySlice";
+import { initiateNewNetworkObject } from "./NetworkObjectFactory";
 
 export interface DraftNetworkObjectState {
   networkObjects: NetworkObjectElement[];
@@ -38,9 +39,9 @@ export const DraftNetworkObjectSlice = createSlice({
       state,
       action: PayloadAction<NetworkObjectElement>
     ) => {
-      state.newObject = undefined;
       state.networkObjects = [...state.networkObjects, action.payload];
       state.newObjectStatus = "idle";
+      state.newObject = undefined;
     },
     modifyNetworkObject: (
       state,
@@ -69,8 +70,8 @@ export const DraftNetworkObjectSlice = createSlice({
         state.newObjectStatus = "editing";
       }
     },
-    initiateNewObject: (state, action: PayloadAction<string>) => {
-      state.newObject = undefined;
+    initiateNewObject: (state, action: PayloadAction<{}>) => {
+      state.newObject = initiateNewNetworkObject({ ...action.payload });
       state.newObjectStatus = "creating";
     },
     saveNetworkObjectsToDraft: (

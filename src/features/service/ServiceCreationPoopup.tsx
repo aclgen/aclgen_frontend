@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import ServicePopupForm from "../../components/creationForm/ServiceCreationForm";
 import {
@@ -20,12 +20,12 @@ import { PopUpFormProps } from "../../components/creationForm/PopUpForm";
 import {
   convertPortToPortRangeService,
   PortRangeInputHandler,
-  StringInputHandler,
   usePortInputHandler,
   usePortRangeInputHandler,
   useProtocolInputHandler,
 } from "./ServiceInputHandler";
 import { createNewServiceFromInputs } from "./ServiceFactory";
+import { StringInputHandler } from "../input/baseInput";
 
 export function ServicePopup() {
   const state = useAppSelector(selectService);
@@ -223,7 +223,6 @@ function useServiceSubmitAction(
   createNewServiceFromInputs: () => ServiceElement,
   status: EditableElementStatus
 ) {
-  console.log(status);
   const dispatch = useAppDispatch();
   if (status === "modified") {
     return () => {

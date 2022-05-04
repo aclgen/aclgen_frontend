@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import type { AppDispatch, AppState, AppThunk } from "../../app/store";
+import type { AppDispatch, AppState } from "../../app/store";
 import { FireWall, NetworkElement, Repository } from "../../types/repository";
 import EmptyRepository from "./EmptyRepository";
 import { selectRepositoryAsync } from "./repositorySlice";
@@ -15,7 +15,8 @@ import { saveServicesToDraft } from "../service/DraftServiceSlice";
 import { saveWorkSpaceToDraft } from "../workSpaceDraft/DraftWorkSpaceSlice";
 import { saveNetworkObjectsToDraft } from "../networkObject/DraftNetworkObjectSlice";
 import { saveRulesToDraft } from "../rules/ruleSlice";
-import { PushNetworkObjects, PushServices } from "./repositoryAPI";
+import {saveServices} from "../service/serviceAPI";
+import {SaveNetworkObjects} from "../networkObject/networkObjectAPI";
 
 export interface DraftRepositoryState {
   repository: Repository;
@@ -37,7 +38,7 @@ export const commitServicesAsync = createAsyncThunk<
     thunkAPI.dispatch(
       saveServicesToDraft(thunkAPI.getState().service.services)
     );
-    const response = await PushServices({ services: services }, thunkAPI.getState().draftRepository.repository.id);
+    const response = await saveServices(services, thunkAPI.getState().draftRepository.repository.id);
     // The value we return becomes the `fulfilled` action payload
 
     return response.data;
@@ -54,7 +55,7 @@ export const commitObjectsAsync = createAsyncThunk<
     thunkAPI.dispatch(
       saveNetworkObjectsToDraft(thunkAPI.getState().networkObject.networkObjects)
     );
-    const response = await PushNetworkObjects({ objects: objects }, thunkAPI.getState().draftRepository.repository.id);
+    const response = await SaveNetworkObjects({ objects: objects }, thunkAPI.getState().draftRepository.repository.id);
     // The value we return becomes the `fulfilled` action payload
 
     return response.data;
@@ -139,15 +140,14 @@ export const DraftRepositorySlice = createSlice({
     });
     builder.addCase(commitObjectsAsync.fulfilled, (state, action) => {
       state.status = "idle";
-      const services = action.payload;
+      const objects = action.payload;
       state.repository = {
         ...state.repository,
-        networkObjects: state.repository.services.filter((element) => {
-          const object = services.find((service) => service.id === element.id);
+        networkObjects: state.repository.networkObjects.filter((element) => {
+          const object = objects.find((service) => service.id === element.id);
           return object == undefined;
         }),
       };
-    
     });
   },
 });
