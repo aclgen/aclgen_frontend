@@ -51,14 +51,18 @@ export function RulePopUpForm({ rule }: { rule: RuleCreationPopupProps }) {
             alt={"Service"}
           />
           <Type name="Rule" />
-          <Name value={rule.name} onChange={(name) => rule.setName(name)} />
+          <Name
+            value={rule.name}
+            onChange={(name) => rule.setName(name)}
+            isFocus={true}
+          />
           <DroppableInputField
             droppableType={"object"}
             inputID={rule.element.id + "sourceinput"}
             fieldType={"SOURCE"}
             elements={rule.source}
             searchAbleElements={rule.searchAbleObjects}
-            onCreateNewService={rule.onCreateNewObject}
+            onCreateNewElement={rule.onCreateNewObject}
             onUpdateElements={rule.setSource}
             disabled={dragState !== undefined && dragState.type !== "object"}
           />
@@ -68,7 +72,7 @@ export function RulePopUpForm({ rule }: { rule: RuleCreationPopupProps }) {
             fieldType={"SERVICE"}
             elements={rule.sourceService}
             searchAbleElements={rule.searchAbleElements}
-            onCreateNewService={rule.onCreateNewService}
+            onCreateNewElement={rule.onCreateNewService}
             onUpdateElements={rule.setSourceService}
             disabled={dragState !== undefined && dragState.type !== "service"}
           />
@@ -78,7 +82,7 @@ export function RulePopUpForm({ rule }: { rule: RuleCreationPopupProps }) {
             fieldType={"DESTINATION"}
             elements={rule.destination}
             searchAbleElements={rule.searchAbleObjects}
-            onCreateNewService={rule.onCreateNewObject}
+            onCreateNewElement={rule.onCreateNewObject}
             onUpdateElements={rule.setDestination}
             disabled={dragState !== undefined && dragState.type !== "object"}
           />
@@ -89,7 +93,7 @@ export function RulePopUpForm({ rule }: { rule: RuleCreationPopupProps }) {
             fieldType={"SERVICE"}
             elements={rule.destinationService}
             searchAbleElements={rule.searchAbleElements}
-            onCreateNewService={rule.onCreateNewService}
+            onCreateNewElement={rule.onCreateNewService}
             onUpdateElements={rule.setDestinationService}
             disabled={dragState !== undefined && dragState.type !== "service"}
           />
@@ -99,7 +103,15 @@ export function RulePopUpForm({ rule }: { rule: RuleCreationPopupProps }) {
           />
         </div>
         <div className="flex justify-self-end items-center flex-row justify-between space-x-4">
-          <CheckIcon onClick={rule.onSubmit} />
+          <CheckIcon
+            onClick={rule.onSubmit}
+            disabled={
+              rule.destinationService.length === 0 &&
+              rule.sourceService.length === 0 &&
+              rule.source.length === 0 &&
+              rule.destination.length === 0
+            }
+          />
           {rule.onDelete ? <TrashIcon onClick={rule.onDelete} /> : <></>}
         </div>
       </form>
