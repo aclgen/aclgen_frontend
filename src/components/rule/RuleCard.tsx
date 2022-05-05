@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react";
 import {
   DIRECTION,
-  IPV4,
   NetworkObjectElement,
   POLICY,
   Rule,
-  PortService,
   ServiceElement,
-  EditableElement,
 } from "../../types/types";
 import { statusStyle } from "../SelectableElement/SideBarElement";
 import { useDroppable } from "@dnd-kit/core";
@@ -47,42 +44,47 @@ export const ItemTypes = {
  * @returns A properly formatted Rule card
  */
 function Card({ index, rule, modifyCard }: CardProps) {
-  const searchAbleElements = useAppSelector(selectService).services;
-  const dragState = useAppSelector(selectDraggable).currentDraggedItem;
-  const searchAbleObjects = useAppSelector(selectNetworkObjects).networkObjects;
-  const dispatch = useAppDispatch();
+    const searchAbleElements = useAppSelector(selectService).services;
+    const dragState = useAppSelector(selectDraggable).currentDraggedItem;
+    const searchAbleObjects =
+      useAppSelector(selectNetworkObjects).networkObjects;
+    const dispatch = useAppDispatch();
 
-  const [name, setName] = useState(rule.name);
-  const [comment, setComment] = useState(rule.comment);
-  const [source, setSource] = useState(rule.sources);
-  const [destination, setDestination] = useState(rule.destinations);
-  const [direction, setDirection] = useState(rule.direction);
-  const [service, setService] = useState(rule.services);
-  const [policy, setPolicy] = useState(rule.policy);
-  const [status, setStatus] = useState(rule.status);
+    const [name, setName] = useState(rule.name);
+    const [comment, setComment] = useState(rule.comment);
+    const [source, setSource] = useState(rule.sources);
+    const [destination, setDestination] = useState(rule.destinations);
+    const [direction, setDirection] = useState(rule.direction);
+    const [sourceServices, setSourceServices] = useState(rule.sourceServices);
+    const [destinationServices, setDestinationServices] = useState(
+      rule.destinationServices
+    );
+    const [policy, setPolicy] = useState(rule.policy);
+    const [status, setStatus] = useState(rule.status);
 
-  function onChange(setState: () => void) {
-    setState();
-    modifyCard(createCard());
-  }
+    function onChange(setState: () => void) {
+      setState();
+      modifyCard(createCard());
+    }
 
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (name !== rule.name || comment !== rule.comment) {
-        modifyCard(createCard());
-      }
-    }, 300);
+    useEffect(() => {
+      const delayDebounceFn = setTimeout(() => {
+        if (name !== rule.name || comment !== rule.comment) {
+          modifyCard(createCard());
+        }
+      }, 300);
 
-    return () => clearTimeout(delayDebounceFn);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, comment]);
+      return () => clearTimeout(delayDebounceFn);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [name, comment]);
 
   function createCard(): Rule {
     return {
       sources: source,
       destinations: destination,
       device: rule.device,
-      services: service,
+      sourceServices: sourceServices,
+      destinationServices: destinationServices,
       direction: direction,
       policy: policy,
       name: name,
@@ -127,6 +129,21 @@ function Card({ index, rule, modifyCard }: CardProps) {
             disabled={dragState !== undefined && dragState.type !== "object"}
           />
           <DroppableInputField
+            droppableType={"service"}
+            inputID={rule.id + "sourceserviceinput"}
+            fieldType={"SERVICE"}
+            elements={sourceServices}
+            searchAbleElements={searchAbleElements}
+            onCreateNewElement={(name: string) => {
+              dispatch(initiatePopUp());
+              dispatch(initiateNewService({ name: name }));
+            }}
+            onUpdateElements={(elements: ServiceElement[]) => {
+              onChange(() => setSourceServices(elements));
+            }}
+            disabled={dragState !== undefined && dragState.type !== "service"}
+          />
+          <DroppableInputField
             droppableType={"object"}
             inputID={rule.id + "destinationinput"}
             fieldType={"DESTINATION"}
@@ -143,16 +160,16 @@ function Card({ index, rule, modifyCard }: CardProps) {
           />
           <DroppableInputField
             droppableType={"service"}
-            inputID={rule.id + "serviceinput"}
+            inputID={rule.id + "destinationserviceinput"}
             fieldType={"SERVICE"}
-            elements={service}
+            elements={destinationServices}
             searchAbleElements={searchAbleElements}
             onCreateNewElement={(name: string) => {
               dispatch(initiatePopUp());
               dispatch(initiateNewService({ name: name }));
             }}
             onUpdateElements={(elements: ServiceElement[]) => {
-              onChange(() => setService(elements));
+              onChange(() => setDestinationServices(elements));
             }}
             disabled={dragState !== undefined && dragState.type !== "service"}
           />

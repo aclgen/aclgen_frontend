@@ -57,7 +57,9 @@ export const selectRepositoryAsync = createAsyncThunk(
 
     const apiRules = await fetchRulesWithDeviceId(id, all[2][0].id);
 
-    const services = all[0].data.map((element) => createServiceFromState(element));
+    const services = all[0].data.map((element) =>
+      createServiceFromState(element)
+    );
 
     const networkObjects = all[1].data;
 
@@ -75,10 +77,16 @@ export const selectRepositoryAsync = createAsyncThunk(
             (serviceElement) => serviceElement.id === elemenDestinations
           )
         ),
-        services: element.services_sources.map((elementService: string) =>
+        sourceServices: element.services_sources.map((elementService: string) =>
           services.find(
             (serviceElement) => serviceElement.id === elementService
           )
+        ),
+        destinationServices: element.services_destinations.map(
+          (elementService: string) =>
+            services.find(
+              (serviceElement) => serviceElement.id === elementService
+            )
         ),
       };
     });
