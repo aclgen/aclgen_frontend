@@ -120,7 +120,7 @@ export function RenderObjectsAndServices() {
           onClick={() => {
             setDropdown(false);
             dispatch(initiatePopUp());
-            dispatch(initiateNewObject());
+            dispatch(initiateNewObject({}));
           }}
           className="hover:bg-blue-600 hover:cursor-pointer group py-2 px-0 select-none border-b flex-row"
         >
