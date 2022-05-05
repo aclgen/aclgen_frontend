@@ -3,10 +3,25 @@ import Head from "next/head";
 import Navbar from "../components/navbar";
 import Image from "next/image";
 
-import Counter from "../features/counter/Counter";
 import styles from "../styles/Home.module.css";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
+import {
+  selectRepository,
+  selectRepositoryAsync,
+  updateRepositoriesAsync,
+} from "../features/repository/repositorySlice";
+import { useEffect } from "react";
+import Link from "next/link";
 
 const IndexPage: NextPage = () => {
+  const dispatch = useAppDispatch();
+  const state = useAppSelector(selectRepository);
+
+  useEffect(() => {
+    if (state.repositories.length == 0 && state.status == "empty") {
+      dispatch(updateRepositoriesAsync());
+    }
+  }, [state.status, state.selectedRepository]);
   return (
     <div className={styles.container}>
       <Head>
@@ -15,49 +30,33 @@ const IndexPage: NextPage = () => {
       </Head>
       <Navbar />
       <header className={styles.header}>
-        <Image src="/logo.svg" className={styles.logo} alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className={styles.link}
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className={styles.link}
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className={styles.link}
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className={styles.link}
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
+        <div className={"h-64 w-32"}>
+          <Image
+            src="/sikt_small.svg"
+            className={styles.logo}
+            alt="logo"
+            width={100}
+            height={100}
+            layout={"intrinsic"}
+          />
+        </div>
+        <div className={"flex flex-col space-y-6 w-96 items-center"}>
+          <h2 className="text-gray-800 pb-8">Repositories</h2>
+
+          {state.repositories.map((element, i) => {
+            return (
+              <Link key={i} href={"/rules"} passHref>
+                <div
+                  className={
+                    "rounded-md shadow-md w-full hover:cursor-pointer hover:bg-blue-500 hover:text-white border-2  border-blue-500 text-gray-800 p-4"
+                  }
+                >
+                  {element.name}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
       </header>
     </div>
   );

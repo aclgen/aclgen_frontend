@@ -7,6 +7,7 @@ import { ServiceElement, ServiceType } from "../../types/types";
 import { If } from "../If";
 import { PopUpForm } from "./PopUpForm";
 import { StringInputHandler } from "../../features/input/baseInput";
+import { LockStatus } from "../../types/repository";
 
 export function ServicePopupForm({ service }: { service: ServicePopUpProps }) {
   return (
@@ -351,6 +352,13 @@ export const Label = ({ value }: { value: string }) => (
 
 export default ServicePopupForm;
 function isInputError(service: ServicePopUpProps): boolean {
+  if (
+    service.lock === LockStatus.LOCKED ||
+    service.lock === LockStatus.IMMUTABLE
+  ) {
+    return true;
+  }
+
   switch (service.type) {
     case ServiceType.PORT:
       return isPortInputError(service as PortPopUpProps);
