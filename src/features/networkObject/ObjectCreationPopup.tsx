@@ -180,7 +180,7 @@ function CreateIPV4RangeInput({
       dispatch(cancelCreationPopUp());
     },
   };
-  console.log(objectProps);
+
   return <NetworkObjectPopup key={object.id} object={objectProps} />;
 }
 
