@@ -23,6 +23,7 @@ import {
   initiatePopUp,
   selectService,
 } from "../service/DraftServiceSlice";
+import { LockStatus } from "../../types/repository";
 
 function RuleCreationPopUp() {
   const dispatch = useAppDispatch();
@@ -52,6 +53,7 @@ function RuleCreationPopUp() {
     device: "",
     status: "new",
     id: id,
+    lock: LockStatus.UNLOCKED,
   };
 
   const ruleProps: RuleCreationPopupProps = {

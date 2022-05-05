@@ -21,6 +21,7 @@ import {
 } from "../../features/networkObject/DraftNetworkObjectSlice";
 import { selectDraggable } from "../../features/draggable/draggableSlice";
 import Image from "next/image";
+import { LockStatus } from "../../types/repository";
 
 export interface CardProps {
   index: number;
@@ -44,42 +45,42 @@ export const ItemTypes = {
  * @returns A properly formatted Rule card
  */
 function Card({ index, rule, modifyCard }: CardProps) {
-    const searchAbleElements = useAppSelector(selectService).services;
-    const dragState = useAppSelector(selectDraggable).currentDraggedItem;
-    const searchAbleObjects =
-      useAppSelector(selectNetworkObjects).networkObjects;
-    const dispatch = useAppDispatch();
+  const searchAbleElements = useAppSelector(selectService).services;
+  const dragState = useAppSelector(selectDraggable).currentDraggedItem;
+  const searchAbleObjects = useAppSelector(selectNetworkObjects).networkObjects;
+  const dispatch = useAppDispatch();
 
-    const [name, setName] = useState(rule.name);
-    const [comment, setComment] = useState(rule.comment);
-    const [source, setSource] = useState(rule.sources);
-    const [destination, setDestination] = useState(rule.destinations);
-    const [direction, setDirection] = useState(rule.direction);
-    const [sourceServices, setSourceServices] = useState(rule.sourceServices);
-    const [destinationServices, setDestinationServices] = useState(
-      rule.destinationServices
-    );
-    const [policy, setPolicy] = useState(rule.policy);
-    const [status, setStatus] = useState(rule.status);
+  const [name, setName] = useState(rule.name);
+  const [comment, setComment] = useState(rule.comment);
+  const [source, setSource] = useState(rule.sources);
+  const [destination, setDestination] = useState(rule.destinations);
+  const [direction, setDirection] = useState(rule.direction);
+  const [sourceServices, setSourceServices] = useState(rule.sourceServices);
+  const [destinationServices, setDestinationServices] = useState(
+    rule.destinationServices
+  );
+  const [policy, setPolicy] = useState(rule.policy);
+  const [status, setStatus] = useState(rule.status);
 
-    function onChange(setState: () => void) {
-      setState();
-      modifyCard(createCard());
-    }
+  function onChange(setState: () => void) {
+    setState();
+    modifyCard(createCard());
+  }
 
-    useEffect(() => {
-      const delayDebounceFn = setTimeout(() => {
-        if (name !== rule.name || comment !== rule.comment) {
-          modifyCard(createCard());
-        }
-      }, 300);
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (name !== rule.name || comment !== rule.comment) {
+        modifyCard(createCard());
+      }
+    }, 300);
 
-      return () => clearTimeout(delayDebounceFn);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [name, comment]);
+    return () => clearTimeout(delayDebounceFn);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, comment]);
 
   function createCard(): Rule {
     return {
+      ...rule,
       sources: source,
       destinations: destination,
       device: rule.device,
@@ -91,6 +92,7 @@ function Card({ index, rule, modifyCard }: CardProps) {
       comment: comment,
       status: status === "new" ? "new" : "modified",
       id: rule.id,
+      lock: rule.lock,
     };
   }
 

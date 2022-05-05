@@ -9,7 +9,10 @@ import ruleSlice, {
 import { useEffect, useState } from "react";
 import { Rule, RuleElement } from "../../types/types";
 import SideBar from "../../features/sidebar/SideBar";
-import { selectDraftRepository } from "../../features/repository/DraftRepositorySlice";
+import {
+  saveRulesAsync,
+  selectDraftRepository,
+} from "../../features/repository/DraftRepositorySlice";
 import { FireWall } from "../../types/repository";
 import CountableCheckButton from "../../components/CountableCheckButton";
 import { initiatePopUp } from "../../features/service/DraftServiceSlice";
@@ -38,7 +41,7 @@ function ListView() {
             >
               <PlusButtonSVG />
             </button>
-            <ModifiedCounter />
+            <SaveRulesCountButton />
           </div>
           <RuleList />
         </div>
@@ -86,8 +89,9 @@ function RuleList() {
   );
 }
 
-function ModifiedCounter() {
+export function SaveRulesCountButton() {
   const state = useAppSelector(selectRule);
+  const dispatch = useAppDispatch();
 
   const [modified, setModified] = useState(0);
   useEffect(() => {
@@ -98,7 +102,30 @@ function ModifiedCounter() {
     );
   }, [state.rules]);
 
-  return <CountableCheckButton number={modified} onClick={() => {}} />;
+  function onClick() {
+    const services = state.rules.filter(
+      (element) => element.status !== "source"
+    );
+    dispatch(saveRulesAsync(services));
+  }
+
+  return (
+    <>
+      {modified > 0 ? (
+        <div className={"ml-auto"}>
+          <CountableCheckButton
+            number={modified}
+            onClick={(event) => {
+              event.stopPropagation();
+              onClick();
+            }}
+          />
+        </div>
+      ) : (
+        ""
+      )}
+    </>
+  );
 }
 
 export function PlusButtonSVG({ onClick }: { onClick?: () => void }) {

@@ -67,6 +67,7 @@ export const selectRepositoryAsync = createAsyncThunk(
     let rules = apiRules.map((element) => {
       return {
         ...element,
+        device: all[2][0].id,
         sources: element.sources.map((elementSource) =>
           networkObjects.find(
             (serviceElement) => serviceElement.id === elementSource

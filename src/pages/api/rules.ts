@@ -37,6 +37,7 @@ export function ruleList(): Rule[] {
         comment: "test",
         status: "source",
         device: "",
+        lock: LockStatus.UNLOCKED,
       };
       return rule;
     }

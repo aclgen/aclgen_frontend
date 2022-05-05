@@ -310,8 +310,8 @@ export function RenderService(
 
 export function RenderNetworkObjects(
   element: NetworkObjectElement,
-  onClick: () => void, 
-   onCommit: () => void
+  onClick: () => void,
+  onCommit: () => void
 ) {
   const elementProps: SideBarElementProps = {
     ...element,
@@ -333,7 +333,7 @@ export function RenderNetworkElement(
   onClick: () => void
 ) {
   switch (element.type) {
-    case "firewall": {
+    case "FIREWALL": {
       return (
         <RenderFirewall fireWall={element as FireWall} onClick={onClick} />
       );
