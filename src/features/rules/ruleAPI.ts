@@ -1,4 +1,4 @@
-import { Rule, RuleAPIResponse, RuleElement } from "../../types/types";
+import { RuleElement } from "../../types/types";
 import { createAPIRoute, host } from "../common/APIRoutes";
 import { RuleElementAPI } from "../../types/ApiTypes";
 

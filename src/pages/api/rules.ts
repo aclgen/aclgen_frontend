@@ -1,15 +1,17 @@
 import type { NextApiHandler } from "next";
 import {
   DIRECTION,
+  IPV4,
+  NetworkObjectElement,
+  NetworkObjectType,
   POLICY,
+  PortService,
   Rule,
   ServiceElement,
-  PortService,
-  NetworkObjectElement,
-  IPV4,
   ServiceType,
 } from "../../types/types";
 import { v4 as uuidv4 } from "uuid";
+import { LockStatus } from "../../types/repository";
 
 const ruleHandler: NextApiHandler = async (request, response) => {
   // simulate IO latency
@@ -28,7 +30,8 @@ export function ruleList(): Rule[] {
         name: `name: ${i}`,
         sources: [],
         destinations: [],
-        services: [],
+        sourceServices: [],
+        destinationServices: [],
         direction: DIRECTION.INBOUND,
         policy: POLICY.ACCEPT,
         comment: "test",
@@ -50,6 +53,7 @@ export function createDummyService(): ServiceElement {
     status: "source",
     comment: "",
     type: ServiceType.PORT,
+    lock: LockStatus.UNLOCKED,
   };
 
   return service;
@@ -62,6 +66,8 @@ export function createDummyNetwork(): NetworkObjectElement {
     comment: "",
     ip: "192.168.1.110",
     status: "source",
+    type: NetworkObjectType.IPV4,
+    lock: LockStatus.UNLOCKED,
   };
 
   return ip;
