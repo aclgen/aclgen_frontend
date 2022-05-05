@@ -93,7 +93,6 @@ export function PortRangeInputs({ service }: { service: PortRangePopUpProps }) {
 }
 
 export function PortInputs({ service }: { service: PortPopUpProps }) {
-  console.log(service);
   return (
     <>
       <Port
