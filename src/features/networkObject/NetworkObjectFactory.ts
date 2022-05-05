@@ -8,23 +8,26 @@ import { ObjectEditingBase } from "./ObjectCreationPopup";
 import { StringInputHandler } from "../input/baseInput";
 import { v4 as uuidv4 } from "uuid";
 import { LockStatus } from "../../types/repository";
+import { IpRangeInputHandler } from "./NetworkInputHandler";
 
 export function createNewNetworkObjectFromInput(
   object: NetworkObjectElement,
   base: ObjectEditingBase,
-  input: StringInputHandler
+  input: StringInputHandler | IpRangeInputHandler
 ): NetworkObjectElement {
   switch (base.type) {
     case NetworkObjectType.IPV4: {
-      const newObject: IPV4 = { ...object, ...base, ip: input.inputValue };
+      const handler = input as StringInputHandler;
+      const newObject: IPV4 = { ...object, ...base, ip: handler.inputValue };
       return newObject;
     }
     case NetworkObjectType.IPV4_RANGE: {
+      const handler = input as IpRangeInputHandler;
       const newObject: IPV4RANGE = {
         ...object,
         ...base,
-        start: input.inputValue,
-        end: input.inputValue,
+        start: handler.ipFromInputHandler.inputValue,
+        end: handler.ipToInputHandler.inputValue,
       };
       return newObject;
     }

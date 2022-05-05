@@ -1,46 +1,23 @@
-import React, { useState } from "react";
+import React from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import NetworkObjectPopup, {
-  NetworkObjectPopupProps,
-} from "../../components/creationForm/NetworkObjectCreationForm";
+import NetworkObjectPopup from "../../components/creationForm/NetworkObjectCreationForm";
 import {
   EditableElementStatus,
   IPV4,
+  IPV4RANGE,
   NetworkObjectElement,
   NetworkObjectType,
-  PortRange,
-  PortService,
-  ServiceElement,
-  ServiceType,
 } from "../../types/types";
 import {
   cancelCreationPopUp,
-  createNewService,
-  initiateNewService,
   initiatePopUp,
-  modifyService,
 } from "../service/DraftServiceSlice";
 import {
-  selectNetworkObjects,
-  modifyNetworkObject,
   createNewNetworkObject,
+  initiateNewObject,
+  modifyNetworkObject,
+  selectNetworkObjects,
 } from "./DraftNetworkObjectSlice";
-import { v4 as uuidv4 } from "uuid";
-import {
-  convertPortToPortRangeService,
-  PortRangeInputHandler,
-  usePortInputHandler,
-  useProtocolInputHandler,
-} from "../service/ServiceInputHandler";
-import { createNewServiceFromInputs } from "../service/ServiceFactory";
-import ServicePopupForm from "../../components/creationForm/ServiceCreationForm";
-import {
-  EditingBase,
-  portEditingFields,
-  PortRangeEditingFields,
-  ServiceEditingBase,
-  ServicePopUpProps,
-} from "../service/ServiceCreationPoopup";
 import {
   createNewNetworkObjectFromInput,
   initiateNewNetworkObject,
@@ -48,6 +25,7 @@ import {
 import { PopUpFormProps } from "../../components/creationForm/PopUpForm";
 import {
   IpRangeInputHandler,
+  useIpRangeInputHandler,
   useObjectEditingBase,
   validateIp,
 } from "./NetworkInputHandler";
@@ -61,52 +39,69 @@ function NetworkObjectPopupController() {
       return <></>;
     default:
       return (
-        <ObjectEditingPopup key={state.newObject.id} object={state.newObject} />
+        <ObjectEditingPopup
+          key={state.newObject.id}
+          object={state.newObject}
+          editingStatus={state.newObjectStatus}
+        />
       );
   }
 }
 
-function ObjectEditingPopup({ object }: { object: NetworkObjectElement }) {
+function ObjectEditingPopup({
+  object,
+  editingStatus,
+}: {
+  object: NetworkObjectElement;
+  editingStatus: "idle" | "creating" | "editing";
+}) {
   switch (object.type) {
     case "IPV4":
-      return <CreateIPV4Input object={object as IPV4} />;
+      return (
+        <CreateIPV4Input
+          object={object as IPV4}
+          editingStatus={editingStatus}
+        />
+      );
     case "IPV4_RANGE":
-      return <CreateIPV4RangeInput newService={object as IPV4_Range} />;
+      return (
+        <CreateIPV4RangeInput
+          object={object as IPV4RANGE}
+          editingStatus={editingStatus}
+        />
+      );
   }
 }
 
-function CreateIPV4Input({ object }: { object: IPV4 }) {
+function CreateIPV4Input({
+  object,
+  editingStatus,
+}: {
+  object: IPV4;
+  editingStatus: "idle" | "creating" | "editing";
+}) {
   const dispatch = useAppDispatch();
 
   function updateNetworkObjectType(type: NetworkObjectType) {
     dispatch(
-      initiateNewNetworkObject({
-        ...object,
-        ...baseFields,
-        type: type,
-      })
+      initiateNewObject(
+        initiateNewNetworkObject({
+          ...object,
+          ...baseFields,
+          type: type,
+        })
+      )
     );
   }
 
   const baseFields = useObjectEditingBase(object, updateNetworkObjectType);
 
-  const specialInputHandler = convertPortToPortRangeService(() =>
-    dispatch(
-      initiateNewNetworkObject({
-        ...createNewNetworkObjectFromInput(object, baseFields, ipInput),
-      })
-    )
-  );
-
-  const ipInput = useStringInputHandler(
-    object.ip,
-    validateIp,
-    specialInputHandler
-  );
+  const ipInput = useStringInputHandler(object.ip, validateIp);
 
   const onSubmitAction = useObjectSubmitAction(
     () => createNewNetworkObjectFromInput(object, baseFields, ipInput),
-    baseFields.status
+    baseFields.status,
+    editingStatus
   );
 
   const objectProps: IPV4PopUpProps = {
@@ -124,6 +119,53 @@ function CreateIPV4Input({ object }: { object: IPV4 }) {
   return <NetworkObjectPopup key={object.id} object={objectProps} />;
 }
 
+function CreateIPV4RangeInput({
+  object,
+  editingStatus,
+}: {
+  object: IPV4RANGE;
+  editingStatus: "idle" | "creating" | "editing";
+}) {
+  const dispatch = useAppDispatch();
+
+  function updateNetworkObjectType(type: NetworkObjectType) {
+    dispatch(
+      initiateNewObject(
+        initiateNewNetworkObject({
+          ...object,
+          ...baseFields,
+          type: type,
+        })
+      )
+    );
+  }
+
+  const baseFields = useObjectEditingBase(object, updateNetworkObjectType);
+
+  const ipInput = useIpRangeInputHandler(object.start, object.end, validateIp);
+
+  const onSubmitAction = useObjectSubmitAction(
+    () => createNewNetworkObjectFromInput(object, baseFields, ipInput),
+    baseFields.status,
+    editingStatus
+  );
+
+  const objectProps: IPV4RangePopUpProps = {
+    ...object,
+    ...baseFields,
+    RangeInputHandler: ipInput,
+    isVisible: true,
+    element: object,
+    onSubmit: onSubmitAction,
+    onCancel: () => {
+      dispatch(initiatePopUp());
+      dispatch(cancelCreationPopUp());
+    },
+  };
+  console.log(objectProps);
+  return <NetworkObjectPopup key={object.id} object={objectProps} />;
+}
+
 export type ObjectEditingBase = {
   name: string;
   setName: (name: string) => void;
@@ -134,107 +176,18 @@ export type ObjectEditingBase = {
   status: EditableElementStatus;
 };
 
-function ObjectEditPopup() {
-  const dispatch = useAppDispatch();
-  const state = useAppSelector(selectNetworkObjects);
-
-  const editingObject: IPV4 = { ...(state.newObject as IPV4) };
-
-  const [name, setName] = useState(editingObject.name);
-  const [comment, setComment] = useState(editingObject.comment);
-  const [ip, setIp] = useState(editingObject.ip);
-
-  const newObject: IPV4 = {
-    name: name,
-    status: editingObject.status === "new" ? "new" : "modified",
-    id: `${editingObject.id}`,
-    comment: comment,
-    ip: ip,
-  };
-
-  const editingObjectProps: NetworkObjectPopupProps = {
-    isVisible: state.newObjectStatus === "editing",
-    name: name,
-    element: editingObject,
-    setName: (name) => {
-      setName(name);
-    },
-    comment: comment,
-    setComment: (comment) => setComment(comment),
-    ip: ip,
-    setIp: setIp,
-    onSubmit: () => {
-      dispatch(initiatePopUp());
-      dispatch(modifyNetworkObject(newObject));
-    },
-    onCancel: () => {
-      dispatch(initiatePopUp());
-      dispatch(cancelCreationPopUp());
-    },
-    onDelete: () => {
-      dispatch(initiatePopUp());
-      dispatch(modifyNetworkObject({ ...newObject, status: "deleted" }));
-    },
-  };
-
-  return (
-    <NetworkObjectPopup key={editingObject.id} object={editingObjectProps} />
-  );
-}
-
-function ObjectCreationPopup() {
-  const dispatch = useAppDispatch();
-  const state = useAppSelector(selectNetworkObjects);
-
-  const [name, setName] = useState("");
-  const [comment, setComment] = useState("");
-  const [ip, setIp] = useState("");
-
-  const newObject: IPV4 = {
-    name: name,
-    status: "new",
-    id: uuidv4(),
-    comment: comment,
-    ip: ip,
-  };
-
-  const newNetworkObjectProps: NetworkObjectPopupProps = {
-    isVisible: state.newObjectStatus === "creating",
-    name: name,
-    element: newObject,
-    setName: setName,
-    comment: comment,
-    setComment: setComment,
-    ip: ip,
-    setIp: setIp,
-    onSubmit: () => {
-      dispatch(initiatePopUp());
-      dispatch(createNewNetworkObject(newObject));
-    },
-    onCancel: () => {
-      dispatch(initiatePopUp());
-      dispatch(cancelCreationPopUp());
-    },
-    onDelete: () => {
-      dispatch(initiatePopUp());
-      dispatch(modifyNetworkObject({ ...newObject, status: "deleted" }));
-    },
-  };
-
-  return <NetworkObjectPopup object={newNetworkObjectProps} />;
-}
-
 function useObjectSubmitAction(
   createNewObjectFromInput: () => NetworkObjectElement,
-  status: EditableElementStatus
+  status: EditableElementStatus,
+  editingStatus: "idle" | "creating" | "editing"
 ) {
   const dispatch = useAppDispatch();
-  if (status === "modified") {
+  if (editingStatus === "editing") {
     return () => {
       dispatch(initiatePopUp());
       dispatch(modifyNetworkObject(createNewObjectFromInput()));
     };
-  } else {
+  } else if (editingStatus === "creating") {
     return () => {
       dispatch(initiatePopUp());
       dispatch(createNewNetworkObject(createNewObjectFromInput()));

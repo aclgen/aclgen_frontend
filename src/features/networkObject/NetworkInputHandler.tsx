@@ -12,18 +12,19 @@ import { ObjectEditingBase } from "./ObjectCreationPopup";
 export function useIpRangeInputHandler(
   ipFrom: string = "",
   ipTo: string = "",
+  validatorIp: (input: any) => InputValidationResult,
   specialInputHandler?: specialInputConditions
 ): IpRangeInputHandler {
   const ipFromInputHandler = useStringInputHandler(
     ipFrom,
-    specialInputHandler,
-    validateIp
+    validateIp,
+    specialInputHandler
   );
 
   const ipToInputHandler = useStringInputHandler(
     ipTo,
-    specialInputHandler,
-    validateIp
+    validateIp,
+    specialInputHandler
   );
 
   function setInputValue(
