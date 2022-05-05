@@ -12,12 +12,8 @@ import {
   IPV4RangePopUpProps,
   NetworkObjectPopUpProps,
 } from "../../features/networkObject/ObjectCreationPopup";
-import { PortRangePopUpProps } from "../../features/service/ServiceCreationPoopup";
-import {
-  NetworkObjectElement,
-  NetworkObjectType,
-  ServiceType,
-} from "../../types/types";
+
+import { NetworkObjectElement, NetworkObjectType } from "../../types/types";
 import { StringInputHandler } from "../../features/input/baseInput";
 import { If } from "../If";
 
@@ -39,12 +35,16 @@ export function NetworkObjectPopup({
             alt={"Network Object"}
           />
           <ObjectTypeInput value={object.type} onChange={object.setType} />
-
-          <Name value={object.name} onChange={(name) => object.setName(name)} />
+          <Name
+            value={object.name}
+            onChange={(name) => object.setName(name)}
+            isFocus={isFocused(object) === INPUT_ELEMENTS.NAME}
+          />
           <ObjectTypesInputs object={object} />
           <Comment
             value={object.comment}
             onChange={(comment) => object.setComment(comment)}
+            isFocus={false}
           />
         </div>
         <div className="flex justify-self-end items-center flex-row justify-between space-x-4">

@@ -39,9 +39,15 @@ export const DraftNetworkObjectSlice = createSlice({
       state,
       action: PayloadAction<NetworkObjectElement>
     ) => {
-      state.networkObjects = [...state.networkObjects, action.payload];
-      state.newObjectStatus = "idle";
-      state.newObject = undefined;
+      if (
+        state.networkObjects.filter(
+          (element) => element.id === action.payload.id
+        ).length == 0
+      ) {
+        state.networkObjects = [...state.networkObjects, action.payload];
+        state.newObjectStatus = "idle";
+        state.newObject = undefined;
+      }
     },
     modifyNetworkObject: (
       state,
@@ -62,16 +68,23 @@ export const DraftNetworkObjectSlice = createSlice({
       state,
       action: PayloadAction<NetworkObjectElement>
     ) => {
-      if (state.newObject && state.newObject.id === action.payload.id) {
+      if (
+        state.newObject &&
+        state.newObject.id === action.payload.id &&
+        action.payload.type === state.newObject.type
+      ) {
         state.newObject = undefined;
         state.newObjectStatus = "idle";
       } else {
-        state.newObject = action.payload;
+        state.newObject = { ...action.payload, status: "modified" };
         state.newObjectStatus = "editing";
       }
     },
     initiateNewObject: (state, action: PayloadAction<{}>) => {
-      state.newObject = initiateNewNetworkObject({ ...action.payload });
+      state.newObject = initiateNewNetworkObject({
+        ...action.payload,
+        status: "new",
+      });
       state.newObjectStatus = "creating";
     },
     saveNetworkObjectsToDraft: (

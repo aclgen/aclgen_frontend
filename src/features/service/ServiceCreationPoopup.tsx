@@ -11,6 +11,7 @@ import {
 import {
   cancelCreationPopUp,
   createNewService,
+  initiateModifyService,
   initiateNewService,
   initiatePopUp,
   modifyService,
@@ -79,20 +80,30 @@ function CreatePortServiceInput({
   const dispatch = useAppDispatch();
 
   function updateServiceType(type: ServiceType) {
-    dispatch(
-      initiateNewService({
-        ...newService,
-        ...baseFields,
-        type: type,
-      })
-    );
+    if (editingStatus === "editing") {
+      dispatch(
+        initiateModifyService({
+          ...newService,
+          ...baseFields,
+          type: type,
+        })
+      );
+    } else if (editingStatus === "creating") {
+      dispatch(
+        initiateNewService({
+          ...newService,
+          ...baseFields,
+          type: type,
+        })
+      );
+    }
   }
 
   const baseFields = ServiceEditingBase(newService, updateServiceType);
 
-  const specialInputHandler = convertPortToPortRangeService(() =>
-    dispatch(
-      initiateNewService({
+  const onSubmitSpecialCaseAction = useServiceModifyTypeAction(
+    () => {
+      return {
         ...createNewServiceFromInputs(newService, baseFields, {
           portInputHandler: portInput,
           protocolInputHandler: protocolInput,
@@ -101,8 +112,14 @@ function CreatePortServiceInput({
         portStart: portInput.inputValue,
         portEnd: portInput.inputValue,
         protocol: protocolInput.inputValue,
-      })
-    )
+      };
+    },
+    baseFields.status,
+    editingStatus
+  );
+
+  const specialInputHandler = convertPortToPortRangeService(
+    onSubmitSpecialCaseAction
   );
 
   const portInput = usePortInputHandler(
@@ -140,22 +157,32 @@ function CreatePortServiceInput({
 }
 
 function CreatePortRangeServiceInput({
-                                       newService,
-                                       editingStatus,
-                                     }: {
+  newService,
+  editingStatus,
+}: {
   newService: PortRange;
   editingStatus: "idle" | "creating" | "editing";
 }) {
   const dispatch = useAppDispatch();
 
   function updateServiceType(type: ServiceType) {
-    dispatch(
-      initiateNewService({
-        ...newService,
-        ...baseFields,
-        type: type,
-      })
-    );
+    if (editingStatus === "editing") {
+      dispatch(
+        initiateModifyService({
+          ...newService,
+          ...baseFields,
+          type: type,
+        })
+      );
+    } else if (editingStatus === "creating") {
+      dispatch(
+        initiateNewService({
+          ...newService,
+          ...baseFields,
+          type: type,
+        })
+      );
+    }
   }
 
   const baseFields = ServiceEditingBase(newService, updateServiceType);
@@ -168,13 +195,13 @@ function CreatePortRangeServiceInput({
   const protocolInput = useProtocolInputHandler(newService.protocol);
 
   const onSubmitAction = useServiceSubmitAction(
-      () =>
-          createNewServiceFromInputs(newService, baseFields, {
-            portRangeInputHandler: portInput,
-            protocolInputHandler: protocolInput,
-          }),
-      baseFields.status,
-      editingStatus
+    () =>
+      createNewServiceFromInputs(newService, baseFields, {
+        portRangeInputHandler: portInput,
+        protocolInputHandler: protocolInput,
+      }),
+    baseFields.status,
+    editingStatus
   );
 
   const serviceProps: PortRangePopUpProps = {
@@ -261,6 +288,23 @@ function useServiceSubmitAction(
     return () => {
       dispatch(initiatePopUp());
       dispatch(createNewService(createNewServiceFromInputs()));
+    };
+  }
+}
+
+function useServiceModifyTypeAction(
+  createNewServiceFromInputs: () => ServiceElement,
+  status: EditableElementStatus,
+  editingStatus: "idle" | "creating" | "editing"
+) {
+  const dispatch = useAppDispatch();
+  if (editingStatus === "editing") {
+    return () => {
+      dispatch(initiateModifyService(createNewServiceFromInputs()));
+    };
+  } else {
+    return () => {
+      dispatch(initiateNewService(createNewServiceFromInputs()));
     };
   }
 }

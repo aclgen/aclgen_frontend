@@ -14,6 +14,7 @@ import {
 } from "../service/DraftServiceSlice";
 import {
   createNewNetworkObject,
+  initiateModifyNetworkObject,
   initiateNewObject,
   modifyNetworkObject,
   selectNetworkObjects,
@@ -55,6 +56,7 @@ function ObjectEditingPopup({
   object: NetworkObjectElement;
   editingStatus: "idle" | "creating" | "editing";
 }) {
+  console.log(object);
   switch (object.type) {
     case "IPV4":
       return (
@@ -83,15 +85,23 @@ function CreateIPV4Input({
   const dispatch = useAppDispatch();
 
   function updateNetworkObjectType(type: NetworkObjectType) {
-    dispatch(
-      initiateNewObject(
-        initiateNewNetworkObject({
+    if (editingStatus === "editing") {
+      dispatch(
+        initiateModifyNetworkObject({
           ...object,
           ...baseFields,
           type: type,
         })
-      )
-    );
+      );
+    } else if (editingStatus === "creating") {
+      dispatch(
+        initiateNewObject({
+          ...object,
+          ...baseFields,
+          type: type,
+        })
+      );
+    }
   }
 
   const baseFields = useObjectEditingBase(object, updateNetworkObjectType);
@@ -129,15 +139,23 @@ function CreateIPV4RangeInput({
   const dispatch = useAppDispatch();
 
   function updateNetworkObjectType(type: NetworkObjectType) {
-    dispatch(
-      initiateNewObject(
+    if (editingStatus === "editing") {
+      dispatch(
+        initiateModifyNetworkObject({
+          ...object,
+          ...baseFields,
+          type: type,
+        })
+      );
+    } else if (editingStatus === "creating") {
+      dispatch(
         initiateNewNetworkObject({
           ...object,
           ...baseFields,
           type: type,
         })
-      )
-    );
+      );
+    }
   }
 
   const baseFields = useObjectEditingBase(object, updateNetworkObjectType);

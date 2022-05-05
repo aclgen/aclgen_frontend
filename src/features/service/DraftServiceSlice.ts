@@ -1,10 +1,9 @@
 import { ServiceElement } from "../../types/types";
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import type { AppState } from "../../app/store";
 
 import { selectRepositoryAsync } from "../repository/repositorySlice";
-import { v4 as uuidv4 } from "uuid";
 import { createServiceFromState } from "./ServiceFactory";
 
 export interface ServiceState {
@@ -34,9 +33,15 @@ export const ServiceSlice = createSlice({
       state.newServiceStatus = "idle";
     },
     createNewService: (state, action: PayloadAction<ServiceElement>) => {
-      state.newService = undefined;
-      state.services = [...state.services, action.payload];
-      state.newServiceStatus = "idle";
+      if (
+        state.services.filter(
+          (element: ServiceElement) => element.id === action.payload.id
+        ).length == 0
+      ) {
+        state.newService = undefined;
+        state.services = [...state.services, action.payload];
+        state.newServiceStatus = "idle";
+      }
     },
     initiateNewService: (state, action?: PayloadAction<{}>) => {
       state.newService = createServiceFromState({ ...action.payload });
@@ -56,7 +61,11 @@ export const ServiceSlice = createSlice({
       ];
     },
     initiateModifyService: (state, action: PayloadAction<ServiceElement>) => {
-      if (state.newService && state.newService.id === action.payload.id) {
+      if (
+        state.newService &&
+        state.newService.id === action.payload.id &&
+        state.newService.type === action.payload.type
+      ) {
         state.newService = undefined;
         state.newServiceStatus = "idle";
       } else {
