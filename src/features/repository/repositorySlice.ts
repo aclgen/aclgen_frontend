@@ -65,7 +65,6 @@ export const selectRepositoryAsync = createAsyncThunk(
 
     //networkObjects.filter((source) => source.id === element.source),
     let rules = apiRules.map((element) => {
-      console.log(element);
       return {
         ...element,
         device: all[2][0].id,
