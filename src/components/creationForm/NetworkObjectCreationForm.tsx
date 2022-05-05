@@ -16,6 +16,7 @@ import {
 import { NetworkObjectElement, NetworkObjectType } from "../../types/types";
 import { StringInputHandler } from "../../features/input/baseInput";
 import { If } from "../If";
+import { LockStatus } from "../../types/repository";
 
 export function NetworkObjectPopup({
   object,
@@ -179,6 +180,12 @@ export const Type = () => (
 );
 
 function isInputError(object: NetworkObjectPopUpProps): boolean {
+  if (
+    object.lock === LockStatus.LOCKED ||
+    object.lock === LockStatus.IMMUTABLE
+  ) {
+    return true;
+  }
   switch (object.type) {
     case NetworkObjectType.IPV4:
       return isPortInputError(object as IPV4PopUpProps);

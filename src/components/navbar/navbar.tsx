@@ -1,9 +1,12 @@
 import { useTheme } from "next-themes";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import Avatar from "../Avatar";
 import SearchBar from "../search/SearchBar";
 
 function NavBar() {
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
   return (
     <nav className="bg-white px-2 sm:px-4  border-b dark:border-cyan-700 h-16   dark:bg-gray-600">
       <div className="container flex flex-wrap justify-between items-center h-16 m-auto">
@@ -65,13 +68,46 @@ function NavBar() {
         >
           <ul className="flex flex-col mt-4 md:flex-row md:space-x-8 md:mt-0 md:text-sm lg:text-lg md:font-medium">
             <li>
-              <a
-                href="#"
-                className="block py-2 pr-4 pl-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white"
-                aria-current="page"
-              >
-                Repositories
-              </a>
+              <Link href={"/"} passHref>
+                <div
+                  className={`blockpy-2 pr-4 pl-3 ${
+                    router.asPath === "/"
+                      ? "text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white"
+                      : "text-gray-700 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+                  }   hover:cursor-pointer `}
+                  aria-current="page"
+                >
+                  Repositories
+                </div>
+              </Link>
+            </li>
+            <li>
+              <Link href={"/rules"} passHref>
+                <div
+                  className={`blockpy-2 pr-4 pl-3 ${
+                    router.asPath === "/rules"
+                      ? "text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white"
+                      : "text-gray-700 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+                  }   hover:cursor-pointer `}
+                  aria-current="page"
+                >
+                  Rules
+                </div>
+              </Link>
+            </li>
+            <li>
+              <Link href={"/export"} passHref>
+                <div
+                  className={`blockpy-2 pr-4 pl-3 ${
+                    router.asPath === "/export"
+                      ? "text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white"
+                      : "text-gray-700 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+                  }   hover:cursor-pointer `}
+                  aria-current="page"
+                >
+                  Export
+                </div>
+              </Link>
             </li>
             <li>
               <a
@@ -79,14 +115,6 @@ function NavBar() {
                 className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
               >
                 About
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
-              >
-                More stuff coming
               </a>
             </li>
           </ul>
