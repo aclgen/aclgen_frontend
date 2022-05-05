@@ -15,6 +15,8 @@ export interface Rule extends RuleElement {
   destinationServices: ServiceElement[];
   direction: DIRECTION;
   policy: POLICY;
+  lock: LockStatus;
+  device: string;
 }
 
 export interface RuleGroup extends RuleElement {

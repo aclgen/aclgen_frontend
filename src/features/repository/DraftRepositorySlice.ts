@@ -10,13 +10,16 @@ import {
   NetworkObjectElement,
   ServiceElement,
   Nestable,
+  RuleElement,
+  Rule,
 } from "../../types/types";
 import { saveServicesToDraft } from "../service/DraftServiceSlice";
 import { saveWorkSpaceToDraft } from "../workSpaceDraft/DraftWorkSpaceSlice";
 import { saveNetworkObjectsToDraft } from "../networkObject/DraftNetworkObjectSlice";
 import { saveRulesToDraft } from "../rules/ruleSlice";
-import {saveServices} from "../service/serviceAPI";
-import {SaveNetworkObjects} from "../networkObject/networkObjectAPI";
+import { saveServices } from "../service/serviceAPI";
+import { SaveNetworkObjects } from "../networkObject/networkObjectAPI";
+import { saveRules } from "../rules/ruleAPI";
 
 export interface DraftRepositoryState {
   repository: Repository;
@@ -38,7 +41,10 @@ export const commitServicesAsync = createAsyncThunk<
     thunkAPI.dispatch(
       saveServicesToDraft(thunkAPI.getState().service.services)
     );
-    const response = await saveServices(services, thunkAPI.getState().draftRepository.repository.id);
+    const response = await saveServices(
+      services,
+      thunkAPI.getState().draftRepository.repository.id
+    );
     // The value we return becomes the `fulfilled` action payload
 
     return response.data;
@@ -53,14 +59,64 @@ export const commitObjectsAsync = createAsyncThunk<
   "draftRepository/pushObjetcs",
   async (objects: NetworkObjectElement[], thunkAPI) => {
     thunkAPI.dispatch(
-      saveNetworkObjectsToDraft(thunkAPI.getState().networkObject.networkObjects)
+      saveNetworkObjectsToDraft(
+        thunkAPI.getState().networkObject.networkObjects
+      )
     );
-    const response = await SaveNetworkObjects({ objects: objects }, thunkAPI.getState().draftRepository.repository.id);
+    const response = await SaveNetworkObjects(
+      { objects: objects },
+      thunkAPI.getState().draftRepository.repository.id
+    );
     // The value we return becomes the `fulfilled` action payload
 
     return response.data;
   }
 );
+
+export const saveRulesAsync = createAsyncThunk<
+  RuleElement[],
+  RuleElement[],
+  { dispatch: AppDispatch; state: AppState }
+>("draftRepository/saveRules", async (rules: RuleElement[], thunkAPI) => {
+  thunkAPI.dispatch(saveRulesToDraft(thunkAPI.getState().rule.rules));
+
+  const response = await saveRules(
+    rules,
+    thunkAPI.getState().draftRepository.repository.id
+  );
+  // The value we return becomes the `fulfilled` action payload
+  const objects: NetworkObjectElement[] =
+    thunkAPI.getState().draftRepository.repository.networkObjects;
+
+  const services: ServiceElement[] =
+    thunkAPI.getState().draftRepository.repository.services;
+
+  const savedRules: Rule[] = response.data.map((element) => {
+    return {
+      ...element,
+      policy: element.action,
+      status: "source",
+      sources: element.sources.map((elementSource) =>
+        objects.find((serviceElement) => serviceElement.id === elementSource)
+      ),
+      destinations: element.destinations.map((elemenDestinations) =>
+        objects.find(
+          (serviceElement) => serviceElement.id === elemenDestinations
+        )
+      ),
+      sourceServices: element.services_sources.map((elementService: string) =>
+        services.find((serviceElement) => serviceElement.id === elementService)
+      ),
+      destinationServices: element.services_destinations.map(
+        (elementService: string) =>
+          services.find(
+            (serviceElement) => serviceElement.id === elementService
+          )
+      ),
+    };
+  });
+  return savedRules;
+});
 
 // The function below is called a thunk and allows us to perform async logic. It
 // can be dispatched like a regular action: `dispatch(incrementAsync(10))`. This
@@ -111,13 +167,13 @@ export const DraftRepositorySlice = createSlice({
 
       state.repository = {
         ...state.repository,
-        workSpace: {
+        workSpace: [
           ...(state.repository.workSpace = [
             ...state.repository.workSpace.slice(0, index),
             newFireWall,
             ...state.repository.workSpace.slice(index + 1),
           ]),
-        },
+        ],
       };
     });
     builder.addCase(commitServicesAsync.pending, (state) => {
@@ -133,7 +189,6 @@ export const DraftRepositorySlice = createSlice({
           return service == undefined;
         }),
       };
-      
     });
     builder.addCase(commitObjectsAsync.pending, (state) => {
       state.status = "loading";
@@ -147,6 +202,39 @@ export const DraftRepositorySlice = createSlice({
           const object = objects.find((service) => service.id === element.id);
           return object == undefined;
         }),
+      };
+    });
+    builder.addCase(saveRulesAsync.pending, (state) => {
+      state.status = "loading";
+    });
+    builder.addCase(saveRulesAsync.rejected, (state) => {
+      state.status = "idle";
+    });
+    builder.addCase(saveRulesAsync.fulfilled, (state, action) => {
+      const index: number = state.repository.workSpace.findIndex(
+        (element) => element.id == state.repository.workSpace[0].id
+      );
+      const rules = action.payload;
+      const newFireWall: FireWall = {
+        ...(state.repository.workSpace[index] as FireWall),
+        rules: (state.repository.workSpace[index] as FireWall).rules.filter(
+          (element) => {
+            const rule = rules.find((rule) => rule.id === element.id);
+            return rule == undefined;
+          }
+        ),
+      };
+
+      state.status = "idle";
+      state.repository = {
+        ...state.repository,
+        workSpace: {
+          ...(state.repository.workSpace = [
+            ...state.repository.workSpace.slice(0, index),
+            newFireWall,
+            ...state.repository.workSpace.slice(index + 1),
+          ]),
+        },
       };
     });
   },

@@ -78,7 +78,6 @@ export function RenderWorkSpace() {
   if (state.status === "empty" && draftRepositoryState.status === "idle") {
     dispatch(updateWorkSpace(draftRepositoryState.repository.workSpace));
   }
-
   return (
     <>
       <div className="flex flex-row items-center h-12">

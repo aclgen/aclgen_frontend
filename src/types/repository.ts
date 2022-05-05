@@ -49,6 +49,6 @@ export enum ACCESS {
 
 export enum LockStatus {
   LOCKED = "LOCKED",
-UNLOCKED = "UNLOCKED",
-IMMUTABLE = "IMMUTABLE",
+  UNLOCKED = "UNLOCKED",
+  IMMUTABLE = "IMMUTABLE",
 }
