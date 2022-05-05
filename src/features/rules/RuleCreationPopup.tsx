@@ -1,23 +1,10 @@
 import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
-  Source,
-  Destination,
-  ServiceInput,
-  Direction,
-  Policy,
-  Name,
-  Label,
-  Comment,
-} from "../../components/rule/RuleCard";
-import {
   DIRECTION,
-  IPV4,
+  NetworkObjectElement,
   POLICY,
   Rule,
-  PortService,
-  ServiceType,
-  NetworkObjectElement,
   ServiceElement,
 } from "../../types/types";
 import { createNewRule, selectRule } from "./ruleSlice";
@@ -45,18 +32,19 @@ function RuleCreationPopUp() {
 
   const [name, setName] = useState("");
   const [comment, setComment] = useState("");
-  const [index, setIndex] = useState(rulestate.rules.length);
+  const [sourceServices, setSourceServices] = useState([]);
+  const [destinationServices, setDestinationServices] = useState([]);
   const [source, setSource] = useState([]);
   const [destination, setDestination] = useState([]);
   const [direction, setDirection] = useState(DIRECTION.INBOUND);
-  const [service, setService] = useState([]);
   const [policy, setPolicy] = useState(POLICY.ACCEPT);
   const id = uuidv4();
 
   const newRule: Rule = {
     sources: source,
     destinations: destination,
-    services: service,
+    destinationServices: destinationServices,
+    sourceServices: sourceServices,
     direction: direction,
     policy: policy,
     name: name,
@@ -79,15 +67,19 @@ function RuleCreationPopUp() {
     },
     source: source,
     destination: destination,
-    service: service,
+    sourceService: sourceServices,
+    destinationService: destinationServices,
     setSource: function (element: NetworkObjectElement[]): void {
       setSource(element);
     },
     setDestination: function (element: NetworkObjectElement[]): void {
       setDestination(element);
     },
-    setService: function (element: ServiceElement[]): void {
-      setService(element);
+    setSourceService: function (element: ServiceElement[]): void {
+      setSourceServices(element);
+    },
+    setDestinationService: function (element: ServiceElement[]): void {
+      setDestinationServices(element);
     },
     onCreateNewObject: function (name: string): void {
       dispatch(initiatePopUp());
@@ -95,7 +87,7 @@ function RuleCreationPopUp() {
     },
     onCreateNewService: function (name: string): void {
       dispatch(initiatePopUp());
-      dispatch(initiateNewService(name));
+      dispatch(initiateNewService({ name: name }));
     },
     searchAbleElements: serviceState.services,
     searchAbleObjects: networkObjectState.networkObjects,

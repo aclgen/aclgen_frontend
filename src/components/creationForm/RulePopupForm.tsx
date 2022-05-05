@@ -6,7 +6,7 @@ import {
 } from "../../types/types";
 import { DroppableInputField } from "../InputField/DroppableField";
 import { PopUpForm, PopUpFormProps } from "./PopUpForm";
-import { Type, Name, CheckIcon, TrashIcon } from "./ServiceCreationForm";
+import { CheckIcon, Name, TrashIcon, Type } from "./ServiceCreationForm";
 import { Comment } from "../../components/rule/RuleCard";
 import { useAppSelector } from "../../app/hooks";
 import { selectDraggable } from "../../features/draggable/draggableSlice";
@@ -20,10 +20,12 @@ export interface RuleCreationPopupProps extends PopUpFormProps {
   setComment: (comment: string) => void;
   source: NetworkObjectElement[];
   destination: NetworkObjectElement[];
-  service: ServiceElement[];
+  sourceService: ServiceElement[];
+  destinationService: ServiceElement[];
   setSource: (element: NetworkObjectElement[]) => void;
   setDestination: (element: NetworkObjectElement[]) => void;
-  setService: (element: ServiceElement[]) => void;
+  setSourceService: (element: ServiceElement[]) => void;
+  setDestinationService: (element: ServiceElement[]) => void;
   onCreateNewObject: (name: string) => void;
   onCreateNewService: (name: string) => void;
   searchAbleElements: ServiceElement[];
@@ -48,7 +50,7 @@ export function RulePopUpForm({ rule }: { rule: RuleCreationPopupProps }) {
             src={"/computer-networks.svg"}
             alt={"Service"}
           />
-          <Type />
+          <Type name="Rule" />
           <Name value={rule.name} onChange={(name) => rule.setName(name)} />
           <DroppableInputField
             droppableType={"object"}
@@ -61,6 +63,16 @@ export function RulePopUpForm({ rule }: { rule: RuleCreationPopupProps }) {
             disabled={dragState !== undefined && dragState.type !== "object"}
           />
           <DroppableInputField
+            droppableType={"service"}
+            inputID={rule.element.id + "sourceServiceInput"}
+            fieldType={"SERVICE"}
+            elements={rule.sourceService}
+            searchAbleElements={rule.searchAbleElements}
+            onCreateNewService={rule.onCreateNewService}
+            onUpdateElements={rule.setSourceService}
+            disabled={dragState !== undefined && dragState.type !== "service"}
+          />
+          <DroppableInputField
             droppableType={"object"}
             inputID={rule.element.id + "destinationinput"}
             fieldType={"DESTINATION"}
@@ -70,14 +82,15 @@ export function RulePopUpForm({ rule }: { rule: RuleCreationPopupProps }) {
             onUpdateElements={rule.setDestination}
             disabled={dragState !== undefined && dragState.type !== "object"}
           />
+
           <DroppableInputField
             droppableType={"service"}
-            inputID={rule.element.id + "serviceinput"}
+            inputID={rule.element.id + "destinationServiceInput"}
             fieldType={"SERVICE"}
-            elements={rule.service}
+            elements={rule.destinationService}
             searchAbleElements={rule.searchAbleElements}
             onCreateNewService={rule.onCreateNewService}
-            onUpdateElements={rule.setService}
+            onUpdateElements={rule.setDestinationService}
             disabled={dragState !== undefined && dragState.type !== "service"}
           />
           <Comment

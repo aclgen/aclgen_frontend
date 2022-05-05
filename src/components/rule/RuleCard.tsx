@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react";
 import {
   DIRECTION,
-  IPV4,
   NetworkObjectElement,
   POLICY,
   Rule,
-  PortService,
   ServiceElement,
-  EditableElement,
 } from "../../types/types";
 import { statusStyle } from "../SelectableElement/SideBarElement";
 import { useDroppable } from "@dnd-kit/core";
@@ -23,6 +20,8 @@ import {
   selectNetworkObjects,
 } from "../../features/networkObject/DraftNetworkObjectSlice";
 import { selectDraggable } from "../../features/draggable/draggableSlice";
+import Image from "next/image";
+
 export interface CardProps {
   index: number;
   rule: Rule;
@@ -44,42 +43,48 @@ export const ItemTypes = {
  * @param key index of the Rule
  * @returns A properly formatted Rule card
  */
-function card({ index, rule, modifyCard }: CardProps) {
-  const searchAbleElements = useAppSelector(selectService).services;
-  const dragState = useAppSelector(selectDraggable).currentDraggedItem;
-  const searchAbleObjects = useAppSelector(selectNetworkObjects).networkObjects;
-  const dispatch = useAppDispatch();
+function Card({ index, rule, modifyCard }: CardProps) {
+    const searchAbleElements = useAppSelector(selectService).services;
+    const dragState = useAppSelector(selectDraggable).currentDraggedItem;
+    const searchAbleObjects =
+      useAppSelector(selectNetworkObjects).networkObjects;
+    const dispatch = useAppDispatch();
 
-  const [name, setName] = useState(rule.name);
-  const [comment, setComment] = useState(rule.comment);
-  const [source, setSource] = useState(rule.sources);
-  const [destination, setDestination] = useState(rule.destinations);
-  const [direction, setDirection] = useState(rule.direction);
-  const [service, setService] = useState(rule.services);
-  const [policy, setPolicy] = useState(rule.policy);
-  const [status, setStatus] = useState(rule.status);
+    const [name, setName] = useState(rule.name);
+    const [comment, setComment] = useState(rule.comment);
+    const [source, setSource] = useState(rule.sources);
+    const [destination, setDestination] = useState(rule.destinations);
+    const [direction, setDirection] = useState(rule.direction);
+    const [sourceServices, setSourceServices] = useState(rule.sourceServices);
+    const [destinationServices, setDestinationServices] = useState(
+      rule.destinationServices
+    );
+    const [policy, setPolicy] = useState(rule.policy);
+    const [status, setStatus] = useState(rule.status);
 
-  function onChange(setState: () => void) {
-    setState();
-    modifyCard(createCard());
-  }
+    function onChange(setState: () => void) {
+      setState();
+      modifyCard(createCard());
+    }
 
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (name !== rule.name || comment !== rule.comment) {
-        modifyCard(createCard());
-      }
-    }, 300);
+    useEffect(() => {
+      const delayDebounceFn = setTimeout(() => {
+        if (name !== rule.name || comment !== rule.comment) {
+          modifyCard(createCard());
+        }
+      }, 300);
 
-    return () => clearTimeout(delayDebounceFn);
-  }, [name, comment]);
+      return () => clearTimeout(delayDebounceFn);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [name, comment]);
 
   function createCard(): Rule {
     return {
       sources: source,
       destinations: destination,
       device: rule.device,
-      services: service,
+      sourceServices: sourceServices,
+      destinationServices: destinationServices,
       direction: direction,
       policy: policy,
       name: name,
@@ -94,7 +99,7 @@ function card({ index, rule, modifyCard }: CardProps) {
       key={rule.id}
       className={`p-2 pl-4 container bg-white container-xl transition-opacity ${statusStyle(
         rule.status
-      )} hover:cursor-pointer outline-none active:border-blue-500 rounded-md shadow-md dark:bg-gray-800 dark:border-gray-700`}
+      )} mb-2 hover:cursor-pointer outline-none active:border-blue-500 rounded-md shadow-md dark:bg-gray-800 dark:border-gray-700 min-w-fit`}
     >
       <form
         className="space-y-2 flex flex-row justify-between space-x-4"
@@ -114,7 +119,7 @@ function card({ index, rule, modifyCard }: CardProps) {
             fieldType={"SOURCE"}
             elements={source}
             searchAbleElements={searchAbleObjects}
-            onCreateNewService={(name: string) => {
+            onCreateNewElement={(name: string) => {
               dispatch(initiatePopUp());
               dispatch(initiateNewObject(name));
             }}
@@ -124,12 +129,27 @@ function card({ index, rule, modifyCard }: CardProps) {
             disabled={dragState !== undefined && dragState.type !== "object"}
           />
           <DroppableInputField
+            droppableType={"service"}
+            inputID={rule.id + "sourceserviceinput"}
+            fieldType={"SERVICE"}
+            elements={sourceServices}
+            searchAbleElements={searchAbleElements}
+            onCreateNewElement={(name: string) => {
+              dispatch(initiatePopUp());
+              dispatch(initiateNewService({ name: name }));
+            }}
+            onUpdateElements={(elements: ServiceElement[]) => {
+              onChange(() => setSourceServices(elements));
+            }}
+            disabled={dragState !== undefined && dragState.type !== "service"}
+          />
+          <DroppableInputField
             droppableType={"object"}
             inputID={rule.id + "destinationinput"}
             fieldType={"DESTINATION"}
             elements={destination}
             searchAbleElements={searchAbleObjects}
-            onCreateNewService={(name: string) => {
+            onCreateNewElement={(name: string) => {
               dispatch(initiatePopUp());
               dispatch(initiateNewObject(name));
             }}
@@ -140,16 +160,16 @@ function card({ index, rule, modifyCard }: CardProps) {
           />
           <DroppableInputField
             droppableType={"service"}
-            inputID={rule.id + "serviceinput"}
+            inputID={rule.id + "destinationserviceinput"}
             fieldType={"SERVICE"}
-            elements={service}
+            elements={destinationServices}
             searchAbleElements={searchAbleElements}
-            onCreateNewService={(name: string) => {
+            onCreateNewElement={(name: string) => {
               dispatch(initiatePopUp());
-              dispatch(initiateNewService(name));
+              dispatch(initiateNewService({ name: name }));
             }}
             onUpdateElements={(elements: ServiceElement[]) => {
-              onChange(() => setService(elements));
+              onChange(() => setDestinationServices(elements));
             }}
             disabled={dragState !== undefined && dragState.type !== "service"}
           />
@@ -198,6 +218,9 @@ function composeStyle(isHovering: boolean): string {
 export const defaultClass: string =
   "bg-gray-50 outline-none border-2 border-gray-300 w-32 text-gray-900 text-sm rounded-lg  focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white";
 
+export const defaultClassPlaceholder: string =
+  "bg-gray-50 animate-pulse outline-none border-2 bg-gray-300 border-gray-300 w-32 text-gray-900 text-sm rounded-lg  focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white";
+
 export const Index: React.FC<{ value: number }> = ({ value }) => (
   <p className="block pt-11 mb-2 text-sm font-light text-gray-400 dark:text-white">
     {`#${value}`}
@@ -206,32 +229,37 @@ export const Index: React.FC<{ value: number }> = ({ value }) => (
 
 export const BoxIcon = () => {
   return (
-    <div>
-      <img src="/square.svg" className=" mr-3 h-6" />
+    <div className="relative">
+      <Image
+        src="/square.svg"
+        layout="fill"
+        className=" mr-3 h-6"
+        alt="checkbox"
+      />
     </div>
   );
 };
 
 export const DragIcon = () => {
   return (
-    <div>
-      <img src="/hamburger_menu.svg" className=" mr-3 h-6" />
+    <div className="relative mr-3 h-6">
+      <Image src="/hamburger_menu.svg" layout="fill" alt="dragIcon" />
     </div>
   );
 };
 
 export const LockIcon = () => {
   return (
-    <div>
-      <img src="/locked.svg" className=" mr-3 h-6" />
+    <div className="relative mr-3 h-6">
+      <Image src="/locked.svg" layout="fill" alt="locked" />
     </div>
   );
 };
 
 export const CheckIcon = () => {
   return (
-    <div>
-      <img src="/tick.svg" className=" mr-3 h-6" />
+    <div className="relative mr-3 h-6">
+      <Image src="/tick.svg" layout="fill" alt="tickbox" />
     </div>
   );
 };
@@ -239,8 +267,10 @@ export const CheckIcon = () => {
 export const Name = ({
   value,
   onChange,
+  disabled = false,
 }: {
   value: string;
+  disabled?: boolean;
   onChange: (value: string) => void;
 }) => (
   <div>
@@ -249,11 +279,27 @@ export const Name = ({
       type="name"
       name="Name"
       id="name"
+      disabled={disabled}
       value={value}
       onChange={(event) => onChange(event.target.value)}
       className={defaultClass}
       placeholder="Rule Name..."
       required
+    />
+  </div>
+);
+
+export const PlaceholderName = ({}: {}) => (
+  <div>
+    <Label value="Name" />
+    <input
+      type="placeholder"
+      name="placeholder"
+      id="placeholder"
+      disabled={true}
+      value={""}
+      className={defaultClassPlaceholder}
+      placeholder="..."
     />
   </div>
 );
@@ -424,4 +470,4 @@ export const Label = ({ value }: { value: string }) => (
   </label>
 );
 
-export default card;
+export default Card;

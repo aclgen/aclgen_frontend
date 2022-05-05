@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import React from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { isFirefox } from "../../features/common/BrowserDetection";
 import {
   removeDraggedItem,
   selectDraggable,
@@ -44,8 +46,45 @@ export function useHeightSensor() {
     }
   });
 
-  return { inverted,height,  ref };
+  return { inverted, height, ref };
 }
+
+export const useKeyPress = function (
+  targetKey: string,
+  ref: RefObject<HTMLInputElement>
+) {
+  const [keyPressed, setKeyPressed] = useState(false);
+
+  function downHandler(event: KeyboardEvent) {
+    if (event.key === "Tab") {
+      if (isFirefox()) {
+        event.stopPropagation();
+      }
+    }
+    event.key === "Enter" ? event.stopPropagation() : () => {};
+    if (event.key === targetKey) {
+      setKeyPressed(true);
+    }
+  }
+
+  const upHandler = ({ key }: { key: string }) => {
+    if (key === targetKey) {
+      setKeyPressed(false);
+    }
+  };
+
+  React.useEffect(() => {
+    ref.current?.addEventListener("keydown", downHandler);
+    ref.current?.addEventListener("keyup", upHandler);
+
+    return () => {
+      ref.current?.removeEventListener("keydown", downHandler);
+      ref.current?.removeEventListener("keyup", upHandler);
+    };
+  });
+
+  return keyPressed;
+};
 
 export function useDroppableStateChange(
   id: string,

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import type { AppState, AppThunk } from "../../app/store";
+import type { AppState } from "../../app/store";
 import { fetchRepositories } from "./repositoryAPI";
 import {
   ACCESS,
@@ -9,13 +9,16 @@ import {
   Repository,
 } from "../../types/repository";
 import EmptyRepository from "./EmptyRepository";
-import { commitServicesAsync } from "./DraftRepositorySlice";
+import {
+  commitObjectsAsync,
+  commitServicesAsync,
+} from "./DraftRepositorySlice";
 import { fetchServicesWithRepoId } from "../service/serviceAPI";
 import { fetchNetworkObjectsWithRepoId } from "../networkObject/networkObjectAPI";
 import { fetchDevicesWithRepoId } from "../workSpaceDraft/WorkSpaceAPI";
 import { fetchRulesWithDeviceId } from "../rules/ruleAPI";
-import { IPV4, PortService, Rule, RuleAPIResponse } from "../../types/types";
 import { RepositoryIdentifier } from "../common/APITypes";
+import { createServiceFromState } from "../service/ServiceFactory";
 
 export interface RepositoryState {
   repositories: RepositoryIdentifier[];
@@ -51,27 +54,53 @@ export const selectRepositoryAsync = createAsyncThunk(
       fetchNetworkObjectsWithRepoId(id),
       fetchDevicesWithRepoId(id),
     ]);
-   
+
     const apiRules = await fetchRulesWithDeviceId(id, all[2][0].id);
 
-    const services = all[0].map((element) => {
-      return { ...element, status: "source" } as PortService;
-    });
+    const services = all[0].data.map((element) =>
+      createServiceFromState(element)
+    );
 
-    const networkObjects = all[1].map((element) => {
-      return { ...element, status: "source" } as IPV4;
-    });
+    const networkObjects = all[1].data;
 
-//networkObjects.filter((source) => source.id === element.source),
-    const rules = apiRules.map((element) => {
+    //networkObjects.filter((source) => source.id === element.source),
+    let rules = apiRules.map((element) => {
       return {
         ...element,
-        sources: element.sources.map((elementSource) => networkObjects.find(serviceElement => serviceElement.id === elementSource)),
-        destinations: element.destinations.map((elemenDestinations) => networkObjects.find(serviceElement => serviceElement.id === elemenDestinations)),
-        services: element.services.map((elementService: string) => services.find(serviceElement => serviceElement.id === elementService)),
+        sources: element.sources.map((elementSource) =>
+          networkObjects.find(
+            (serviceElement) => serviceElement.id === elementSource
+          )
+        ),
+        destinations: element.destinations.map((elemenDestinations) =>
+          networkObjects.find(
+            (serviceElement) => serviceElement.id === elemenDestinations
+          )
+        ),
+        sourceServices: element.services_sources.map((elementService: string) =>
+          services.find(
+            (serviceElement) => serviceElement.id === elementService
+          )
+        ),
+        destinationServices: element.services_destinations.map(
+          (elementService: string) =>
+            services.find(
+              (serviceElement) => serviceElement.id === elementService
+            )
+        ),
       };
     });
-  
+
+    /**
+    // Testing scrolling behaviour when there are too many elements
+    rules = rules.flatMap((i) => [i, i]);
+    rules = rules.flatMap((i) => [i, i]);
+    rules = rules.flatMap((i) => [i, i]);
+    rules = rules.flatMap((i) => [i, i]);
+    rules = rules.flatMap((i) => [i, i]);
+    rules = rules.flatMap((i) => [i, i]);
+ */
+
     const workSpace: NetworkElement[] = all[2].map((element) => {
       return { ...element, status: "source" };
     });
@@ -133,8 +162,8 @@ export const RepositorySlice = createSlice({
       })
       .addCase(updateRepositoriesAsync.fulfilled, (state, action) => {
         state.status = "idle";
-        if (action.payload.length == 0){
-            state.status = "failed";
+        if (action.payload.length == 0) {
+          state.status = "failed";
         }
         state.repositories = action.payload;
       });
@@ -144,7 +173,8 @@ export const RepositorySlice = createSlice({
     builder.addCase(commitServicesAsync.fulfilled, (state, action) => {
       state.status = "idle";
       //...state.repositories[0].services
-      const newService = [];
+      /** 
+      const newService: ServiceElement[] = [];
       for (let i = 0; i < action.payload.length; i++) {
         const index = newService.findIndex(
           (element) => action.payload[i].id === element.id
@@ -161,12 +191,37 @@ export const RepositorySlice = createSlice({
           }
         }
       }
-      state.repositories = [
-        {
-          ...state.repositories[0],
-          //services: newService,
-        },
-      ];
+*/
+      state.selectedRepository = EmptyRepository;
+      state.status = "idle";
+    });
+    builder.addCase(commitObjectsAsync.pending, (state, action) => {
+      state.status = "loading";
+    });
+    builder.addCase(commitObjectsAsync.fulfilled, (state, action) => {
+      state.status = "idle";
+      //...state.repositories[0].services
+      /** 
+      const newService: ServiceElement[] = [];
+      for (let i = 0; i < action.payload.length; i++) {
+        const index = newService.findIndex(
+          (element) => action.payload[i].id === element.id
+        );
+        if (index >= 0) {
+          if (action.payload[i].status === "deleted") {
+            newService.splice(index);
+          } else {
+            newService[index] = { ...action.payload[i], status: "source" };
+          }
+        } else {
+          if (action.payload[i].status !== "deleted") {
+            newService.push({ ...action.payload[i], status: "source" });
+          }
+        }
+      }
+*/
+      state.selectedRepository = EmptyRepository;
+      state.status = "idle";
     });
   },
 });

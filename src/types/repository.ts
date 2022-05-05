@@ -46,3 +46,9 @@ export enum ACCESS {
   PRIVATE,
   SHARED,
 }
+
+export enum LockStatus {
+  LOCKED = "LOCKED",
+UNLOCKED = "UNLOCKED",
+IMMUTABLE = "IMMUTABLE",
+}

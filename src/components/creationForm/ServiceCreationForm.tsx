@@ -1,30 +1,23 @@
-import { EditableElement } from "../../types/types";
-import { PopUpForm, PopUpFormProps } from "./PopUpForm";
+import {
+  PortPopUpProps,
+  PortRangePopUpProps,
+  ServicePopUpProps,
+} from "../../features/service/ServiceCreationPoopup";
+import { ServiceElement, ServiceType } from "../../types/types";
+import { If } from "../If";
+import { PopUpForm } from "./PopUpForm";
+import { StringInputHandler } from "../../features/input/baseInput";
 
-export interface ServicePopupProps extends PopUpFormProps {
-  isVisible: boolean;
-  name: string;
-  element: EditableElement;
-  setName: (string) => void;
-  comment: string;
-  setComment: (string) => void;
-  sourcePort: number;
-  setSourcePort: (string) => void;
-  destinationPort: number;
-  setDestinationPort: (string) => void;
-  protocol: string;
-  setProtocol: (string) => void;
-  onSubmit: () => void;
-  onCancel?: () => void;
-  onDelete?: () => void;
-}
-
-export function ServicePopupForm({ service }: { service: ServicePopupProps }) {
+export function ServicePopupForm({ service }: { service: ServicePopUpProps }) {
   return (
     <PopUpForm popUp={service}>
       <form
         className="space-y-3 py-1  px-6 flex flex-row justify-between space-x-4"
         action="#"
+        autoComplete={"off"}
+        onSubmit={(e) => {
+          e.preventDefault();
+        }}
       >
         <div className="flex justify-self-start items-center flex-row justify-between space-x-4 ">
           <img
@@ -32,39 +25,91 @@ export function ServicePopupForm({ service }: { service: ServicePopupProps }) {
             src={"/computer-networks.svg"}
             alt={"Service"}
           />
-          <Type />
+          <ServiceTypeInput value={service.type} onChange={service.setType} />
           <Name
             value={service.name}
+            isFocus={isFocused(service) == INPUT_ELEMENTS.NAME}
             onChange={(name) => service.setName(name)}
           />
-          <Port
-            value={service.destinationPort}
-            onChange={(port) => service.setDestinationPort(port)}
-          />
-          <Port
-            value={service.sourcePort}
-            onChange={(port) => service.setSourcePort(port)}
-          />
-          <Protocol
-            value={service.protocol}
-            onChange={(protocol) => service.setProtocol(protocol)}
-          />
+          <ServiceTypeInputs service={service} />
           <Comment
             value={service.comment}
             onChange={(comment) => service.setComment(comment)}
+            isFocus={false}
           />
         </div>
         <div className="flex justify-self-end items-center flex-row justify-between space-x-4">
-          <CheckIcon onClick={service.onSubmit} />
-          {service.onDelete ? <TrashIcon onClick={service.onDelete} /> : <></>}
+          <CheckIcon
+            onClick={() => service.onSubmit()}
+            disabled={isInputError(service)}
+          />
+          <If condition={service.onDelete !== undefined}>
+            <TrashIcon onClick={service.onDelete} />
+          </If>
         </div>
       </form>
     </PopUpForm>
   );
 }
 
+enum INPUT_ELEMENTS {
+  NAME,
+  PORT,
+  PROTOCOL,
+}
+
+function isFocused(service: ServiceElement): INPUT_ELEMENTS {
+  if (service.name == "") {
+    return INPUT_ELEMENTS.NAME;
+  }
+
+  return INPUT_ELEMENTS.PORT;
+}
+
+export function ServiceTypeInputs({ service }: { service: ServicePopUpProps }) {
+  if (service.type == ServiceType.PORT_RANGE) {
+    return <PortRangeInputs service={service as PortRangePopUpProps} />;
+  } else if (service.type == ServiceType.PORT) {
+    return <PortInputs service={service as PortPopUpProps} />;
+  }
+}
+
+export function PortRangeInputs({ service }: { service: PortRangePopUpProps }) {
+  return (
+    <>
+      <Port
+        isFocus={isFocused(service) == INPUT_ELEMENTS.PORT}
+        name={"Port Start"}
+        inputHandler={service.portRangeInputHandler.portFromHandler}
+      />
+      <Port
+        isFocus={false}
+        name={"Port End"}
+        inputHandler={service.portRangeInputHandler.portToHandler}
+      />
+      <Protocol isFocus={false} inputHandler={service.protocolInputHandler} />
+    </>
+  );
+}
+
+export function PortInputs({ service }: { service: PortPopUpProps }) {
+  return (
+    <>
+      <Port
+        isFocus={isFocused(service) == INPUT_ELEMENTS.PORT}
+        name={"Port"}
+        inputHandler={service.portInputHandler}
+      />
+      <Protocol isFocus={false} inputHandler={service.protocolInputHandler} />
+    </>
+  );
+}
+
 export const defaultClass: string =
-  "bg-gray-50 border border-gray-300 w-32 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white outline-none";
+  "bg-gray-50 border-2 border-gray-300 w-32 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white outline-none";
+
+export const errorClass: string =
+  "bg-gray-50 border-2 border-red-600 w-32 text-gray-900 text-sm rounded-lg focus:ring-red-600 focus:border-red-600 block p-2.5 dark:bg-gray-600 dark:border-red-500 dark:placeholder-gray-400 dark:text-white outline-none";
 
 export const Index: React.FC<{ value: number }> = ({ value }) => (
   <p className="block pt-11 mb-2 text-sm font-light text-gray-400 dark:text-white">
@@ -103,11 +148,54 @@ export const TrashIcon = ({ onClick }: { onClick: () => void }) => {
   );
 };
 
-export const CheckIcon = ({ onClick }: { onClick: (event: any) => void }) => {
+export const ServiceTypeInput = ({
+  value,
+  onChange,
+}: {
+  value: ServiceType;
+  onChange: (type: ServiceType) => void;
+}) => (
+  <div>
+    <label className="block mb-2 text-sm font-light text-gray-500 dark:text-gray-300">
+      Type
+    </label>
+    <select
+      name="port"
+      id="port"
+      placeholder="Port"
+      className="bg-gray-50 border max-w-sm  border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+      required
+      value={value}
+      onChange={(event) => onChange(ServiceType[event.target.value])}
+    >
+      {Object.values(ServiceType).map((value) => (
+        <option aria-selected="true" key={value} value={value}>
+          {ServiceType[value]}
+        </option>
+      ))}
+    </select>
+  </div>
+);
+
+export const CheckIcon = ({
+  onClick,
+  disabled,
+}: {
+  disabled: boolean;
+  onClick?: (event: any) => void;
+}) => {
   return (
-    <div
+    <button
       onClick={onClick}
-      className="border-2 border-gray-100 rounded-md hover:cursor-pointer hover:border-blue-400 h-10 w-10 hover:shadow-lg"
+      disabled={disabled}
+      onKeyPress={(e) => {
+        e.key === "Enter" ? onClick(e) : {};
+      }}
+      className={`border-2 border-gray-100 rounded-md ${
+        disabled
+          ? " hover:cursor-not-allowed "
+          : "hover:cursor-pointer hover:border-blue-400"
+      }  h-10 w-10 hover:shadow-lg`}
     >
       <svg
         version="1.1"
@@ -122,14 +210,14 @@ export const CheckIcon = ({ onClick }: { onClick: (event: any) => void }) => {
           d="M504.502,75.496c-9.997-9.998-26.205-9.998-36.204,0L161.594,382.203L43.702,264.311c-9.997-9.998-26.205-9.997-36.204,0
 			c-9.998,9.997-9.998,26.205,0,36.203l135.994,135.992c9.994,9.997,26.214,9.99,36.204,0L504.502,111.7
 			C514.5,101.703,514.499,85.494,504.502,75.496z"
-          className="fill-blue-700"
+          className={`${disabled ? " fill-gray-300 " : "fill-blue-700"}`}
         ></path>
       </svg>
-    </div>
+    </button>
   );
 };
 
-export const Type = () => (
+export const Type = ({ name }: { name: string }) => (
   <div>
     <Label value="TYPE" />
     <h2
@@ -137,7 +225,7 @@ export const Type = () => (
         "bg-gray-50 border border-gray-300 w-32 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white outline-none"
       }
     >
-      Service
+      {name}
     </h2>
   </div>
 );
@@ -145,7 +233,9 @@ export const Type = () => (
 export const Name = ({
   value,
   onChange,
+  isFocus = false,
 }: {
+  isFocus: boolean;
   value: string;
   onChange: (value: string) => void;
 }) => (
@@ -156,7 +246,7 @@ export const Name = ({
       name="Name"
       id="name"
       value={value}
-      autoFocus={true}
+      autoFocus={isFocus}
       onChange={(event) => onChange(event.target.value)}
       className={defaultClass}
       placeholder="Service name..."
@@ -166,33 +256,47 @@ export const Name = ({
 );
 
 export const Port = ({
-  value,
-  onChange,
+  inputHandler,
+  name,
+  isFocus = false,
 }: {
-  value: number;
-  onChange: (value: number) => void;
+  inputHandler: StringInputHandler;
+  isFocus: boolean;
+  name: string;
 }) => (
   <div>
-    <Label value="PORT" />
+    <Label value={name} />
     <input
-      type="number"
-      name="number"
-      id="number"
-      onChange={(event) => onChange(event.target.value as unknown as number)}
-      value={value}
+      type="text"
+      name="port"
+      id="port"
+      autoFocus={isFocus}
+      onChange={(event) => inputHandler.setInputValue(event.target.value)}
+      value={inputHandler.inputValue}
       placeholder="80"
-      className={defaultClass}
+      className={inputStyle(inputHandler.isError)}
       required
     />
+    <If condition={inputHandler.isError}>
+      <p>{inputHandler.error}</p>
+    </If>
   </div>
 );
 
+export const inputStyle = (isError: boolean) => {
+  if (isError) {
+    return errorClass;
+  } else {
+    return defaultClass;
+  }
+};
+
 export const Protocol = ({
-  value,
-  onChange,
+  isFocus = false,
+  inputHandler,
 }: {
-  value: string;
-  onChange: (value: string) => void;
+  inputHandler: StringInputHandler;
+  isFocus: boolean;
 }) => (
   <div>
     <Label value="PROTOCOL" />
@@ -200,19 +304,25 @@ export const Protocol = ({
       type="protocol"
       name="protocol"
       id="protocol"
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
+      autoFocus={isFocus}
+      value={inputHandler.inputValue}
+      onChange={(event) => inputHandler.setInputValue(event.target.value)}
       placeholder="TCP"
-      className={defaultClass}
+      className={inputStyle(inputHandler.isError)}
       required
     />
+    <If condition={inputHandler.isError}>
+      <p>{inputHandler.error}</p>
+    </If>
   </div>
 );
 
 export const Comment = ({
   value,
   onChange,
+  isFocus = false,
 }: {
+  isFocus: boolean;
   value: string;
   onChange: (value: string) => void;
 }) => (
@@ -225,6 +335,7 @@ export const Comment = ({
       id="comment"
       placeholder=""
       value={value}
+      autoFocus={isFocus}
       onChange={(event) => onChange(event.target.value)}
       className="bg-gray-50 border border-gray-300 resize-x text-gray-900 text-sm rounded-lg outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
       required
@@ -239,3 +350,29 @@ export const Label = ({ value }: { value: string }) => (
 );
 
 export default ServicePopupForm;
+function isInputError(service: ServicePopUpProps): boolean {
+  switch (service.type) {
+    case ServiceType.PORT:
+      return isPortInputError(service as PortPopUpProps);
+    case ServiceType.PORT_RANGE:
+      return isPortRangeInputError(service as PortRangePopUpProps);
+  }
+}
+
+function isPortInputError(service: PortPopUpProps): boolean {
+  if (service.portInputHandler.isError) {
+    return true;
+  } else if (service.protocolInputHandler.isError) {
+    return true;
+  }
+}
+
+function isPortRangeInputError(service: PortRangePopUpProps): boolean {
+  if (service.portRangeInputHandler.portFromHandler.isError) {
+    return true;
+  } else if (service.portRangeInputHandler.portToHandler.isError) {
+    return true;
+  } else if (service.protocolInputHandler.isError) {
+    return true;
+  }
+}

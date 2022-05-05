@@ -1,13 +1,8 @@
 import { useDroppable } from "@dnd-kit/core";
-import React, {
-  ReactNode,
-  RefObject,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { EditableElement, ServiceElement } from "../../types/types";
 import { XIcon } from "../creationForm/PopUpForm";
+import { If } from "../If";
 import { PlusButtonSVG } from "../PLusButton";
 import { Label } from "../rule/RuleCard";
 import { CheckIconSVG, statusStyle } from "../SelectableElement/SideBarElement";
@@ -16,6 +11,7 @@ import {
   useDroppableStateChange,
   useEditableElements,
   useHeightSensor,
+  useKeyPress,
   useSearchAble,
 } from "./hooks";
 
@@ -24,17 +20,17 @@ export const DroppableInputField = ({
   fieldType,
   elements,
   searchAbleElements,
-  onCreateNewService: onCreateNewElement,
+  onCreateNewElement,
   onUpdateElements,
   droppableType,
   disabled = false,
 }: {
   droppableType: "object" | "service";
   inputID: string;
+  onCreateNewElement: (name: string) => void;
   fieldType: string;
   elements: EditableElement[];
   searchAbleElements: EditableElement[];
-  onCreateNewService: (name: string) => void;
   onUpdateElements: (elements: EditableElement[]) => void;
   disabled?: boolean;
 }) => {
@@ -66,7 +62,7 @@ export const DroppableInputField = ({
     return elements.includes(element);
   }
 
-const {inverted, height,  ref} = useHeightSensor();
+  const { inverted, height, ref } = useHeightSensor();
 
   return (
     <div ref={setNodeRef}>
@@ -77,18 +73,6 @@ const {inverted, height,  ref} = useHeightSensor();
           setOpen(true);
         }}
       >
-        <If condition={isOpen && inverted}>
-          <SearchInput
-            searchRef={searchMenu}
-            isElementPresent={isElementPresent}
-            search={searchName}
-            addElement={addElement}
-            setOpen={() => setOpen(false)}
-            createNew={onCreateNewElement}
-            height={height}
-            inverted={inverted}
-          />
-        </If>
         <Label value={fieldType} />
         <div>
           <FlexibleInputContainer
@@ -101,13 +85,15 @@ const {inverted, height,  ref} = useHeightSensor();
             }}
           />
         </div>
-        <If condition={isOpen && !inverted}>
+        <If condition={isOpen}>
           <SearchInput
             searchRef={searchMenu}
             isElementPresent={isElementPresent}
             search={searchName}
             addElement={addElement}
-            setOpen={() => setOpen(false)}
+            setOpen={() => {
+              setOpen(false);
+            }}
             createNew={onCreateNewElement}
             inverted={inverted}
             height={height}
@@ -178,9 +164,11 @@ function SearchInput({
 
   useEffect(() => {
     if (tabPress) {
+      console.log("tab");
       setOpen();
     }
-  });
+  }, [tabPress]);
+
   return (
     <div
       style={{ bottom: `${inverted ? `${height - 20}px` : ""}` }}
@@ -253,20 +241,6 @@ function SearchInput({
       </If>
     </div>
   );
-}
-
-function If({
-  children,
-  condition,
-}: {
-  condition: boolean;
-  children: ReactNode;
-}) {
-  if (condition) {
-    return <>{children}</>;
-  } else {
-    return <></>;
-  }
 }
 
 const useDidMountEffect = (func, deps) => {
@@ -345,6 +319,7 @@ export function SearchResults({
       addElement(searchResults[cursor], true);
     }
     if (searchResults.length === 0) {
+      setOpen();
       onCreateNew();
     }
   }, [enterPress]);
@@ -356,7 +331,7 @@ export function SearchResults({
   }, [escapePress]);
 
   return (
-    <ul className="flex flex-col w-fullspace-y-1 ">
+    <ul className="flex flex-col w-fullspace-y-1 max-h-[calc(calc(100vh/2)-100px)] overflow-y-auto">
       {searchResults.map((element, i) => {
         return (
           <li
@@ -408,37 +383,6 @@ export function SearchResults({
     </ul>
   );
 }
-
-const useKeyPress = function (
-  targetKey: string,
-  ref: RefObject<HTMLInputElement>
-) {
-  const [keyPressed, setKeyPressed] = useState(false);
-
-  function downHandler(event: KeyboardEvent) {
-    if (event.key === targetKey) {
-      setKeyPressed(true);
-    }
-  }
-
-  const upHandler = ({ key }: { key: string }) => {
-    if (key === targetKey) {
-      setKeyPressed(false);
-    }
-  };
-
-  React.useEffect(() => {
-    ref.current?.addEventListener("keydown", downHandler);
-    ref.current?.addEventListener("keyup", upHandler);
-
-    return () => {
-      ref.current?.removeEventListener("keydown", downHandler);
-      ref.current?.removeEventListener("keyup", upHandler);
-    };
-  });
-
-  return keyPressed;
-};
 
 export function InputElement({
   element,

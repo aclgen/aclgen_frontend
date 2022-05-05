@@ -1,6 +1,6 @@
 import RuleCard from "../../components/rule/RuleCard";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
-import {
+import ruleSlice, {
   selectRule,
   initiateNewRule,
   setRules,
@@ -13,22 +13,21 @@ import { selectDraftRepository } from "../../features/repository/DraftRepository
 import { FireWall } from "../../types/repository";
 import CountableCheckButton from "../../components/CountableCheckButton";
 import { initiatePopUp } from "../../features/service/DraftServiceSlice";
-import { render } from "@testing-library/react";
+import { Virtuoso } from "react-virtuoso";
+import React from "react";
 
 function ListView() {
   const dispatch = useAppDispatch();
 
   return (
     <div className="flex flex-1 ">
-      <div className="grid grid-flow-col space-4 w-full">
-        <div className="flex flex-1 ">
-          <div className="flex flex-1 flex-col border-r overflow-x-visible">
-            <div className="flex flex-1 relative p-3 overflow-y-auto ">
-              <SideBar />
-            </div>
+      <div className="grid grid-flow-col auto-cols-auto space-4 w-full">
+        <div className="flex flex-1 flex-col col-span-1 scrollbar border-r overflow-x-visible content-area  overflow-y-scroll">
+          <div className="flex flex-1 relative p-3 basis-1/4 overflow-y-auto ">
+            <SideBar />
           </div>
         </div>
-        <div className="px-4 flex flex-col space-y-2 scrollbar overflow-y-scroll content-area py-2">
+        <div className="px-4 flex flex-col space-y-2 content-area py-2 col-span-6">
           <div className="container flex flex-row items-center space-x-2 bg-white container-xl transition-opacity rounded-md border-2 border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
             <button
               className="outline-none h-10 "
@@ -63,9 +62,9 @@ function RuleList() {
   const renderCard = (rule: Rule, index: number) => {
     return (
       <RuleCard
-        key={ruleElementtoRule(state.rules[index]).id}
+        key={index}
         index={index}
-        rule={ruleElementtoRule(state.rules[index])}
+        rule={rule}
         modifyCard={(card) =>
           dispatch(modifyRuleWithIndex({ rule: card, index }))
         }
@@ -73,17 +72,18 @@ function RuleList() {
     );
   };
 
-  return (
-    <div className="flex flex-col space-y-1">
-      {state.rules
-        .map((ruleElement) => ruleElementtoRule(ruleElement))
-        .map((rule, index) => renderCard(rule, index))}
-    </div>
-  );
-}
+  const RuleEntry = (index: number) => {
+    return renderCard(state.rules[index] as Rule, index);
+  };
 
-function ruleElementtoRule(element: RuleElement): Rule {
-  return element as Rule;
+  return (
+    <Virtuoso
+      totalCount={state.rules.length}
+      overscan={1200}
+      increaseViewportBy={400}
+      itemContent={(index) => RuleEntry(index)}
+    ></Virtuoso>
+  );
 }
 
 function ModifiedCounter() {

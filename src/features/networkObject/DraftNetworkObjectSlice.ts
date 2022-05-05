@@ -6,6 +6,8 @@ import {
   cancelCreationPopUp,
   initiatePopUp,
 } from "../service/DraftServiceSlice";
+import { selectRepositoryAsync } from "../repository/repositorySlice";
+import { initiateNewNetworkObject } from "./NetworkObjectFactory";
 
 export interface DraftNetworkObjectState {
   networkObjects: NetworkObjectElement[];
@@ -37,9 +39,15 @@ export const DraftNetworkObjectSlice = createSlice({
       state,
       action: PayloadAction<NetworkObjectElement>
     ) => {
-      state.newObject = undefined;
-      state.networkObjects = [...state.networkObjects, action.payload];
-      state.newObjectStatus = "idle";
+      if (
+        state.networkObjects.filter(
+          (element) => element.id === action.payload.id
+        ).length == 0
+      ) {
+        state.networkObjects = [...state.networkObjects, action.payload];
+        state.newObjectStatus = "idle";
+        state.newObject = undefined;
+      }
     },
     modifyNetworkObject: (
       state,
@@ -60,16 +68,23 @@ export const DraftNetworkObjectSlice = createSlice({
       state,
       action: PayloadAction<NetworkObjectElement>
     ) => {
-      if (state.newObject && state.newObject.id === action.payload.id) {
+      if (
+        state.newObject &&
+        state.newObject.id === action.payload.id &&
+        action.payload.type === state.newObject.type
+      ) {
         state.newObject = undefined;
         state.newObjectStatus = "idle";
       } else {
-        state.newObject = action.payload;
+        state.newObject = { ...action.payload, status: "modified" };
         state.newObjectStatus = "editing";
       }
     },
-    initiateNewObject: (state, action: PayloadAction<string>) => {
-      state.newObject = undefined;
+    initiateNewObject: (state, action: PayloadAction<{}>) => {
+      state.newObject = initiateNewNetworkObject({
+        ...action.payload,
+        status: "new",
+      });
       state.newObjectStatus = "creating";
     },
     saveNetworkObjectsToDraft: (
@@ -85,6 +100,10 @@ export const DraftNetworkObjectSlice = createSlice({
     });
     builder.addCase(cancelCreationPopUp, (state) => {
       state.newObjectStatus = "idle";
+    });
+    builder.addCase(selectRepositoryAsync.fulfilled, (state, payload) => {
+      state.networkObjects = [];
+      state.status = "empty";
     });
   },
 });

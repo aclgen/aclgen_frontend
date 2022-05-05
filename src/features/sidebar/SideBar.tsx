@@ -17,6 +17,7 @@ import {
   updateNetworkObjects,
 } from "../networkObject/DraftNetworkObjectSlice";
 import {
+  commitObjectsAsync,
   commitServicesAsync,
   selectDraftRepository,
 } from "../repository/DraftRepositorySlice";
@@ -55,7 +56,7 @@ function SideBar() {
       dispatch(selectRepositoryAsync(state.repositories[0].id));
       //dispatch(setSelectedRepository(state.repositories[0]));
     }
-  }, [state.status]);
+  }, [state.status, state.selectedRepository]);
 
   return (
     <div className="flex flex-col space-y-4 min-w-90">
@@ -131,7 +132,7 @@ export function RenderObjectsAndServices() {
           onClick={() => {
             setDropdown(false);
             dispatch(initiatePopUp());
-            dispatch(initiateNewService());
+            dispatch(initiateNewService({}));
           }}
           className="hover:bg-blue-600 group hover:cursor-pointer py-2 px-0 select-none border-b flex-row items-center"
         >
@@ -160,7 +161,9 @@ export function RenderObjects() {
       draftRepositoryState.status == "idle" &&
       objectState.status === "empty"
     ) {
-      dispatch(updateNetworkObjects(draftRepositoryState.repository.networkObjects));
+      dispatch(
+        updateNetworkObjects(draftRepositoryState.repository.networkObjects)
+      );
     }
   });
 
@@ -180,10 +183,14 @@ export function RenderObjects() {
         {objectState.networkObjects.map((element) => {
           return (
             <li key={element.id}>
-              {RenderNetworkObjects(element, () => {
-                dispatch(initiatePopUp());
-                dispatch(initiateModifyNetworkObject(element));
-              })}
+              {RenderNetworkObjects(
+                element,
+                () => {
+                  dispatch(initiatePopUp());
+                  dispatch(initiateModifyNetworkObject(element));
+                },
+                () => dispatch(commitObjectsAsync([element]))
+              )}
             </li>
           );
         })}
@@ -204,7 +211,7 @@ export function RenderServices() {
     ) {
       dispatch(updateServices(draftRepositoryState.repository.services));
     }
-  });
+  }, [draftRepositoryState.repository]);
 
   const [droppedDown, setDropdown] = useState(false);
 
@@ -297,7 +304,7 @@ export function CommitObjectWithCounter() {
     const objects = state.networkObjects.filter(
       (element) => element.status !== "source"
     );
-    dispatch(commitServicesAsync([]));
+    dispatch(commitObjectsAsync(objects));
   }
 
   return (

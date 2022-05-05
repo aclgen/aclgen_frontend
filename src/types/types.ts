@@ -1,3 +1,5 @@
+import { LockStatus } from "./repository";
+
 export type EditableElementStatus = "modified" | "new" | "source" | "deleted";
 
 export interface RuleElement extends EditableElement {
@@ -9,15 +11,8 @@ export interface RuleElement extends EditableElement {
 export interface Rule extends RuleElement {
   sources: NetworkObjectElement[];
   destinations: NetworkObjectElement[];
-  services: ServiceElement[];
-  direction: DIRECTION;
-  policy: POLICY;
-}
-
-export interface RuleAPIResponse extends RuleElement {
-  sources: string[];
-  destinations: string[];
-  services: string[];
+  sourceServices: ServiceElement[];
+  destinationServices: ServiceElement[];
   direction: DIRECTION;
   policy: POLICY;
 }
@@ -27,9 +22,8 @@ export interface RuleGroup extends RuleElement {
 }
 
 export enum ServiceType {
-  PORT,
-  PORT_RANGE,
-  PORT_GROUP,
+  PORT = "PORT",
+  PORT_RANGE = "PORT_RANGE",
 }
 export interface ServiceElement extends EditableElement {
   name: string;
@@ -37,11 +31,17 @@ export interface ServiceElement extends EditableElement {
   id: string;
   comment: string;
   status: EditableElementStatus;
+  lock: LockStatus;
 }
 
 export interface PortService extends ServiceElement {
-  sourcePort: number;
-  destinationPort: number;
+  port: number;
+  protocol: string;
+}
+
+export interface PortRange extends ServiceElement {
+  portStart: number;
+  portEnd: number;
   protocol: string;
 }
 
@@ -63,6 +63,13 @@ export interface NetworkObjectElement extends EditableElement {
   id: string;
   name: string;
   comment: string;
+  lock: LockStatus;
+  type: NetworkObjectType;
+}
+
+export enum NetworkObjectType {
+  IPV4 = "IPV4",
+  IPV4_RANGE = "IPV4_RANGE",
 }
 
 export interface IPV4 extends NetworkObjectElement {

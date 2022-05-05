@@ -1,131 +1,312 @@
 import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import ServicePopupForm, {
-  ServicePopupProps,
-} from "../../components/creationForm/ServiceCreationForm";
-import { PortService, ServiceType } from "../../types/types";
+import ServicePopupForm from "../../components/creationForm/ServiceCreationForm";
+import {
+  EditableElementStatus,
+  PortRange,
+  PortService,
+  ServiceElement,
+  ServiceType,
+} from "../../types/types";
 import {
   cancelCreationPopUp,
   createNewService,
+  initiateModifyService,
+  initiateNewService,
   initiatePopUp,
   modifyService,
   selectService,
 } from "./DraftServiceSlice";
-import { v4 as uuidv4 } from "uuid";
+import { PopUpFormProps } from "../../components/creationForm/PopUpForm";
+import {
+  convertPortToPortRangeService,
+  PortRangeInputHandler,
+  usePortInputHandler,
+  usePortRangeInputHandler,
+  useProtocolInputHandler,
+} from "./ServiceInputHandler";
+import { createNewServiceFromInputs } from "./ServiceFactory";
+import { StringInputHandler } from "../input/baseInput";
 
 export function ServicePopup() {
   const state = useAppSelector(selectService);
 
   switch (state.newServiceStatus) {
-    case "creating":
-      return <ServiceCreationPopup />;
-    case "editing":
-      //Need to add key property to this component to force it to rerender when changing service. Wierd Bug...
-      return <ServiceEditingPopup key={state.newService.id} />;
-    default:
+    case "idle":
       return <></>;
+    default:
+      return (
+        <ServiceCreationPopup
+          key={state.newService.id}
+          service={state.newService}
+          editingStatus={state.newServiceStatus}
+        />
+      );
   }
 }
 
-export function ServiceEditingPopup() {
+function ServiceCreationPopup({
+  service,
+  editingStatus,
+}: {
+  service: ServiceElement;
+  editingStatus: "idle" | "creating" | "editing";
+}) {
+  switch (service.type) {
+    case ServiceType.PORT:
+      return (
+        <CreatePortServiceInput
+          newService={service as PortService}
+          editingStatus={editingStatus}
+        />
+      );
+    case ServiceType.PORT_RANGE:
+      return (
+        <CreatePortRangeServiceInput
+          newService={service as PortRange}
+          editingStatus={editingStatus}
+        />
+      );
+  }
+}
+
+function CreatePortServiceInput({
+  newService,
+  editingStatus,
+}: {
+  newService: PortService;
+  editingStatus: "idle" | "creating" | "editing";
+}) {
   const dispatch = useAppDispatch();
-  const state = useAppSelector(selectService);
 
-  const service: PortService = state.newService as PortService;
+  function updateServiceType(type: ServiceType) {
+    if (editingStatus === "editing") {
+      dispatch(
+        initiateModifyService({
+          ...newService,
+          ...baseFields,
+          type: type,
+        })
+      );
+    } else if (editingStatus === "creating") {
+      dispatch(
+        initiateNewService({
+          ...newService,
+          ...baseFields,
+          type: type,
+        })
+      );
+    }
+  }
 
-  const [name, setName] = useState(service.name);
-  const [comment, setComment] = useState(service.comment);
-  const [sourcePort, setSourcePort] = useState(service.sourcePort);
-  const [destinationPort, setDestinationPort] = useState(
-    service.destinationPort
-  );
-  const [protocol, setProtocol] = useState(service.protocol);
+  const baseFields = ServiceEditingBase(newService, updateServiceType);
 
-  const newService: PortService = {
-    name: name,
-    type: service.type,
-    status: service.status === "new" ? "new" : "modified",
-    id: `${service.id}`,
-    comment: comment,
-    sourcePort: sourcePort,
-    destinationPort: destinationPort,
-    protocol: protocol,
-  };
-
-  const serviceProps: ServicePopupProps = {
-    isVisible: state.newServiceStatus === "editing",
-    name: name,
-    element: service,
-    setName: setName,
-    comment: comment,
-    setComment: setComment,
-    sourcePort: sourcePort,
-    setSourcePort: setSourcePort,
-    destinationPort: destinationPort,
-    setDestinationPort: setDestinationPort,
-    protocol: protocol,
-    setProtocol: setProtocol,
-    onSubmit: () => {
-      dispatch(initiatePopUp());
-      dispatch(modifyService(newService));
+  const onSubmitSpecialCaseAction = useServiceModifyTypeAction(
+    () => {
+      return {
+        ...createNewServiceFromInputs(newService, baseFields, {
+          portInputHandler: portInput,
+          protocolInputHandler: protocolInput,
+        }),
+        type: ServiceType.PORT_RANGE,
+        portStart: portInput.inputValue,
+        portEnd: portInput.inputValue,
+        protocol: protocolInput.inputValue,
+      };
     },
+    baseFields.status,
+    editingStatus
+  );
+
+  const specialInputHandler = convertPortToPortRangeService(
+    onSubmitSpecialCaseAction
+  );
+
+  const portInput = usePortInputHandler(
+    newService.port.toString(),
+    specialInputHandler
+  );
+
+  const protocolInput = useProtocolInputHandler(newService.protocol);
+
+  const onSubmitAction = useServiceSubmitAction(
+    () =>
+      createNewServiceFromInputs(newService, baseFields, {
+        portInputHandler: portInput,
+        protocolInputHandler: protocolInput,
+      }),
+    baseFields.status,
+    editingStatus
+  );
+
+  const serviceProps: ServicePopUpProps = {
+    ...newService,
+    ...baseFields,
+    protocolInputHandler: protocolInput,
+    portInputHandler: portInput,
+    ...portInput,
+    isVisible: true,
+    element: newService,
+    onSubmit: onSubmitAction,
     onCancel: () => {
       dispatch(initiatePopUp());
       dispatch(cancelCreationPopUp());
-    },
-    onDelete: () => {
-      dispatch(initiatePopUp());
-      dispatch(modifyService({ ...newService, status: "deleted" }));
     },
   };
   return <ServicePopupForm service={serviceProps} />;
 }
 
-function ServiceCreationPopup() {
+function CreatePortRangeServiceInput({
+  newService,
+  editingStatus,
+}: {
+  newService: PortRange;
+  editingStatus: "idle" | "creating" | "editing";
+}) {
   const dispatch = useAppDispatch();
-  const state = useAppSelector(selectService);
 
-  const [name, setName] = useState("");
-  const [comment, setComment] = useState("");
-  const [sourcePort, setSourcePort] = useState(0);
-  const [destinationPort, setDestinationPort] = useState(0);
-  const [protocol, setProtocol] = useState("");
+  function updateServiceType(type: ServiceType) {
+    if (editingStatus === "editing") {
+      dispatch(
+        initiateModifyService({
+          ...newService,
+          ...baseFields,
+          type: type,
+        })
+      );
+    } else if (editingStatus === "creating") {
+      dispatch(
+        initiateNewService({
+          ...newService,
+          ...baseFields,
+          type: type,
+        })
+      );
+    }
+  }
 
-  const service: PortService = {
-    name: name,
-    type: ServiceType.PORT,
-    status: "new",
-    id: uuidv4(),
-    comment: comment,
-    sourcePort: sourcePort,
-    destinationPort: destinationPort,
-    protocol: protocol,
-  };
+  const baseFields = ServiceEditingBase(newService, updateServiceType);
 
-  const serviceProps: ServicePopupProps = {
-    isVisible: state.newServiceStatus === "creating",
-    name: name,
-    element: service,
-    setName: setName,
-    comment: comment,
-    setComment: setComment,
-    sourcePort: sourcePort,
-    setSourcePort: setSourcePort,
-    destinationPort: destinationPort,
-    setDestinationPort: setDestinationPort,
-    protocol: protocol,
-    setProtocol: setProtocol,
-    onSubmit: () => {
-      dispatch(initiatePopUp());
-      dispatch(createNewService(service));
-    },
+  const portInput = usePortRangeInputHandler(
+    newService.portStart.toString(),
+    newService.portEnd.toString()
+  );
+
+  const protocolInput = useProtocolInputHandler(newService.protocol);
+
+  const onSubmitAction = useServiceSubmitAction(
+    () =>
+      createNewServiceFromInputs(newService, baseFields, {
+        portRangeInputHandler: portInput,
+        protocolInputHandler: protocolInput,
+      }),
+    baseFields.status,
+    editingStatus
+  );
+
+  const serviceProps: PortRangePopUpProps = {
+    ...newService,
+    ...baseFields,
+    protocolInputHandler: protocolInput,
+    portRangeInputHandler: portInput,
+    ...portInput,
+    isVisible: true,
+    element: newService,
+    onSubmit: onSubmitAction,
     onCancel: () => {
       dispatch(initiatePopUp());
       dispatch(cancelCreationPopUp());
     },
   };
-
   return <ServicePopupForm service={serviceProps} />;
+}
+
+export function ServiceEditingBase(
+  service: ServiceElement,
+  updateServiceType: (type: ServiceType) => void
+): EditingBase {
+  const [name, setName] = useState(service.name);
+  const [comment, setComment] = useState(service.comment);
+  const [type, setlocalType] = useState(service.type);
+
+  const status = service.status === "new" ? "new" : "modified";
+
+  function setType(type: ServiceType) {
+    updateServiceType(type);
+    setlocalType(type);
+  }
+  return { name, setName, comment, setComment, type, setType, status };
+}
+
+export type EditingBase = {
+  name: string;
+  setName: (name: string) => void;
+  comment: string;
+  setComment: (comment: string) => void;
+  type: ServiceType;
+  setType: (type: ServiceType) => void;
+  status: EditableElementStatus;
+};
+
+export type PortRangeEditingFields = {
+  protocolInputHandler: StringInputHandler;
+  portRangeInputHandler: PortRangeInputHandler;
+};
+
+export type portEditingFields = {
+  protocolInputHandler: StringInputHandler;
+  portInputHandler: StringInputHandler;
+};
+
+export interface PortRangePopUpProps
+  extends ServicePopupBaseProps,
+    PortRangeEditingFields {}
+
+export interface PortPopUpProps
+  extends ServicePopupBaseProps,
+    portEditingFields {}
+
+export interface ServicePopupBaseProps
+  extends PopUpFormProps,
+    EditingBase,
+    ServiceElement {}
+
+export type ServicePopUpProps = PortPopUpProps | PortRangePopUpProps;
+
+function useServiceSubmitAction(
+  createNewServiceFromInputs: () => ServiceElement,
+  status: EditableElementStatus,
+  editingStatus: "idle" | "creating" | "editing"
+) {
+  const dispatch = useAppDispatch();
+  if (editingStatus === "editing") {
+    return () => {
+      dispatch(initiatePopUp());
+      dispatch(modifyService(createNewServiceFromInputs()));
+    };
+  } else {
+    return () => {
+      dispatch(initiatePopUp());
+      dispatch(createNewService(createNewServiceFromInputs()));
+    };
+  }
+}
+
+function useServiceModifyTypeAction(
+  createNewServiceFromInputs: () => ServiceElement,
+  status: EditableElementStatus,
+  editingStatus: "idle" | "creating" | "editing"
+) {
+  const dispatch = useAppDispatch();
+  if (editingStatus === "editing") {
+    return () => {
+      dispatch(initiateModifyService(createNewServiceFromInputs()));
+    };
+  } else {
+    return () => {
+      dispatch(initiateNewService(createNewServiceFromInputs()));
+    };
+  }
 }
 
 export default ServicePopup;
