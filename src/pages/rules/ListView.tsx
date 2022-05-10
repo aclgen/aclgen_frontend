@@ -83,10 +83,6 @@ function RuleList() {
     }
   });
 
-  const RuleEntry = (index: number) => {
-    return <RenderCard rule={state.rules[index] as Rule} index={index} />;
-  };
-
   const [activeId, setActiveId] = useState<string | null>(null);
   const sensors = useSensors(
     useSensor(MouseSensor, {

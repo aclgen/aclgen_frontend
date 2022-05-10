@@ -63,7 +63,6 @@ function Card({ index, rule, modifyCard }: CardProps) {
   const [status, setStatus] = useState(rule.status);
 
   function onChange(setState: () => void) {
-    setState();
     modifyCard(createCard());
   }
 
@@ -77,6 +76,12 @@ function Card({ index, rule, modifyCard }: CardProps) {
     return () => clearTimeout(delayDebounceFn);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name, comment]);
+
+  useEffect(() => {
+    if (policy !== rule.policy || direction !== rule.direction) {
+      modifyCard(createCard());
+    }
+  }, [policy, direction]);
 
   function createCard(): Rule {
     return {
@@ -177,14 +182,14 @@ function Card({ index, rule, modifyCard }: CardProps) {
           />
           <Direction
             value={direction}
-            onChange={(data: DIRECTION) => {
-              onChange(() => setDirection(data));
+            onChange={(data) => {
+              setDirection(data);
             }}
           />
           <Policy
             value={policy}
-            onChange={(data: POLICY) => {
-              onChange(() => setPolicy(data));
+            onChange={(data) => {
+              setPolicy(data);
             }}
           />
           <Comment
@@ -405,14 +410,14 @@ export const Direction = ({
     <select
       name="direction"
       id="direction"
-      placeholder="incoming"
+      placeholder="INBOUND"
       className="bg-gray-50 border max-w-sm  border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
       required
       value={value}
       onChange={(event) => onChange(DIRECTION[event.target.value])}
     >
-      <option value={DIRECTION.INBOUND}>INCOMING</option>
-      <option value={DIRECTION.OUTBOUND}>OUTGOING</option>
+      <option value={DIRECTION.INBOUND}>INBOUND</option>
+      <option value={DIRECTION.OUTBOUND}>OUTBOUND</option>
     </select>
   </div>
 );

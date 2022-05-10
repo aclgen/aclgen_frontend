@@ -1,6 +1,7 @@
 import { Rule, RuleElement } from "../../types/types";
 import { createAPIRoute, host } from "../common/APIRoutes";
 import { RuleElementAPI } from "../../types/ApiTypes";
+import { ruleList } from "../../pages/api/rules";
 
 export async function fetchRules(): Promise<{ data: RuleElement[] }> {
   const response = await fetch("/api/rules", {
@@ -49,37 +50,36 @@ export async function saveRules(
   let modifiedRuleResponse = [];
 
   if (newRules.length > 0) {
-    newRuleRsponse = await Promise.all([
-      newRules.map((rule) =>
-        fetch(createAPIRoute(`repo/${repoId}/device/${deviceId}/rule/`), {
-          method: "post",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(rule),
-        })
-          .then((response) => response.json())
-          .catch((e) => {})
-      ),
-    ]);
-  }
-
-  if (modifiedRules.length > 0) {
-    const pendingRules = modifiedRules.map((rule) =>
+    const pendingRules = newRules.map((rule) =>
       fetch(createAPIRoute(`repo/${repoId}/device/${deviceId}/rule/`), {
-        method: "post",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(rule),
       })
         .then((response) => response.json())
+        .catch((e) => {})
+    );
+    newRuleRsponse = await Promise.all(pendingRules);
+  }
+  if (modifiedRules.length > 0) {
+    const pendingRules = modifiedRules.map((rule) =>
+      fetch(
+        createAPIRoute(`repo/${repoId}/device/${deviceId}/rule/${rule.id}/`),
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(rule),
+        }
+      )
+        .then((response) => response.json())
         .catch((e) => console.log(e))
     );
     modifiedRuleResponse = await Promise.all(pendingRules);
   }
-
-  console.log(modifiedRuleResponse);
   return {
     data: newRuleRsponse.concat(modifiedRuleResponse),
   };
@@ -94,10 +94,11 @@ function translateRuleElement(translateRuleElement: Rule): RuleElementAPI {
     services_destinations: translateRuleElement.destinationServices.map(
       (element) => element.id
     ),
-    action: translateRuleElement.policy,
     sources: translateRuleElement.sources.map((element) => element.id),
     destinations: translateRuleElement.sources.map((element) => element.id),
-    folder: "",
+    folder: translateRuleElement.folder,
+    direction: translateRuleElement.direction,
+    action: translateRuleElement.policy,
   };
   return newRule;
 }

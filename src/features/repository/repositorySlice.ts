@@ -12,6 +12,7 @@ import EmptyRepository from "./EmptyRepository";
 import {
   commitObjectsAsync,
   commitServicesAsync,
+  saveRulesAsync,
 } from "./DraftRepositorySlice";
 import { fetchServicesWithRepoId } from "../service/serviceAPI";
 import { fetchNetworkObjectsWithRepoId } from "../networkObject/networkObjectAPI";
@@ -221,6 +222,15 @@ export const RepositorySlice = createSlice({
         }
       }
 */
+      state.selectedRepository = EmptyRepository;
+      state.status = "idle";
+    });
+    builder.addCase(saveRulesAsync.pending, (state, action) => {
+      state.status = "loading";
+    });
+    builder.addCase(saveRulesAsync.fulfilled, (state, action) => {
+      state.status = "idle";
+
       state.selectedRepository = EmptyRepository;
       state.status = "idle";
     });

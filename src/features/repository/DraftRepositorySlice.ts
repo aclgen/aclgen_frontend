@@ -91,7 +91,7 @@ export const saveRulesAsync = createAsyncThunk<
 
   const services: ServiceElement[] =
     thunkAPI.getState().draftRepository.repository.services;
-
+  console.log(response.data);
   const savedRules: Rule[] = response.data.map((element) => {
     return {
       ...element,
@@ -229,13 +229,13 @@ export const DraftRepositorySlice = createSlice({
       state.status = "idle";
       state.repository = {
         ...state.repository,
-        workSpace: {
+        workSpace: [
           ...(state.repository.workSpace = [
             ...state.repository.workSpace.slice(0, index),
             newFireWall,
             ...state.repository.workSpace.slice(index + 1),
           ]),
-        },
+        ],
       };
     });
   },

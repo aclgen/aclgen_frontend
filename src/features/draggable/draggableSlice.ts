@@ -19,6 +19,8 @@ export interface DraggableState {
     | undefined;
 }
 
+export type DraggableType = "object" | "service" | "rule";
+
 const initialState: DraggableState = {
   currentDroppedItem: undefined,
   currentDraggedItem: undefined,

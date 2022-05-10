@@ -3,6 +3,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { AppState } from "../../app/store";
 import { NetworkElement } from "../../types/repository";
 import { Rule, RuleElement } from "../../types/types";
+import { selectRepositoryAsync } from "../repository/repositorySlice";
 import {
   cancelCreationPopUp,
   initiatePopUp,
@@ -14,6 +15,7 @@ export interface DraftRuleState {
   status: "empty" | "idle" | "loading" | "failed";
   newRule: Rule | undefined;
   device: NetworkElement | undefined;
+  defaultFolder: string | undefined;
   newRuleStatus: "idle" | "creating" | "loading";
 }
 
@@ -21,6 +23,7 @@ const initialState: DraftRuleState = {
   rules: [],
   status: "empty",
   newRule: undefined,
+  defaultFolder: undefined,
   device: undefined,
   newRuleStatus: "idle",
 };
@@ -52,6 +55,7 @@ export const DraftRuleSlice = createSlice({
       action: PayloadAction<{ rules: RuleElement[]; device: NetworkElement }>
     ) => {
       state.rules = action.payload.rules;
+      state.defaultFolder = (state.rules[0] as Rule).folder;
       state.device = action.payload.device;
       state.status = "idle";
     },
@@ -97,6 +101,10 @@ export const DraftRuleSlice = createSlice({
     builder.addCase(initiatePopUp, (state) => {
       state.newRule = undefined;
       state.newRuleStatus = "idle";
+    });
+    builder.addCase(selectRepositoryAsync.fulfilled, (state, payload) => {
+      state.rules = [];
+      state.status = "empty";
     });
   },
 });

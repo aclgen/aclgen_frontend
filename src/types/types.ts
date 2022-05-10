@@ -14,6 +14,7 @@ export interface Rule extends RuleElement {
   sourceServices: ServiceElement[];
   destinationServices: ServiceElement[];
   direction: DIRECTION;
+  folder: string;
   policy: POLICY;
   lock: LockStatus;
   device: string;
@@ -88,11 +89,11 @@ export interface IPGROUP extends NetworkObjectElement {
 }
 
 export enum POLICY {
-  ACCEPT,
-  DENY,
+  ACCEPT = "ACCEPT",
+  DENY = "DENY",
 }
 
 export enum DIRECTION {
-  INBOUND,
-  OUTBOUND,
+  INBOUND = "INBOUND",
+  OUTBOUND = "OUTBOUND",
 }
