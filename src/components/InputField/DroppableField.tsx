@@ -18,6 +18,8 @@ import {
 export const DroppableInputField = ({
   inputID,
   fieldType,
+  expanded,
+  setExpanded,
   elements,
   searchAbleElements,
   onCreateNewElement,
@@ -25,6 +27,8 @@ export const DroppableInputField = ({
   droppableType,
   disabled = false,
 }: {
+  expanded: boolean;
+  setExpanded: (expanded: boolean) => void;
   droppableType: "object" | "service";
   inputID: string;
   onCreateNewElement: (name: string) => void;
@@ -42,7 +46,7 @@ export const DroppableInputField = ({
     },
   });
 
-  const { searchMenu, isOpen, setOpen } = useCloseOnLostFocus();
+  const { searchMenu, isOpen, setOpen } = useCloseOnLostFocus(setExpanded);
 
   const { searchName } = useSearchAble(searchAbleElements);
 
@@ -69,18 +73,22 @@ export const DroppableInputField = ({
       <div
         ref={ref}
         className="relative hover:cursor-text"
-        onClick={() => {
+        onClick={(event) => {
+          event.stopPropagation();
+          setExpanded(true);
           setOpen(true);
         }}
       >
         <Label value={fieldType} />
         <div>
           <FlexibleInputContainer
+            expanded={expanded}
             isHovered={isOver}
             isCompatible={!disabled}
             inputElements={elements}
             removeElement={removeElement}
             onFocus={() => {
+              setExpanded(true);
               setOpen(true);
             }}
           />
@@ -106,11 +114,13 @@ export const DroppableInputField = ({
 
 function FlexibleInputContainer({
   isHovered,
+  expanded,
   isCompatible,
   inputElements,
   removeElement,
   onFocus,
 }: {
+  expanded: boolean;
   isHovered: boolean;
   isCompatible: boolean;
   inputElements: EditableElement[];
@@ -118,20 +128,22 @@ function FlexibleInputContainer({
   onFocus: () => void;
 }) {
   return (
-    <div
-      tabIndex={0}
-      onFocus={onFocus}
-      className={composeStyle(isHovered, isCompatible)}
-    >
-      <div className="text-md py-1 opacity-0 w-0">E</div>
-      {inputElements.map((element) => (
-        <InputElement
-          key={element.id}
-          element={element}
-          onRemove={removeElement}
-          disableRemove={inputElements.length > 1}
-        />
-      ))}
+    <div className={`${expanded ? "h-fit" : "max-h-12 overflow-hidden"}`}>
+      <div
+        tabIndex={0}
+        onFocus={onFocus}
+        className={`${composeStyle(isHovered, isCompatible)} `}
+      >
+        <div className="text-md py-1 opacity-0 w-0"> </div>
+        {inputElements.map((element) => (
+          <InputElement
+            key={element.id}
+            element={element}
+            onRemove={removeElement}
+            disableRemove={inputElements.length > 1}
+          />
+        ))}
+      </div>
     </div>
   );
 }

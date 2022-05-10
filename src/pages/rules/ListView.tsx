@@ -33,7 +33,6 @@ import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import {
   stopDragging,
-  addDraggedItem,
   startDragging,
 } from "../../features/draggable/draggableSlice";
 
@@ -119,9 +118,14 @@ function RuleList() {
     }
   };
 
-  const handleDragEnd = ({ over }) => {
+  const handleDragEnd = ({ over, active }) => {
     if (over) {
-      if (over.data.current && over.data.current.type === "rule") {
+      if (
+        over.data.current &&
+        over.data.current.type === "rule" &&
+        active.data.current &&
+        active.data.current.type === "rule"
+      ) {
         const overIndex = getIndex(
           over.id.replace("destinationserviceinput", "")
         );

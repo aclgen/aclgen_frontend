@@ -21,7 +21,6 @@ import {
 } from "../../features/networkObject/DraftNetworkObjectSlice";
 import { selectDraggable } from "../../features/draggable/draggableSlice";
 import Image from "next/image";
-import { LockStatus } from "../../types/repository";
 
 export interface CardProps {
   index: number;
@@ -51,6 +50,7 @@ function Card({ index, rule, modifyCard }: CardProps) {
   const dispatch = useAppDispatch();
 
   const [name, setName] = useState(rule.name);
+  const [expanded, setExpanded] = useState(false);
   const [comment, setComment] = useState(rule.comment);
   const [source, setSource] = useState(rule.sources);
   const [destination, setDestination] = useState(rule.destinations);
@@ -75,6 +75,7 @@ function Card({ index, rule, modifyCard }: CardProps) {
       destinationServices != rule.destinationServices
     ) {
       modifyCard(createCard());
+      setExpanded(true);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -118,9 +119,13 @@ function Card({ index, rule, modifyCard }: CardProps) {
   return (
     <div
       key={rule.id}
-      className={`p-2 pl-4 container bg-white container-xl transition-opacity ${statusStyle(
+      onFocus={() => setExpanded(true)}
+      onClick={() => setExpanded(!expanded)}
+      className={`pt-1 pr-2 pl-4 container bg-white container-xl transition-opacity ${statusStyle(
         rule.status
-      )} mb-2 hover:cursor-pointer outline-none active:border-blue-500 rounded-md shadow-md dark:bg-gray-800 dark:border-gray-700 min-w-fit`}
+      )} ${
+        expanded ? "h-full p-1" : "h-22 "
+      } mb-2 hover:cursor-pointer outline-none transition-[height] active:border-blue-500 rounded-md shadow-md dark:bg-gray-800 dark:border-gray-700 min-w-fit`}
     >
       <form
         className="space-y-2 flex flex-row justify-between space-x-4"
@@ -140,6 +145,8 @@ function Card({ index, rule, modifyCard }: CardProps) {
             fieldType={"SOURCE"}
             elements={source}
             searchAbleElements={searchAbleObjects}
+            expanded={expanded}
+            setExpanded={setExpanded}
             onCreateNewElement={(name: string) => {
               dispatch(initiatePopUp());
               dispatch(initiateNewObject(name));
@@ -150,6 +157,8 @@ function Card({ index, rule, modifyCard }: CardProps) {
             disabled={dragState !== undefined && dragState.type !== "object"}
           />
           <DroppableInputField
+            expanded={expanded}
+            setExpanded={setExpanded}
             droppableType={"service"}
             inputID={rule.id + "sourceserviceinput"}
             fieldType={"SERVICE"}
@@ -165,6 +174,8 @@ function Card({ index, rule, modifyCard }: CardProps) {
             disabled={dragState !== undefined && dragState.type !== "service"}
           />
           <DroppableInputField
+            expanded={expanded}
+            setExpanded={setExpanded}
             droppableType={"object"}
             inputID={rule.id + "destinationinput"}
             fieldType={"DESTINATION"}
@@ -180,6 +191,8 @@ function Card({ index, rule, modifyCard }: CardProps) {
             disabled={dragState !== undefined && dragState.type !== "object"}
           />
           <DroppableInputField
+            expanded={expanded}
+            setExpanded={setExpanded}
             droppableType={"service"}
             inputID={rule.id + "destinationserviceinput"}
             fieldType={"SERVICE"}

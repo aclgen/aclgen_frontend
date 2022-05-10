@@ -5,6 +5,12 @@ module.exports = {
     "./src/features/**/*.{js,ts,jsx,tsx}",
   ],
   darkMode: "class",
-  theme: {},
+  theme: {
+    extend: {
+      transitionProperty: {
+        height: "height",
+      },
+    },
+  },
   plugins: [],
 };

@@ -111,10 +111,18 @@ export function useDroppableStateChange(
   }, [draggableState.currentDroppedItem]);
 }
 
-export function useCloseOnLostFocus() {
+export function useCloseOnLostFocus(setExpanded?: (boolean) => void) {
   const searchMenu = useRef(null);
 
-  const [isOpen, setOpen] = useState(false);
+  const [isOpen, setOpenMenu] = useState(false);
+
+  function setOpen(open: boolean) {
+    if (open) {
+      setExpanded(true);
+    }
+
+    setOpenMenu(open);
+  }
 
   const closeOpenMenus = (e: { target: any }) => {
     if (
