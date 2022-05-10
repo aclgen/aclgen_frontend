@@ -34,7 +34,8 @@ export async function fetchRulesWithDeviceId(
 
 export async function saveRules(
   rules: RuleElement[],
-  repoId: string
+  repoId: string,
+  deviceId: string
 ): Promise<{
   data: RuleElementAPI[];
 }> {
@@ -47,12 +48,10 @@ export async function saveRules(
   let newRuleRsponse = [];
   let modifiedRuleResponse = [];
 
-  console.log(modifiedRules);
-
   if (newRules.length > 0) {
     newRuleRsponse = await Promise.all([
       newRules.map((rule) =>
-        fetch(createAPIRoute(`repo/${repoId}/device/${rule.device}/rule`), {
+        fetch(createAPIRoute(`repo/${repoId}/device/${deviceId}/rule/`), {
           method: "post",
           headers: {
             "Content-Type": "application/json",
@@ -67,8 +66,8 @@ export async function saveRules(
 
   if (modifiedRules.length > 0) {
     const pendingRules = modifiedRules.map((rule) =>
-      fetch(createAPIRoute(`repo/${repoId}/device/${rule.device}/rule/`), {
-        method: "put",
+      fetch(createAPIRoute(`repo/${repoId}/device/${deviceId}/rule/`), {
+        method: "post",
         headers: {
           "Content-Type": "application/json",
         },

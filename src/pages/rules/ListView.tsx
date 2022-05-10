@@ -79,7 +79,7 @@ function RuleList() {
   useEffect(() => {
     if (state.status === "empty" && draftRepoState.status == "idle") {
       const firewall = draftRepoState.repository.workSpace[0] as FireWall;
-      dispatch(setRules(firewall.rules));
+      dispatch(setRules({ rules: firewall.rules, device: firewall }));
     }
   });
 

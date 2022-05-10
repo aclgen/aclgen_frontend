@@ -82,7 +82,8 @@ export const saveRulesAsync = createAsyncThunk<
 
   const response = await saveRules(
     rules,
-    thunkAPI.getState().draftRepository.repository.id
+    thunkAPI.getState().draftRepository.repository.id,
+    thunkAPI.getState().rule.device.id
   );
   // The value we return becomes the `fulfilled` action payload
   const objects: NetworkObjectElement[] =

@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import type { AppState } from "../../app/store";
+import { NetworkElement } from "../../types/repository";
 import { Rule, RuleElement } from "../../types/types";
 import {
   cancelCreationPopUp,
@@ -12,6 +13,7 @@ export interface DraftRuleState {
   rules: RuleElement[];
   status: "empty" | "idle" | "loading" | "failed";
   newRule: Rule | undefined;
+  device: NetworkElement | undefined;
   newRuleStatus: "idle" | "creating" | "loading";
 }
 
@@ -19,6 +21,7 @@ const initialState: DraftRuleState = {
   rules: [],
   status: "empty",
   newRule: undefined,
+  device: undefined,
   newRuleStatus: "idle",
 };
 
@@ -44,8 +47,12 @@ export const DraftRuleSlice = createSlice({
     ) => {
       state.rules = action.payload(state.rules);
     },
-    setRules: (state, action: PayloadAction<RuleElement[]>) => {
-      state.rules = action.payload;
+    setRules: (
+      state,
+      action: PayloadAction<{ rules: RuleElement[]; device: NetworkElement }>
+    ) => {
+      state.rules = action.payload.rules;
+      state.device = action.payload.device;
       state.status = "idle";
     },
     modifyRule: (state, action: PayloadAction<RuleElement>) => {
