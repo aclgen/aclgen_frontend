@@ -1,5 +1,6 @@
 import CreationPopup from "../../features/creation/CreationPopup";
 import NavBar from "../navbar";
+import RightClickHandler from "../../features/rightclick/RightClickHandler";
 
 export type BaseProps = {
   Child: React.FC;
@@ -10,6 +11,7 @@ function BasePage({ Child }: BaseProps) {
     <div className="max-h-screen overflow-hidden">
       <NavBar />
       <div className="bg-slate-50 dark:bg-gray-600">
+        <RightClickHandler />
         <Child />
       </div>
       <CreationPopup />
