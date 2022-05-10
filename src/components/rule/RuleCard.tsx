@@ -63,8 +63,22 @@ function Card({ index, rule, modifyCard }: CardProps) {
   const [status, setStatus] = useState(rule.status);
 
   function onChange(setState: () => void) {
+    setState();
     modifyCard(createCard());
   }
+
+  useEffect(() => {
+    if (
+      source != rule.sources ||
+      destination != rule.destinations ||
+      sourceServices != rule.sourceServices ||
+      destinationServices != rule.destinationServices
+    ) {
+      modifyCard(createCard());
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [source, destination, sourceServices, destinationServices]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {

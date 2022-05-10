@@ -31,14 +31,22 @@ import {
 import {
   closestCenter,
   DndContext,
+  DragCancelEvent,
   DragOverlay,
   MouseSensor,
+  pointerWithin,
+  useDndMonitor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import { ruleList } from "../api/rules";
+import {
+  stopDragging,
+  addDraggedItem,
+  startDragging,
+} from "../../features/draggable/draggableSlice";
 
 function ListView() {
   const dispatch = useAppDispatch();
@@ -84,52 +92,71 @@ function RuleList() {
   });
 
   const [activeId, setActiveId] = useState<string | null>(null);
-  const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: {
-        distance: 7,
-      },
-    })
-  );
 
   function getIndex(id: string): number {
     return state.rules.indexOf(state.rules.filter((rule) => rule.id === id)[0]);
   }
   const activeIndex = activeId ? getIndex(activeId) : -1;
 
-  return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragStart={({ active }) => {
-        setActiveId(active.id);
-      }}
-      onDragEnd={({ over }) => {
-        if (over) {
-          const overIndex = getIndex(
-            over.id.replace("destinationserviceinput", "")
+  useDndMonitor({
+    onDragStart(event) {
+      handleDragStart(event);
+    },
+
+    onDragEnd(event) {
+      handleDragEnd(event);
+    },
+    onDragCancel(event) {
+      handleDragCancel(event);
+    },
+  });
+
+  const handleDragStart = ({ active }) => {
+    if (active.data.current && active.data.current.type === "rule") {
+      setActiveId(active.id);
+      dispatch(
+        startDragging({
+          id: active.data.current.id,
+          type: active.data.current.type,
+        })
+      );
+    }
+  };
+
+  const handleDragCancel = ({ active }) => {
+    if (active.data.current && active.data.current.type === "rule") {
+      setActiveId(null);
+      dispatch(stopDragging());
+    }
+  };
+
+  const handleDragEnd = ({ over }) => {
+    if (over) {
+      if (over.data.current && over.data.current.type === "rule") {
+        const overIndex = getIndex(
+          over.id.replace("destinationserviceinput", "")
+        );
+        dispatch(stopDragging());
+        if (activeIndex !== overIndex) {
+          dispatch(
+            updateRules((items) => {
+              var rules = items;
+              const movedRule = rules[activeIndex];
+              rules[activeIndex] = {
+                ...movedRule,
+                status: movedRule.status === "new" ? "new" : "modified",
+              };
+              return arrayMove(rules, activeIndex, overIndex);
+            })
           );
-
-          if (activeIndex !== overIndex) {
-            dispatch(
-              updateRules((items) => {
-                var rules = items;
-                const movedRule = rules[activeIndex];
-                rules[activeIndex] = {
-                  ...movedRule,
-                  status: movedRule.status === "new" ? "new" : "modified",
-                };
-                return arrayMove(rules, activeIndex, overIndex);
-              })
-            );
-          }
         }
+      }
+    }
 
-        setActiveId(null);
-      }}
-      onDragCancel={() => setActiveId(null)}
-      id={"draggable_rule_context"}
-    >
+    setActiveId(null);
+  };
+  return (
+    <>
       <SortableContext
         items={state.rules}
         strategy={verticalListSortingStrategy}
@@ -165,7 +192,7 @@ function RuleList() {
         </DragOverlay>,
         document.body
       )}
-    </DndContext>
+    </>
   );
 }
 
@@ -218,6 +245,10 @@ export function SortableRuleWrapper({
     animateLayoutChanges,
     disabled,
     getNewIndex,
+    data: {
+      id: rule.id,
+      type: "rule",
+    },
   });
 
   return (

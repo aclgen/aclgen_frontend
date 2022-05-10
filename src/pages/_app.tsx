@@ -9,6 +9,7 @@ import {
   DndContext,
   KeyboardSensor,
   MouseSensor,
+  pointerWithin,
   TouchSensor,
   useSensor,
   useSensors,
@@ -27,7 +28,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
   return (
     <Provider store={store}>
-      <DndContext sensors={sensors}>
+      <DndContext sensors={sensors} collisionDetection={pointerWithin}>
         <ThemeProvider enableSystem={true} attribute="class">
           <Component {...pageProps} />
         </ThemeProvider>

@@ -91,7 +91,7 @@ export const saveRulesAsync = createAsyncThunk<
 
   const services: ServiceElement[] =
     thunkAPI.getState().draftRepository.repository.services;
-  console.log(response.data);
+
   const savedRules: Rule[] = response.data.map((element) => {
     return {
       ...element,

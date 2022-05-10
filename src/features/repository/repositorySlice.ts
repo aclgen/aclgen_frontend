@@ -5,6 +5,7 @@ import { fetchRepositories } from "./repositoryAPI";
 import {
   ACCESS,
   FireWall,
+  LockStatus,
   NetworkElement,
   Repository,
 } from "../../types/repository";
@@ -68,6 +69,8 @@ export const selectRepositoryAsync = createAsyncThunk(
     let rules = apiRules.map((element) => {
       return {
         ...element,
+        policy: element.action,
+        lock: element.lock ? element.lock : LockStatus.UNLOCKED,
         device: all[2][0].id,
         sources: element.sources.map((elementSource) =>
           networkObjects.find(
