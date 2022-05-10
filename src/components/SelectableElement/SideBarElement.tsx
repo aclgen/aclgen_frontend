@@ -115,7 +115,8 @@ export function DraggableSideBarElement({
     ) {
       return;
     }
-
+    console.log(active);
+    console.log(over);
     dispatch(
       addDraggedItem({
         dropped: { id: active.data.current.id, type: element.type },

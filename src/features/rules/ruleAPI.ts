@@ -34,7 +34,8 @@ export async function fetchRulesWithDeviceId(
 
 export async function saveRules(
   rules: RuleElement[],
-  repoId: string
+  repoId: string,
+  deviceId: string
 ): Promise<{
   data: RuleElementAPI[];
 }> {
@@ -47,40 +48,37 @@ export async function saveRules(
   let newRuleRsponse = [];
   let modifiedRuleResponse = [];
 
-  console.log(modifiedRules);
-
   if (newRules.length > 0) {
-    newRuleRsponse = await Promise.all([
-      newRules.map((rule) =>
-        fetch(createAPIRoute(`repo/${repoId}/device/${rule.device}/rule`), {
-          method: "post",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(rule),
-        })
-          .then((response) => response.json())
-          .catch((e) => {})
-      ),
-    ]);
-  }
-
-  if (modifiedRules.length > 0) {
-    const pendingRules = modifiedRules.map((rule) =>
-      fetch(createAPIRoute(`repo/${repoId}/device/${rule.device}/rule/`), {
-        method: "put",
+    const pendingRules = newRules.map((rule) =>
+      fetch(createAPIRoute(`repo/${repoId}/device/${deviceId}/rule/`), {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(rule),
       })
         .then((response) => response.json())
+        .catch((e) => {})
+    );
+    newRuleRsponse = await Promise.all(pendingRules);
+  }
+  if (modifiedRules.length > 0) {
+    const pendingRules = modifiedRules.map((rule) =>
+      fetch(
+        createAPIRoute(`repo/${repoId}/device/${deviceId}/rule/${rule.id}/`),
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(rule),
+        }
+      )
+        .then((response) => response.json())
         .catch((e) => console.log(e))
     );
     modifiedRuleResponse = await Promise.all(pendingRules);
   }
-
-  console.log(modifiedRuleResponse);
   return {
     data: newRuleRsponse.concat(modifiedRuleResponse),
   };
@@ -95,10 +93,11 @@ function translateRuleElement(translateRuleElement: Rule): RuleElementAPI {
     services_destinations: translateRuleElement.destinationServices.map(
       (element) => element.id
     ),
-    action: translateRuleElement.policy,
     sources: translateRuleElement.sources.map((element) => element.id),
     destinations: translateRuleElement.sources.map((element) => element.id),
-    folder: "",
+    folder: translateRuleElement.folder,
+    direction: translateRuleElement.direction,
+    action: translateRuleElement.policy,
   };
   return newRule;
 }

@@ -82,7 +82,8 @@ export const saveRulesAsync = createAsyncThunk<
 
   const response = await saveRules(
     rules,
-    thunkAPI.getState().draftRepository.repository.id
+    thunkAPI.getState().draftRepository.repository.id,
+    thunkAPI.getState().rule.device.id
   );
   // The value we return becomes the `fulfilled` action payload
   const objects: NetworkObjectElement[] =
@@ -228,13 +229,13 @@ export const DraftRepositorySlice = createSlice({
       state.status = "idle";
       state.repository = {
         ...state.repository,
-        workSpace: {
+        workSpace: [
           ...(state.repository.workSpace = [
             ...state.repository.workSpace.slice(0, index),
             newFireWall,
             ...state.repository.workSpace.slice(index + 1),
           ]),
-        },
+        ],
       };
     });
   },

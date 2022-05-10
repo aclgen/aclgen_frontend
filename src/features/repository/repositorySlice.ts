@@ -5,6 +5,7 @@ import { fetchRepositories } from "./repositoryAPI";
 import {
   ACCESS,
   FireWall,
+  LockStatus,
   NetworkElement,
   Repository,
 } from "../../types/repository";
@@ -12,6 +13,7 @@ import EmptyRepository from "./EmptyRepository";
 import {
   commitObjectsAsync,
   commitServicesAsync,
+  saveRulesAsync,
 } from "./DraftRepositorySlice";
 import { fetchServicesWithRepoId } from "../service/serviceAPI";
 import { fetchNetworkObjectsWithRepoId } from "../networkObject/networkObjectAPI";
@@ -67,6 +69,8 @@ export const selectRepositoryAsync = createAsyncThunk(
     let rules = apiRules.map((element) => {
       return {
         ...element,
+        policy: element.action,
+        lock: element.lock ? element.lock : LockStatus.UNLOCKED,
         device: all[2][0].id,
         sources: element.sources.map((elementSource) =>
           networkObjects.find(
@@ -221,6 +225,15 @@ export const RepositorySlice = createSlice({
         }
       }
 */
+      state.selectedRepository = EmptyRepository;
+      state.status = "idle";
+    });
+    builder.addCase(saveRulesAsync.pending, (state, action) => {
+      state.status = "loading";
+    });
+    builder.addCase(saveRulesAsync.fulfilled, (state, action) => {
+      state.status = "idle";
+
       state.selectedRepository = EmptyRepository;
       state.status = "idle";
     });

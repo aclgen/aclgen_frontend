@@ -5,6 +5,7 @@ import ruleSlice, {
   initiateNewRule,
   setRules,
   modifyRuleWithIndex,
+  updateRules,
 } from "../../features/rules/ruleSlice";
 import { useEffect, useState } from "react";
 import { Rule, RuleElement } from "../../types/types";
@@ -18,6 +19,23 @@ import CountableCheckButton from "../../components/CountableCheckButton";
 import { initiatePopUp } from "../../features/service/DraftServiceSlice";
 import { Virtuoso } from "react-virtuoso";
 import React from "react";
+import {
+  AnimateLayoutChanges,
+  arrayMove,
+  NewIndexGetter,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { DragOverlay, useDndMonitor } from "@dnd-kit/core";
+import { createPortal } from "react-dom";
+import dynamic from "next/dynamic";
+import {
+  stopDragging,
+  addDraggedItem,
+  startDragging,
+} from "../../features/draggable/draggableSlice";
 
 function ListView() {
   const dispatch = useAppDispatch();
@@ -43,7 +61,7 @@ function ListView() {
             </button>
             <SaveRulesCountButton />
           </div>
-          <RuleList />
+          <DynamicRuleList />
         </div>
       </div>
     </div>
@@ -58,35 +76,181 @@ function RuleList() {
   useEffect(() => {
     if (state.status === "empty" && draftRepoState.status == "idle") {
       const firewall = draftRepoState.repository.workSpace[0] as FireWall;
-      dispatch(setRules(firewall.rules));
+      dispatch(setRules({ rules: firewall.rules, device: firewall }));
     }
   });
 
-  const renderCard = (rule: Rule, index: number) => {
-    return (
-      <RuleCard
-        key={index}
-        index={index}
-        rule={rule}
-        modifyCard={(card) =>
-          dispatch(modifyRuleWithIndex({ rule: card, index }))
-        }
-      />
-    );
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  function getIndex(id: string): number {
+    return state.rules.indexOf(state.rules.filter((rule) => rule.id === id)[0]);
+  }
+  const activeIndex = activeId ? getIndex(activeId) : -1;
+
+  useDndMonitor({
+    onDragStart(event) {
+      handleDragStart(event);
+    },
+
+    onDragEnd(event) {
+      handleDragEnd(event);
+    },
+    onDragCancel(event) {
+      handleDragCancel(event);
+    },
+  });
+
+  const handleDragStart = ({ active }) => {
+    if (active.data.current && active.data.current.type === "rule") {
+      setActiveId(active.id);
+      dispatch(
+        startDragging({
+          id: active.data.current.id,
+          type: active.data.current.type,
+        })
+      );
+    }
   };
 
-  const RuleEntry = (index: number) => {
-    return renderCard(state.rules[index] as Rule, index);
+  const handleDragCancel = ({ active }) => {
+    if (active.data.current && active.data.current.type === "rule") {
+      setActiveId(null);
+      dispatch(stopDragging());
+    }
   };
+
+  const handleDragEnd = ({ over }) => {
+    if (over) {
+      if (over.data.current && over.data.current.type === "rule") {
+        const overIndex = getIndex(
+          over.id.replace("destinationserviceinput", "")
+        );
+        dispatch(stopDragging());
+        if (activeIndex !== overIndex) {
+          dispatch(
+            updateRules((items) => {
+              var rules = items;
+              const movedRule = rules[activeIndex];
+              rules[activeIndex] = {
+                ...movedRule,
+                status: movedRule.status === "new" ? "new" : "modified",
+              };
+              return arrayMove(rules, activeIndex, overIndex);
+            })
+          );
+        }
+      }
+    }
+
+    setActiveId(null);
+  };
+  return (
+    <>
+      <SortableContext
+        items={state.rules}
+        strategy={verticalListSortingStrategy}
+      >
+        <Virtuoso
+          totalCount={state.rules.length}
+          overscan={1200}
+          increaseViewportBy={400}
+          itemContent={(index) => {
+            const rule = state.rules[index];
+
+            return (
+              <SortableRuleWrapper
+                key={rule.id}
+                id={rule.id}
+                index={index}
+                rule={rule as Rule}
+              />
+            );
+          }}
+        />
+      </SortableContext>
+
+      {createPortal(
+        <DragOverlay adjustScale={false} dropAnimation={null}>
+          {activeId && activeIndex !== -1 ? (
+            <RuleCard
+              index={activeIndex}
+              rule={state.rules[activeIndex] as Rule}
+              modifyCard={function (rule: Rule): void {}}
+            />
+          ) : null}
+        </DragOverlay>,
+        document.body
+      )}
+    </>
+  );
+}
+
+const RenderCard = ({ rule, index }: { rule: Rule; index: number }) => {
+  const dispatch = useAppDispatch();
+  return (
+    <RuleCard
+      key={index}
+      index={index}
+      rule={rule}
+      modifyCard={(card) =>
+        dispatch(modifyRuleWithIndex({ rule: card, index }))
+      }
+    />
+  );
+};
+
+const DynamicRuleList = dynamic(() => Promise.resolve(RuleList), {
+  ssr: false,
+});
+
+interface SortableRuleWrapperProps {
+  animateLayoutChanges?: AnimateLayoutChanges;
+  disabled?: boolean;
+  getNewIndex?: NewIndexGetter;
+  id: string;
+  index: number;
+  rule: Rule;
+}
+
+export function SortableRuleWrapper({
+  disabled,
+  animateLayoutChanges,
+  getNewIndex,
+  id,
+  index,
+  rule,
+}: SortableRuleWrapperProps) {
+  const {
+    attributes,
+    isDragging,
+    isSorting,
+    listeners,
+    overIndex,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({
+    id,
+    animateLayoutChanges,
+    disabled,
+    getNewIndex,
+    data: {
+      id: rule.id,
+      type: "rule",
+    },
+  });
 
   return (
-    <Virtuoso
-      totalCount={state.rules.length}
-      overscan={1200}
-      increaseViewportBy={400}
-      itemContent={(index) => RuleEntry(index)}
-    ></Virtuoso>
+    <div ref={setNodeRef} {...listeners} {...attributes}>
+      <RenderCard rule={rule} index={index} />
+    </div>
   );
+}
+
+interface Props {
+  children: React.ReactNode;
+  center?: boolean;
+  style?: React.CSSProperties;
 }
 
 export function SaveRulesCountButton() {

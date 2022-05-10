@@ -50,10 +50,11 @@ function RuleCreationPopUp() {
     policy: policy,
     name: name,
     comment: comment,
-    device: "",
+    device: rulestate.device.id,
     status: "new",
     id: id,
     lock: LockStatus.UNLOCKED,
+    folder: rulestate.defaultFolder,
   };
 
   const ruleProps: RuleCreationPopupProps = {

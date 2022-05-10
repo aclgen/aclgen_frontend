@@ -88,7 +88,7 @@ export const useKeyPress = function (
 
 export function useDroppableStateChange(
   id: string,
-  type: "service" | "object",
+  type: "service" | "object" | "rule",
   addElement: (element: EditableElement) => void,
   availibleElements: EditableElement[]
 ) {
@@ -100,13 +100,13 @@ export function useDroppableStateChange(
       draggableState.currentDroppedItem.target === id &&
       draggableState.currentDroppedItem.dropped.type === type
     ) {
-      addElement(
-        availibleElements.find(
-          (element) =>
-            element.id === draggableState.currentDroppedItem.dropped.id
-        )
+      const element = availibleElements.find(
+        (element) => element.id === draggableState.currentDroppedItem.dropped.id
       );
-      dispatch(removeDraggedItem);
+      if (element) {
+        dispatch(removeDraggedItem());
+        addElement(element);
+      }
     }
   }, [draggableState.currentDroppedItem]);
 }
