@@ -7,7 +7,6 @@ import styles from "../styles/Home.module.css";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import {
   selectRepository,
-  selectRepositoryAsync,
   updateRepositoriesAsync,
 } from "../features/repository/repositorySlice";
 import { useEffect } from "react";

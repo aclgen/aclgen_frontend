@@ -5,6 +5,7 @@ import ruleSlice, {
   initiateNewRule,
   setRules,
   modifyRuleWithIndex,
+  updateRules,
 } from "../../features/rules/ruleSlice";
 import { useEffect, useState } from "react";
 import { Rule, RuleElement } from "../../types/types";
@@ -18,6 +19,26 @@ import CountableCheckButton from "../../components/CountableCheckButton";
 import { initiatePopUp } from "../../features/service/DraftServiceSlice";
 import { Virtuoso } from "react-virtuoso";
 import React from "react";
+import {
+  AnimateLayoutChanges,
+  arrayMove,
+  NewIndexGetter,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import {
+  closestCenter,
+  DndContext,
+  DragOverlay,
+  MouseSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import { createPortal } from "react-dom";
+import dynamic from "next/dynamic";
+import { ruleList } from "../api/rules";
 
 function ListView() {
   const dispatch = useAppDispatch();
@@ -43,7 +64,7 @@ function ListView() {
             </button>
             <SaveRulesCountButton />
           </div>
-          <RuleList />
+          <DynamicRuleList />
         </div>
       </div>
     </div>
@@ -62,31 +83,158 @@ function RuleList() {
     }
   });
 
-  const renderCard = (rule: Rule, index: number) => {
-    return (
-      <RuleCard
-        key={index}
-        index={index}
-        rule={rule}
-        modifyCard={(card) =>
-          dispatch(modifyRuleWithIndex({ rule: card, index }))
-        }
-      />
-    );
+  const RuleEntry = (index: number) => {
+    return <RenderCard rule={state.rules[index] as Rule} index={index} />;
   };
 
-  const RuleEntry = (index: number) => {
-    return renderCard(state.rules[index] as Rule, index);
-  };
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 7,
+      },
+    })
+  );
+
+  function getIndex(id: string): number {
+    return state.rules.indexOf(state.rules.filter((rule) => rule.id === id)[0]);
+  }
+  const activeIndex = activeId ? getIndex(activeId) : -1;
 
   return (
-    <Virtuoso
-      totalCount={state.rules.length}
-      overscan={1200}
-      increaseViewportBy={400}
-      itemContent={(index) => RuleEntry(index)}
-    ></Virtuoso>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={({ active }) => {
+        setActiveId(active.id);
+      }}
+      onDragEnd={({ over }) => {
+        if (over) {
+          const overIndex = getIndex(
+            over.id.replace("destinationserviceinput", "")
+          );
+
+          if (activeIndex !== overIndex) {
+            dispatch(
+              updateRules((items) => {
+                var rules = items;
+                const movedRule = rules[activeIndex];
+                rules[activeIndex] = {
+                  ...movedRule,
+                  status: movedRule.status === "new" ? "new" : "modified",
+                };
+                return arrayMove(rules, activeIndex, overIndex);
+              })
+            );
+          }
+        }
+
+        setActiveId(null);
+      }}
+      onDragCancel={() => setActiveId(null)}
+      id={"draggable_rule_context"}
+    >
+      <SortableContext
+        items={state.rules}
+        strategy={verticalListSortingStrategy}
+      >
+        <Virtuoso
+          totalCount={state.rules.length}
+          overscan={1200}
+          increaseViewportBy={400}
+          itemContent={(index) => {
+            const rule = state.rules[index];
+
+            return (
+              <SortableRuleWrapper
+                key={rule.id}
+                id={rule.id}
+                index={index}
+                rule={rule as Rule}
+              />
+            );
+          }}
+        />
+      </SortableContext>
+
+      {createPortal(
+        <DragOverlay adjustScale={false} dropAnimation={null}>
+          {activeId && activeIndex !== -1 ? (
+            <RuleCard
+              index={activeIndex}
+              rule={state.rules[activeIndex] as Rule}
+              modifyCard={function (rule: Rule): void {}}
+            />
+          ) : null}
+        </DragOverlay>,
+        document.body
+      )}
+    </DndContext>
   );
+}
+
+const RenderCard = ({ rule, index }: { rule: Rule; index: number }) => {
+  const dispatch = useAppDispatch();
+  return (
+    <RuleCard
+      key={index}
+      index={index}
+      rule={rule}
+      modifyCard={(card) =>
+        dispatch(modifyRuleWithIndex({ rule: card, index }))
+      }
+    />
+  );
+};
+
+const DynamicRuleList = dynamic(() => Promise.resolve(RuleList), {
+  ssr: false,
+});
+
+interface SortableRuleWrapperProps {
+  animateLayoutChanges?: AnimateLayoutChanges;
+  disabled?: boolean;
+  getNewIndex?: NewIndexGetter;
+  id: string;
+  index: number;
+  rule: Rule;
+}
+
+export function SortableRuleWrapper({
+  disabled,
+  animateLayoutChanges,
+  getNewIndex,
+  id,
+  index,
+  rule,
+}: SortableRuleWrapperProps) {
+  const {
+    attributes,
+    isDragging,
+    isSorting,
+    listeners,
+    overIndex,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({
+    id,
+    animateLayoutChanges,
+    disabled,
+    getNewIndex,
+  });
+
+  return (
+    <div ref={setNodeRef} {...listeners} {...attributes}>
+      <RenderCard rule={rule} index={index} />
+    </div>
+  );
+}
+
+interface Props {
+  children: React.ReactNode;
+  center?: boolean;
+  style?: React.CSSProperties;
 }
 
 export function SaveRulesCountButton() {

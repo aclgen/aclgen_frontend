@@ -6,7 +6,7 @@ export interface DraggableState {
     | {
         dropped: {
           id: string;
-          type: "object" | "service";
+          type: "object" | "service" | "rule";
         };
         target: string;
       }
@@ -14,7 +14,7 @@ export interface DraggableState {
   currentDraggedItem:
     | {
         id: string;
-        type: "object" | "service";
+        type: "object" | "service" | "rule";
       }
     | undefined;
 }
