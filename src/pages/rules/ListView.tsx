@@ -28,20 +28,9 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import {
-  closestCenter,
-  DndContext,
-  DragCancelEvent,
-  DragOverlay,
-  MouseSensor,
-  pointerWithin,
-  useDndMonitor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
+import { DragOverlay, useDndMonitor } from "@dnd-kit/core";
 import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
-import { ruleList } from "../api/rules";
 import {
   stopDragging,
   addDraggedItem,
