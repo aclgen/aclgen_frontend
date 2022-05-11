@@ -39,6 +39,7 @@ import {
 } from "../workSpaceDraft/DraftWorkSpaceSlice";
 import CountableCheckButton from "../../components/CountableCheckButton";
 import EmptyRepository from "../repository/EmptyRepository";
+import { addRightClickedElement } from "../rightclick/RightClickSlice";
 
 function SideBar() {
   const dispatch = useAppDispatch();
@@ -188,7 +189,8 @@ export function RenderObjects() {
                   dispatch(initiatePopUp());
                   dispatch(initiateModifyNetworkObject(element));
                 },
-                () => dispatch(commitObjectsAsync([element]))
+                () => dispatch(commitObjectsAsync([element])),
+                () => dispatch(addRightClickedElement(element))
               )}
             </li>
           );
@@ -237,6 +239,9 @@ export function RenderServices() {
                 },
                 () => {
                   dispatch(commitServicesAsync([element]));
+                },
+                () => {
+                  dispatch(addRightClickedElement(element));
                 }
               )}
             </li>
