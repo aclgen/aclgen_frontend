@@ -8,6 +8,7 @@ import RepositoryReducer from "../features/repository/repositorySlice";
 import DraftRepositoryReducer from "../features/repository/DraftRepositorySlice";
 import DraftWorkSpaceReducer from "../features/workSpaceDraft/DraftWorkSpaceSlice";
 import DraggableSliceReducer from "../features/draggable/draggableSlice";
+import RightClickReducer from "../features/rightclick/RightClickSlice";
 
 export function makeStore() {
   return configureStore({
@@ -20,6 +21,7 @@ export function makeStore() {
       draftRepository: DraftRepositoryReducer,
       draftWorkSpace: DraftWorkSpaceReducer,
       draggable: DraggableSliceReducer,
+      rightClick: RightClickReducer,
     },
   });
 }

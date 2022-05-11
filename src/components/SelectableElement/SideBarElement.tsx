@@ -20,6 +20,8 @@ import {
   startDragging,
   stopDragging,
 } from "../../features/draggable/draggableSlice";
+import { Simulate } from "react-dom/test-utils";
+import contextMenu = Simulate.contextMenu;
 
 export interface SideBarElementProps {
   type: "service" | "object";
@@ -29,6 +31,7 @@ export interface SideBarElementProps {
   alt: string;
   status: "source" | "new" | "modified" | "deleted";
   onClick: () => void;
+  contextMenu?: () => void;
   onClickCheck?: () => void;
 }
 
@@ -39,6 +42,11 @@ export function RenderSideBarElement({
 }) {
   return (
     <div
+      onClick={(e) => {
+        e.stopPropagation();
+        element.onClick();
+      }}
+      onContextMenu={element.contextMenu}
       key={element.id}
       className={`flex flex-row bg-white group hover:cursor-pointer hover:shadow-lg transition-shadow  ${statusStyle(
         element.status
@@ -115,8 +123,7 @@ export function DraggableSideBarElement({
     ) {
       return;
     }
-    console.log(active);
-    console.log(over);
+
     dispatch(
       addDraggedItem({
         dropped: { id: active.data.current.id, type: element.type },
@@ -284,7 +291,7 @@ export const CheckIconSVG = ({
         className={` group-hover:fill-white ${
           isHovering ? "fill-white" : "fill-blue-700"
         }`}
-      ></path>
+      />
     </svg>
   );
 };
@@ -292,7 +299,8 @@ export const CheckIconSVG = ({
 export function RenderService(
   service: ServiceElement,
   onClick: () => void,
-  onCommit: () => void
+  onCommit: () => void,
+  contextMenu?: () => void
 ) {
   const elementProps: SideBarElementProps = {
     ...service,
@@ -300,6 +308,7 @@ export function RenderService(
     alt: "Service",
     onClick: onClick,
     onClickCheck: onCommit,
+    contextMenu,
     type: "service",
   };
   if (service.status !== "deleted") {
@@ -312,7 +321,8 @@ export function RenderService(
 export function RenderNetworkObjects(
   element: NetworkObjectElement,
   onClick: () => void,
-  onCommit: () => void
+  onCommit: () => void,
+  contextMenu?: () => void
 ) {
   const elementProps: SideBarElementProps = {
     ...element,
@@ -321,6 +331,7 @@ export function RenderNetworkObjects(
     onClick: onClick,
     onClickCheck: onCommit,
     type: "object",
+    contextMenu,
   };
   if (element.status !== "deleted") {
     return <DraggableSideBarElement element={elementProps} />;

@@ -21,6 +21,7 @@ import {
 } from "../../features/networkObject/DraftNetworkObjectSlice";
 import { selectDraggable } from "../../features/draggable/draggableSlice";
 import Image from "next/image";
+import { addRightClickedElement } from "../../features/rightclick/RightClickSlice";
 
 export interface CardProps {
   index: number;
@@ -121,6 +122,7 @@ function Card({ index, rule, modifyCard }: CardProps) {
       key={rule.id}
       onFocus={() => setExpanded(true)}
       onClick={() => setExpanded(!expanded)}
+      onContextMenu={() => dispatch(addRightClickedElement(rule))}
       className={`pt-1 pr-2 pl-4 container bg-white container-xl transition-opacity ${statusStyle(
         rule.status
       )} ${

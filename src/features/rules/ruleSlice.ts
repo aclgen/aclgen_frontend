@@ -9,11 +9,12 @@ import {
   initiatePopUp,
 } from "../service/DraftServiceSlice";
 import { fetchRules } from "./ruleAPI";
+import { v4 as uuidv4 } from "uuid";
 
 export interface DraftRuleState {
   rules: RuleElement[];
   status: "empty" | "idle" | "loading" | "failed";
-  newRule: Rule | undefined;
+  newRule: RuleElement | undefined;
   device: NetworkElement | undefined;
   defaultFolder: string | undefined;
   newRuleStatus: "idle" | "creating" | "loading";
@@ -86,9 +87,12 @@ export const DraftRuleSlice = createSlice({
       state.newRuleStatus = "idle";
     },
     saveRulesToDraft: (state, action: PayloadAction<RuleElement[]>) => {},
-    initiateNewRule: (state) => {
+    initiateNewRule: (state, action?: PayloadAction<RuleElement>) => {
       state.newRule = undefined;
       state.newRuleStatus = "creating";
+      if (action) {
+        state.newRule = { ...action.payload, id: uuidv4() };
+      }
     },
   },
   // The `extraReducers` field lets the slice handle actions defined elsewhere,
