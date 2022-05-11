@@ -35,6 +35,7 @@ import {
 } from "../service/DraftServiceSlice";
 import {
   selectWorkspaceDraft,
+  setSelectedNetworkElement,
   updateWorkSpace,
 } from "../workSpaceDraft/DraftWorkSpaceSlice";
 import CountableCheckButton from "../../components/CountableCheckButton";
@@ -89,7 +90,11 @@ export function RenderWorkSpace() {
       <ul className="pl-4 space-y-1">
         {state.workspace.map((element) => {
           return (
-            <li key={element.id}>{RenderNetworkElement(element, () => {})} </li>
+            <li key={element.id}>
+              {RenderNetworkElement(element, () => {
+                dispatch(setSelectedNetworkElement(element));
+              })}
+            </li>
           );
         })}
       </ul>

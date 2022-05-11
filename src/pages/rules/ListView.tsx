@@ -1,14 +1,15 @@
 import RuleCard from "../../components/rule/RuleCard";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
-import ruleSlice, {
+import {
   selectRule,
   initiateNewRule,
   setRules,
   modifyRuleWithIndex,
   updateRules,
+  saveRulesToDraft,
 } from "../../features/rules/ruleSlice";
 import { useEffect, useState } from "react";
-import { Rule, RuleElement } from "../../types/types";
+import { Rule } from "../../types/types";
 import SideBar from "../../features/sidebar/SideBar";
 import {
   saveRulesAsync,
@@ -24,7 +25,6 @@ import {
   arrayMove,
   NewIndexGetter,
   SortableContext,
-  sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
@@ -35,6 +35,7 @@ import {
   stopDragging,
   startDragging,
 } from "../../features/draggable/draggableSlice";
+import { selectWorkspaceDraft } from "../../features/workSpaceDraft/DraftWorkSpaceSlice";
 
 function ListView() {
   const dispatch = useAppDispatch();
@@ -43,11 +44,11 @@ function ListView() {
     <div className="flex flex-1 ">
       <div className="grid grid-flow-col auto-cols-auto space-4 w-full">
         <div className="flex flex-1 flex-col col-span-1 scrollbar border-r overflow-x-visible content-area  overflow-y-scroll">
-          <div className="flex flex-1 relative p-3 basis-1/4 overflow-y-auto ">
+          <div className="flex flex-1 relative p-3 overflow-y-auto ">
             <SideBar />
           </div>
         </div>
-        <div className="px-4 flex flex-col space-y-2 content-area py-2 col-span-6">
+        <div className="px-4 flex flex-col space-y-2 content-area py-2 col-span-12">
           <div className="container flex flex-row items-center space-x-2 bg-white container-xl transition-opacity rounded-md border-2 border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
             <button
               className="outline-none h-10 "
@@ -70,14 +71,31 @@ function ListView() {
 function RuleList() {
   const state = useAppSelector(selectRule);
   const draftRepoState = useAppSelector(selectDraftRepository);
+  const workspaceState = useAppSelector(selectWorkspaceDraft);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (state.status === "empty" && draftRepoState.status == "idle") {
-      const firewall = draftRepoState.repository.workSpace[0] as FireWall;
+    if (
+      state.status === "empty" &&
+      draftRepoState.status == "idle" &&
+      workspaceState.selectedElement
+    ) {
+      const firewall = workspaceState.selectedElement as FireWall;
       dispatch(setRules({ rules: firewall.rules, device: firewall }));
     }
-  });
+  }, [workspaceState.selectedElement]);
+
+  useEffect(() => {
+    if (
+      workspaceState.selectedElement &&
+      state.device &&
+      state.device.id !== workspaceState.selectedElement.id
+    ) {
+      dispatch(saveRulesToDraft({ rules: state.rules, device: state.device }));
+      const firewall = workspaceState.selectedElement as FireWall;
+      dispatch(setRules({ rules: firewall.rules, device: firewall }));
+    }
+  }, [workspaceState.selectedElement]);
 
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -133,7 +151,7 @@ function RuleList() {
         if (activeIndex !== overIndex) {
           dispatch(
             updateRules((items) => {
-              var rules = items;
+              const rules = items;
               const movedRule = rules[activeIndex];
               rules[activeIndex] = {
                 ...movedRule,
@@ -179,7 +197,7 @@ function RuleList() {
             <RuleCard
               index={activeIndex}
               rule={state.rules[activeIndex] as Rule}
-              modifyCard={function (rule: Rule): void {}}
+              modifyCard={function (_: Rule): void {}}
             />
           ) : null}
         </DragOverlay>,
@@ -224,16 +242,7 @@ export function SortableRuleWrapper({
   index,
   rule,
 }: SortableRuleWrapperProps) {
-  const {
-    attributes,
-    isDragging,
-    isSorting,
-    listeners,
-    overIndex,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({
+  const { attributes, listeners, setNodeRef } = useSortable({
     id,
     animateLayoutChanges,
     disabled,
@@ -251,12 +260,6 @@ export function SortableRuleWrapper({
   );
 }
 
-interface Props {
-  children: React.ReactNode;
-  center?: boolean;
-  style?: React.CSSProperties;
-}
-
 export function SaveRulesCountButton() {
   const state = useAppSelector(selectRule);
   const dispatch = useAppDispatch();
@@ -271,10 +274,8 @@ export function SaveRulesCountButton() {
   }, [state.rules]);
 
   function onClick() {
-    const services = state.rules.filter(
-      (element) => element.status !== "source"
-    );
-    dispatch(saveRulesAsync(services));
+    const rules = state.rules.filter((element) => element.status !== "source");
+    dispatch(saveRulesAsync(rules));
   }
 
   return (

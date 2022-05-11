@@ -78,8 +78,12 @@ export const saveRulesAsync = createAsyncThunk<
   RuleElement[],
   { dispatch: AppDispatch; state: AppState }
 >("draftRepository/saveRules", async (rules: RuleElement[], thunkAPI) => {
-  thunkAPI.dispatch(saveRulesToDraft(thunkAPI.getState().rule.rules));
-
+  thunkAPI.dispatch(
+    saveRulesToDraft({
+      rules: thunkAPI.getState().rule.rules,
+      device: thunkAPI.getState().rule.device,
+    })
+  );
   const response = await saveRules(
     rules,
     thunkAPI.getState().draftRepository.repository.id,
@@ -159,11 +163,11 @@ export const DraftRepositorySlice = createSlice({
     });
     builder.addCase(saveRulesToDraft, (state, action) => {
       const index: number = state.repository.workSpace.findIndex(
-        (element) => element.id == action.payload[0].device
+        (element) => element.id == action.payload.device.id
       );
       const newFireWall: FireWall = {
         ...(state.repository.workSpace[index] as FireWall),
-        rules: action.payload,
+        rules: action.payload.rules,
       };
 
       state.repository = {

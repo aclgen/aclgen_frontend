@@ -20,8 +20,6 @@ import {
   startDragging,
   stopDragging,
 } from "../../features/draggable/draggableSlice";
-import { Simulate } from "react-dom/test-utils";
-import contextMenu = Simulate.contextMenu;
 
 export interface SideBarElementProps {
   type: "service" | "object";
@@ -368,7 +366,7 @@ export function RenderFirewall({
     ...fireWall,
     icon: "/firewall.svg",
     alt: "firewall",
-    onClick: () => {},
+    onClick: onClick,
     type: "object",
   };
 
