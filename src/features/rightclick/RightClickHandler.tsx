@@ -1,5 +1,4 @@
 import React, {
-  ReactChildren,
   ReactNode,
   useCallback,
   useEffect,
@@ -22,7 +21,7 @@ import {
   modifyNetworkObject,
   selectNetworkObjects,
 } from "../networkObject/DraftNetworkObjectSlice";
-import { selectWorkspaceDraft } from "../workSpaceDraft/DraftWorkSpaceSlice";
+
 import {
   EditableElement,
   NetworkObjectElement,
@@ -44,7 +43,6 @@ export default function RightClickHandler() {
   const serviceState = useAppSelector(selectService);
   const ruleState = useAppSelector(selectRule);
   const objectState = useAppSelector(selectNetworkObjects);
-  const workSpaceState = useAppSelector(selectWorkspaceDraft);
 
   useEffect(() => {
     if (showMenu) {
@@ -259,10 +257,14 @@ const useContextMenu = (ref: React.MutableRefObject<undefined>) => {
 
   useLayoutEffect(() => {
     if (ref !== undefined) {
+      // @ts-ignore
       if (xPos + ref.current?.offsetWidth > window.innerWidth) {
+        // @ts-ignore
         setXPos(xPos - ref.current?.offsetWidth);
       }
+      // @ts-ignore
       if (yPos + ref.current?.offsetWidth > window.innerHeight) {
+        // @ts-ignore
         setYPos(yPos - ref.current?.offsetHeight);
       }
     }
