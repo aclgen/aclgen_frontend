@@ -1,6 +1,11 @@
 import CreationPopup from "../../features/creation/CreationPopup";
 import NavBar from "../navbar";
-import RightClickHandler from "../../features/rightclick/RightClickHandler";
+import dynamic from "next/dynamic";
+
+const RightClickHandler = dynamic(
+  () => import("../../features/rightclick/RightClickHandler"),
+  { ssr: false }
+);
 
 export type BaseProps = {
   Child: React.FC;

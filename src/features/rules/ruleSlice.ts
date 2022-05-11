@@ -56,7 +56,11 @@ export const DraftRuleSlice = createSlice({
       action: PayloadAction<{ rules: RuleElement[]; device: NetworkElement }>
     ) => {
       state.rules = action.payload.rules;
-      state.defaultFolder = (state.rules[0] as Rule).folder;
+      if (state.rules[0]) {
+        state.defaultFolder = (state.rules[0] as Rule).folder;
+      } else {
+        state.defaultFolder = "empty";
+      }
       state.device = action.payload.device;
       state.status = "idle";
     },
@@ -86,7 +90,10 @@ export const DraftRuleSlice = createSlice({
       state.rules = [...state.rules, action.payload];
       state.newRuleStatus = "idle";
     },
-    saveRulesToDraft: (state, action: PayloadAction<RuleElement[]>) => {},
+    saveRulesToDraft: (
+      state,
+      _: PayloadAction<{ rules: RuleElement[]; device: NetworkElement }>
+    ) => {},
     initiateNewRule: (state, action?: PayloadAction<RuleElement>) => {
       state.newRule = undefined;
       state.newRuleStatus = "creating";
