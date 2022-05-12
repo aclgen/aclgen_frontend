@@ -22,10 +22,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     },
   });
 
-  const touchSensor = useSensor(TouchSensor, {});
-  const keyboardSensor = useSensor(KeyboardSensor, {});
-
-  const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
+  const sensors = useSensors(mouseSensor);
   return (
     <Provider store={store}>
       <DndContext sensors={sensors} collisionDetection={pointerWithin}>
