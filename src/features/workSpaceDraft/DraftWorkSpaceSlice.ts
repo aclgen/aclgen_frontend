@@ -4,6 +4,7 @@ import type { AppState } from "../../app/store";
 import { NetworkElement } from "../../types/repository";
 import { saveRulesToDraft } from "../rules/ruleSlice";
 import { saveNetworkObjectsToDraft } from "../networkObject/DraftNetworkObjectSlice";
+import { selectRepositoryAsync } from "../repository/repositorySlice";
 
 export interface WorkSpaceDraftState {
   workspace: NetworkElement[];
@@ -45,6 +46,10 @@ export const WorkSpaceDraftSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(saveRulesToDraft, (state, action) => {
+      state.status = "empty";
+      state.workspace = [];
+    });
+    builder.addCase(selectRepositoryAsync.fulfilled, (state, action) => {
       state.status = "empty";
       state.workspace = [];
     });

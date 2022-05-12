@@ -36,7 +36,7 @@ export const commitServicesAsync = createAsyncThunk<
   ServiceElement[],
   { dispatch: AppDispatch; state: AppState }
 >(
-  "draftRepository/pushServices",
+  "draftRepository/saveServices",
   async (services: ServiceElement[], thunkAPI) => {
     thunkAPI.dispatch(
       saveServicesToDraft(thunkAPI.getState().service.services)
@@ -187,11 +187,12 @@ export const DraftRepositorySlice = createSlice({
     builder.addCase(commitServicesAsync.fulfilled, (state, action) => {
       state.status = "idle";
       const services = action.payload;
+      console.log(services);
       state.repository = {
         ...state.repository,
         services: state.repository.services.filter((element) => {
           const service = services.find((service) => service.id === element.id);
-          return service == undefined;
+          return service === undefined;
         }),
       };
     });

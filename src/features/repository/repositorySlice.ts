@@ -77,9 +77,9 @@ export const selectRepositoryAsync = createAsyncThunk(
             (serviceElement) => serviceElement.id === elementSource
           )
         ),
-        destinations: element.destinations.map((elemenDestinations) =>
+        destinations: element.destinations.map((elementDestinations) =>
           networkObjects.find(
-            (serviceElement) => serviceElement.id === elemenDestinations
+            (serviceElement) => serviceElement.id === elementDestinations
           )
         ),
         sourceServices: element.services_sources.map((elementService: string) =>

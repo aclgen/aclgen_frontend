@@ -32,8 +32,13 @@ export async function SaveNetworkObjects(
   const modifiedObjects = objects
     .filter((service) => service.status == "modified")
     .map(translateNetworkObjectElement);
+
+  const deletedObjects = objects
+    .filter((service) => service.status == "deleted")
+    .map(translateNetworkObjectElement);
   let newObjectsResponse = [];
   let modifiedObjectsResponse = [];
+  let deletedObjectsResponse = [];
 
   if (newObjects.length > 0) {
     newObjectsResponse = await fetch(createAPIRoute(`repo/${repoId}/object/`), {
@@ -45,6 +50,21 @@ export async function SaveNetworkObjects(
     })
       .then((response) => response.json())
       .catch((e) => []);
+  }
+
+  if (deletedObjects.length > 0) {
+    const pendingDeletes = deletedObjects.map((object) =>
+      fetch(createAPIRoute(`repo/${repoId}/object/${object.id}/`), {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(object),
+      })
+        .then((response) => object)
+        .catch((e) => {})
+    );
+    deletedObjectsResponse = await Promise.all(pendingDeletes);
   }
 
   if (modifiedObjects.length > 0) {
@@ -65,6 +85,7 @@ export async function SaveNetworkObjects(
   return {
     data: newObjectsResponse
       .concat(modifiedObjectsResponse)
+      .concat(deletedObjectsResponse)
       .map(translateApiNetworkObject),
   };
 }
