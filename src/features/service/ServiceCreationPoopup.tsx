@@ -27,6 +27,7 @@ import {
 } from "./ServiceInputHandler";
 import { createNewServiceFromInputs } from "./ServiceFactory";
 import { StringInputHandler } from "../input/baseInput";
+import { LockStatus } from "../../types/repository";
 
 export function ServicePopup() {
   const state = useAppSelector(selectService);
@@ -152,6 +153,13 @@ function CreatePortServiceInput({
       dispatch(initiatePopUp());
       dispatch(cancelCreationPopUp());
     },
+    onDelete:
+      baseFields.status === "modified" &&
+      newService.lock === LockStatus.UNLOCKED
+        ? () => {
+            dispatch(modifyService({ ...newService, status: "deleted" }));
+          }
+        : undefined,
   };
   return <ServicePopupForm service={serviceProps} />;
 }
@@ -217,6 +225,13 @@ function CreatePortRangeServiceInput({
       dispatch(initiatePopUp());
       dispatch(cancelCreationPopUp());
     },
+    onDelete:
+      baseFields.status === "modified" &&
+      newService.lock === LockStatus.UNLOCKED
+        ? () => {
+            dispatch(modifyService({ ...newService, status: "deleted" }));
+          }
+        : undefined,
   };
   return <ServicePopupForm service={serviceProps} />;
 }

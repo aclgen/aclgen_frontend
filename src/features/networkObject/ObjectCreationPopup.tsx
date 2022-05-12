@@ -31,6 +31,7 @@ import {
   validateIp,
 } from "./NetworkInputHandler";
 import { StringInputHandler, useStringInputHandler } from "../input/baseInput";
+import { LockStatus } from "../../types/repository";
 
 function NetworkObjectPopupController() {
   const state = useAppSelector(selectNetworkObjects);
@@ -56,7 +57,6 @@ function ObjectEditingPopup({
   object: NetworkObjectElement;
   editingStatus: "idle" | "creating" | "editing";
 }) {
-  console.log(object);
   switch (object.type) {
     case "IPV4":
       return (
@@ -125,6 +125,12 @@ function CreateIPV4Input({
       dispatch(initiatePopUp());
       dispatch(cancelCreationPopUp());
     },
+    onDelete:
+      baseFields.status === "modified" && object.lock === LockStatus.UNLOCKED
+        ? () => {
+            dispatch(modifyNetworkObject({ ...object, status: "deleted" }));
+          }
+        : undefined,
   };
   return <NetworkObjectPopup key={object.id} object={objectProps} />;
 }
@@ -179,6 +185,12 @@ function CreateIPV4RangeInput({
       dispatch(initiatePopUp());
       dispatch(cancelCreationPopUp());
     },
+    onDelete:
+      baseFields.status === "modified" && object.lock === LockStatus.UNLOCKED
+        ? () => {
+            dispatch(modifyNetworkObject({ ...object, status: "deleted" }));
+          }
+        : undefined,
   };
 
   return <NetworkObjectPopup key={object.id} object={objectProps} />;

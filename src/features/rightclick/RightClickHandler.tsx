@@ -61,7 +61,11 @@ export default function RightClickHandler() {
     ) {
       if (action == ActionType.COPY) {
         dispatch(
-          initiateNewService({ ...(element as ServiceElement), id: uuidv4() })
+          initiateNewService({
+            ...(element as ServiceElement),
+            id: uuidv4(),
+            status: "new",
+          })
         );
       } else if (action == ActionType.DELETE) {
         dispatch(
@@ -77,6 +81,7 @@ export default function RightClickHandler() {
           initiateNewObject({
             ...(element as NetworkObjectElement),
             id: uuidv4(),
+            status: "new",
           })
         );
       } else if (action == ActionType.DELETE) {
@@ -90,10 +95,13 @@ export default function RightClickHandler() {
     } else if (
       ruleState.rules.filter((rule) => rule.id === element.id).length > 0
     ) {
-      console.log("rule");
       if (action == ActionType.COPY) {
         dispatch(
-          initiateNewRule({ ...(element as RuleElement), id: uuidv4() })
+          initiateNewRule({
+            ...(element as RuleElement),
+            id: uuidv4(),
+            status: "new",
+          })
         );
       } else if (action == ActionType.DELETE) {
         dispatch(
