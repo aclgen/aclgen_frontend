@@ -132,9 +132,8 @@ function FlexibleInputContainer({
       <div
         tabIndex={0}
         onFocus={onFocus}
-        className={`${composeStyle(isHovered, isCompatible)} `}
+        className={`${composeStyle(isHovered, isCompatible)}`}
       >
-        <div className="text-md py-1 opacity-0 w-0"> </div>
         {inputElements.map((element) => (
           <InputElement
             key={element.id}
@@ -143,6 +142,7 @@ function FlexibleInputContainer({
             disableRemove={inputElements.length > 1}
           />
         ))}
+        <div className="text-md py-1 opacity-0 w-0">i </div>
       </div>
     </div>
   );

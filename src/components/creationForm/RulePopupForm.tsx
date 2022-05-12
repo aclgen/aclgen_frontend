@@ -57,6 +57,8 @@ export function RulePopUpForm({ rule }: { rule: RuleCreationPopupProps }) {
             isFocus={true}
           />
           <DroppableInputField
+            expanded={true}
+            setExpanded={() => {}}
             droppableType={"object"}
             inputID={rule.element.id + "sourceinput"}
             fieldType={"SOURCE"}
@@ -67,6 +69,8 @@ export function RulePopUpForm({ rule }: { rule: RuleCreationPopupProps }) {
             disabled={dragState !== undefined && dragState.type !== "object"}
           />
           <DroppableInputField
+            expanded={true}
+            setExpanded={() => {}}
             droppableType={"service"}
             inputID={rule.element.id + "sourceServiceInput"}
             fieldType={"SERVICE"}
@@ -77,6 +81,8 @@ export function RulePopUpForm({ rule }: { rule: RuleCreationPopupProps }) {
             disabled={dragState !== undefined && dragState.type !== "service"}
           />
           <DroppableInputField
+            expanded={true}
+            setExpanded={() => {}}
             droppableType={"object"}
             inputID={rule.element.id + "destinationinput"}
             fieldType={"DESTINATION"}
@@ -88,6 +94,8 @@ export function RulePopUpForm({ rule }: { rule: RuleCreationPopupProps }) {
           />
 
           <DroppableInputField
+            expanded={true}
+            setExpanded={() => {}}
             droppableType={"service"}
             inputID={rule.element.id + "destinationServiceInput"}
             fieldType={"SERVICE"}
