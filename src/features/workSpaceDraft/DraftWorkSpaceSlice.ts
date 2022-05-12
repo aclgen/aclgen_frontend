@@ -47,7 +47,6 @@ export const WorkSpaceDraftSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(saveRulesToDraft, (state, action) => {
       state.status = "empty";
-      state.workspace = [];
     });
     builder.addCase(selectRepositoryAsync.fulfilled, (state, action) => {
       state.status = "empty";

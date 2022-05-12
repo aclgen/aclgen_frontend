@@ -7,10 +7,8 @@ import store from "../app/store";
 import { ThemeProvider } from "next-themes";
 import {
   DndContext,
-  KeyboardSensor,
   MouseSensor,
   pointerWithin,
-  TouchSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
