@@ -3,7 +3,6 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { AppState } from "../../app/store";
 import { NetworkElement } from "../../types/repository";
 import { saveRulesToDraft } from "../rules/ruleSlice";
-import { saveNetworkObjectsToDraft } from "../networkObject/DraftNetworkObjectSlice";
 import { selectRepositoryAsync } from "../repository/repositorySlice";
 
 export interface WorkSpaceDraftState {

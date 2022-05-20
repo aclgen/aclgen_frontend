@@ -1,6 +1,5 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
 
-import counterReducer from "../features/counter/counterSlice";
 import ruleReducer from "../features/rules/ruleSlice";
 import ServiceReducer from "../features/service/DraftServiceSlice";
 import DraftNetworkObjectReducer from "../features/networkObject/DraftNetworkObjectSlice";
@@ -13,7 +12,6 @@ import RightClickReducer from "../features/rightclick/RightClickSlice";
 export function makeStore() {
   return configureStore({
     reducer: {
-      counter: counterReducer,
       rule: ruleReducer,
       service: ServiceReducer,
       networkObject: DraftNetworkObjectReducer,
